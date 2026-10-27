@@ -1,0 +1,7 @@
+model,threshold,total_sepsis_alerts,post_treatment_alerts,pre_treatment_actionable_alerts,delayed_chart_mirroring_rate,actionable_early_warning_rate
+Proposed Champion (Ensemble+T-Smooth),0.0027340332458442693,2063,2063,0,1.0,0.0
+BiMamba_SSM,0.01491382944567053,179,179,0,1.0,0.0
+Transformer_FairMasked,0.0095287263150719,179,179,0,1.0,0.0
+Clinical Transformer,0.002030776520485726,179,179,0,1.0,0.0
+Standard Deep Bi-LSTM,0.002016771103561671,179,179,0,1.0,0.0
+Tabular GBDT (XGBoost),0.044124357410614753,180,180,0,1.0,0.0
