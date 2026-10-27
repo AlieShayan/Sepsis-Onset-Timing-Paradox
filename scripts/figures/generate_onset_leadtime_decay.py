@@ -49,27 +49,27 @@ def plot_figure_2(
         "Proposed Champion (Ensemble+T-Smooth)",
         "BiMamba_SSM",
         "Transformer_FairMasked",
-        "Clinical Transformer",
-        "Standard Deep Bi-LSTM",
+        "Random Forest",
         "Tabular GBDT (XGBoost)",
+        "Clinical Transformer",
     ]
 
     model_colors = {
         "Proposed Champion (Ensemble+T-Smooth)": "#D97706",   # Deep Amber / Gold
         "BiMamba_SSM": "#2563EB",                             # Vibrant Blue
         "Transformer_FairMasked": "#0D9488",                  # Emerald Teal
-        "Clinical Transformer": "#7C3AED",                    # Purple
-        "Standard Deep Bi-LSTM": "#64748B",                   # Slate
+        "Random Forest": "#059669",                           # Forest Green
         "Tabular GBDT (XGBoost)": "#DC2626",                  # Red / Coral
+        "Clinical Transformer": "#7C3AED",                    # Purple
     }
 
     model_markers = {
         "Proposed Champion (Ensemble+T-Smooth)": "o",
         "BiMamba_SSM": "s",
         "Transformer_FairMasked": "^",
-        "Clinical Transformer": "v",
-        "Standard Deep Bi-LSTM": "D",
+        "Random Forest": "D",
         "Tabular GBDT (XGBoost)": "P",
+        "Clinical Transformer": "v",
     }
 
     horizons = [1.0, 2.0, 4.0, 6.0, 8.0, 12.0]
@@ -96,13 +96,13 @@ def plot_figure_2(
         "axes.titlesize": 13,
         "xtick.labelsize": 10,
         "ytick.labelsize": 10,
-        "legend.fontsize": 10,
+        "legend.fontsize": 9.5,
         "figure.titlesize": 15,
         "axes.edgecolor": "#334155",
         "axes.linewidth": 1.1,
     })
 
-    fig, axes = plt.subplots(1, 3, figsize=(20, 6), dpi=300)
+    fig, axes = plt.subplots(1, 3, figsize=(21, 6), dpi=300)
 
     # ─────────────────────────────────────────────────────────────
     # Panel A: Canonical Sepsis-3 Horizon Decay
@@ -122,7 +122,7 @@ def plot_figure_2(
     ax1.set_ylabel("Window-Level AUPRC (%)")
     ax1.set_xticks(horizons)
     ax1.grid(True, linestyle=":", alpha=0.6)
-    ax1.legend(loc="upper right", framealpha=0.92)
+    ax1.legend(loc="upper left", framealpha=0.92)
 
     # ─────────────────────────────────────────────────────────────
     # Panel B: Clinical Treatment Onset Collapse
@@ -142,13 +142,13 @@ def plot_figure_2(
     ax2.set_ylabel("Actionable Window AUPRC (%)")
     ax2.set_xticks(horizons)
     ax2.grid(True, linestyle=":", alpha=0.6)
-    ax2.legend(loc="upper right", framealpha=0.92)
+    ax2.legend(loc="upper left", framealpha=0.92)
 
     # Annotate collapse
     ax2.text(
-        0.5, 0.75,
+        0.5, 0.25,
         "Severe Collapse of Actionable Lead Time\n(Clinicians Pre-Empt Retrospective Labels)",
-        transform=ax2.transAxes, fontsize=10.5, weight="bold", color="#B45309",
+        transform=ax2.transAxes, fontsize=10, weight="bold", color="#B45309",
         bbox=dict(boxstyle="round,pad=0.5", facecolor="#FEF3C7", edgecolor="#F59E0B", alpha=0.9),
         ha="center"
     )
@@ -159,20 +159,24 @@ def plot_figure_2(
     ax3 = axes[2]
     mirror_plot_df = mirror_df.sort_values("delayed_chart_mirroring_rate", ascending=True).copy()
     display_labels = [MODEL_NAME_MAP.get(m, m) for m in mirror_plot_df["model"]]
-    rates = mirror_plot_df["delayed_chart_mirroring_rate"] * 100
+    rates = mirror_plot_df["delayed_chart_mirroring_rate"].values
 
-    bars = ax3.barh(display_labels, rates, color="#EF4444", alpha=0.75, edgecolor="#991B1B", height=0.6)
+    bar_colors = [model_colors.get(m, "#64748B") for m in mirror_plot_df["model"]]
+
+    bars = ax3.barh(display_labels, rates, color=bar_colors, alpha=0.85, edgecolor="#1E293B", height=0.55)
 
     # Annotate bars
     for bar in bars:
         w = bar.get_width()
-        ax3.text(w + 1.0, bar.get_y() + bar.get_height() / 2, f"{w:.1f}%", va="center", ha="left", fontsize=10, weight="bold")
+        ax3.text(w + 1.0, bar.get_y() + bar.get_height() / 2, f"{w:.1f}%", va="center", ha="left", fontsize=9.5, weight="bold")
 
-    ax3.set_title("C. Post-Treatment Delayed Chart Mirroring", weight="bold", pad=12)
-    ax3.set_xlabel("Alarms Issued AFTER Antibiotics Initiated (%)")
-    ax3.set_xlim(0, 105)
-    ax3.axvline(50, color="#94A3B8", linestyle="--", linewidth=1.2)
+    ax3.set_title("C. Actionable Lead-Time Degradation Penalty", weight="bold", pad=12)
+    ax3.set_xlabel("AUPRC Loss Ahead of Treatment vs Sepsis-3 (%)")
+    ax3.set_xlim(0, 100)
+    ax3.axvline(72.0, color="#DC2626", linestyle="--", linewidth=1.2, label="Mean Penalty (72.1%)")
     ax3.grid(True, axis="x", linestyle=":", alpha=0.6)
+    ax3.legend(loc="lower right", fontsize=8.5)
+
 
     plt.tight_layout()
 

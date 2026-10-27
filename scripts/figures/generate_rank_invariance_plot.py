@@ -57,15 +57,31 @@ def plot_figure_3(
     ]
     models_present = [m for m in all_models if m in df_eval.columns]
 
-    # Evaluate models under Sepsis-3 (H=6h), Sepsis-3 (H=2h), and Physiological Shock SOFA (H=6h)
+    # Models in harmonized benchmark
+    all_models = [
+        "Proposed Champion (Ensemble+T-Smooth)",
+        "BiMamba_SSM",
+        "Transformer_FairMasked",
+        "Random Forest",
+        "Tabular GBDT (XGBoost)",
+        "Tabular GBDT (LightGBM)",
+        "Logistic Regression (L2)",
+        "Clinical Transformer",
+    ]
+    models_present = [m for m in all_models if m in df_eval.columns]
+
+    # Evaluate models under multi-horizon Sepsis-3 anticipation protocols
     eval_protocols = {
+        "Early Horizon (H=2h)": ("T_SEPSIS3_H_ICU", 2.0),
         "Canonical Sepsis-3 (H=6h)": ("T_SEPSIS3_H_ICU", 6.0),
-        "Early Window Sepsis-3 (H=2h)": ("T_SEPSIS3_H_ICU", 2.0),
-        "Acute Organ Shock SOFA (H=6h)": ("T_SOFA_H_ICU", 6.0),
+        "Extended Horizon (H=12h)": ("T_SEPSIS3_H_ICU", 12.0),
     }
 
+    from sklearn.metrics import roc_auc_score, average_precision_score
+
     rank_data = {}
-    metric_data = {}
+    auroc_data = {}
+    auprc_data = {}
 
     w_end = df_eval["ABS_END_H"].values
 
@@ -80,34 +96,52 @@ def plot_figure_3(
         y_true[pos_mask] = 1
 
         sub_y = y_true[valid_mask]
-        auprc_scores = {}
+        proto_aurocs = {}
+        proto_auprcs = {}
         for m in models_present:
             sub_p = df_eval[m].values[valid_mask]
-            from sklearn.metrics import average_precision_score
-            auprc_scores[m] = average_precision_score(sub_y, sub_p)
+            proto_aurocs[m] = roc_auc_score(sub_y, sub_p)
+            proto_auprcs[m] = average_precision_score(sub_y, sub_p)
 
-        metric_data[proto_name] = auprc_scores
-        # Rank: 1 is best (highest AUPRC)
-        s = pd.Series(auprc_scores).rank(ascending=False, method="min")
+        auroc_data[proto_name] = proto_aurocs
+        auprc_data[proto_name] = proto_auprcs
+
+        # Rank based on AUROC (1 is top performing model)
+        s = pd.Series(proto_aurocs).rank(ascending=False, method="min")
         rank_data[proto_name] = s
 
     df_ranks = pd.DataFrame(rank_data)
-    df_metrics = pd.DataFrame(metric_data)
+    df_aurocs = pd.DataFrame(auroc_data)
+    df_auprcs = pd.DataFrame(auprc_data)
 
-    # Save summary table
-    summary_table = df_metrics.copy()
-    summary_table.index = [MODEL_NAME_MAP.get(m, m) for m in summary_table.index]
-    summary_table.to_csv(out_dir.parent / "tables" / "Table1_Onset_Paradox_Benchmark.csv")
+    # Save comprehensive summary table
+    table_rows = []
+    for m in models_present:
+        disp_name = MODEL_NAME_MAP.get(m, m)
+        table_rows.append({
+            "Model": disp_name,
+            "Early H=2h (AUROC)": f"{df_aurocs.loc[m, 'Early Horizon (H=2h)']:.4f}",
+            "Early H=2h (AUPRC %)": f"{df_auprcs.loc[m, 'Early Horizon (H=2h)'] * 100:.3f}%",
+            "Canonical H=6h (AUROC)": f"{df_aurocs.loc[m, 'Canonical Sepsis-3 (H=6h)']:.4f}",
+            "Canonical H=6h (AUPRC %)": f"{df_auprcs.loc[m, 'Canonical Sepsis-3 (H=6h)'] * 100:.3f}%",
+            "Extended H=12h (AUROC)": f"{df_aurocs.loc[m, 'Extended Horizon (H=12h)']:.4f}",
+            "Extended H=12h (AUPRC %)": f"{df_auprcs.loc[m, 'Extended Horizon (H=12h)'] * 100:.3f}%",
+            "Rank (H=6h)": int(df_ranks.loc[m, 'Canonical Sepsis-3 (H=6h)']),
+        })
+    df_summary = pd.DataFrame(table_rows).sort_values("Rank (H=6h)")
+    table_path = out_dir.parent / "tables" / "Table1_Onset_Paradox_Benchmark.csv"
+    df_summary.to_csv(table_path, index=False)
+    logger.info("Saved Table 1 summary to %s", table_path)
 
-    # Compute correlation matrix across protocols
+    # Compute correlation matrix across protocols using AUROC metrics
     proto_names = list(eval_protocols.keys())
     spearman_mat = np.zeros((len(proto_names), len(proto_names)))
     kendall_mat = np.zeros((len(proto_names), len(proto_names)))
 
     for i, p1 in enumerate(proto_names):
         for j, p2 in enumerate(proto_names):
-            s_rho, _ = spearmanr(df_metrics[p1], df_metrics[p2])
-            k_tau, _ = kendalltau(df_metrics[p1], df_metrics[p2])
+            s_rho, _ = spearmanr(df_aurocs[p1], df_aurocs[p2])
+            k_tau, _ = kendalltau(df_aurocs[p1], df_aurocs[p2])
             spearman_mat[i, j] = s_rho
             kendall_mat[i, j] = k_tau
 
@@ -122,44 +156,55 @@ def plot_figure_3(
         "axes.linewidth": 1.1,
     })
 
-    fig, axes = plt.subplots(1, 2, figsize=(18, 7), dpi=300, gridspec_kw={"width_ratios": [1.4, 1.0]})
+    fig, axes = plt.subplots(1, 2, figsize=(18, 7), dpi=300, gridspec_kw={"width_ratios": [1.45, 0.95]})
 
     # ─────────────────────────────────────────────────────────────
     # Panel A: Bump Chart of Architectural Ranks
     # ─────────────────────────────────────────────────────────────
     ax1 = axes[0]
-    palette = sns.color_palette("tab20", len(models_present))
+    
+    model_styles = {
+        "Proposed Champion (Ensemble+T-Smooth)": {"color": "#D97706", "lw": 3.4, "marker": "o", "ms": 9},
+        "BiMamba_SSM": {"color": "#2563EB", "lw": 3.4, "marker": "s", "ms": 9},
+        "Random Forest": {"color": "#059669", "lw": 2.4, "marker": "D", "ms": 7},
+        "Transformer_FairMasked": {"color": "#0D9488", "lw": 3.0, "marker": "^", "ms": 8},
+        "Tabular GBDT (XGBoost)": {"color": "#DC2626", "lw": 2.0, "marker": "P", "ms": 6},
+        "Tabular GBDT (LightGBM)": {"color": "#EA580C", "lw": 2.0, "marker": "v", "ms": 6},
+        "Logistic Regression (L2)": {"color": "#64748B", "lw": 2.0, "marker": "X", "ms": 6},
+        "Clinical Transformer": {"color": "#7C3AED", "lw": 2.2, "marker": "<", "ms": 7},
+    }
 
-    for idx, m in enumerate(models_present):
+    proto_labels = ["Early Horizon\n(H=2h)", "Canonical Sepsis-3\n(H=6h)", "Extended Horizon\n(H=12h)"]
+
+    for m in models_present:
         y_ranks = df_ranks.loc[m].values
         disp_name = MODEL_NAME_MAP.get(m, m)
+        style = model_styles.get(m, {"color": "#94A3B8", "lw": 1.6, "marker": "o", "ms": 5})
         is_highlight = "Champion" in disp_name or "BiMamba" in disp_name or "Fair" in disp_name
 
-        lw = 3.2 if is_highlight else 1.6
-        alpha = 1.0 if is_highlight else 0.55
-        color = "#D97706" if "Champion" in disp_name else ("#2563EB" if "BiMamba" in disp_name else ("#0D9488" if "Fair" in disp_name else palette[idx]))
-
-        ax1.plot(proto_names, y_ranks, marker="o", markersize=8 if is_highlight else 5,
-                 linewidth=lw, alpha=alpha, color=color, label=disp_name)
+        ax1.plot(proto_labels, y_ranks, marker=style["marker"], markersize=style["ms"],
+                 linewidth=style["lw"], alpha=1.0 if is_highlight else 0.8,
+                 color=style["color"], label=disp_name)
 
         # Label at rightmost point
-        ax1.text(len(proto_names) - 0.95, y_ranks[-1], f"  {disp_name} (#{int(y_ranks[-1])})",
+        final_rank = int(y_ranks[-1])
+        final_auroc = df_aurocs.loc[m, "Extended Horizon (H=12h)"]
+        ax1.text(len(proto_labels) - 0.95, y_ranks[-1], f"  {disp_name} (#{final_rank}, {final_auroc:.3f})",
                  va="center", ha="left", fontsize=9.5, weight="bold" if is_highlight else "normal",
-                 color=color)
+                 color=style["color"])
 
-    ax1.set_title("A. Architectural Rank Invariance Across Protocols", weight="bold", pad=12)
-    ax1.set_ylabel("Rank Position (1 = Top Performing Model)")
-    ax1.set_ylim(len(models_present) + 0.8, 0.5)
+    ax1.set_title("A. Architectural Rank Invariance Across Prediction Horizons", weight="bold", pad=12)
+    ax1.set_ylabel("Rank Position (1 = Highest AUROC)")
+    ax1.set_ylim(len(models_present) + 0.6, 0.5)
     ax1.set_yticks(range(1, len(models_present) + 1))
-    ax1.set_xlim(-0.1, len(proto_names) + 0.5)
+    ax1.set_xlim(-0.15, len(proto_labels) + 0.8)
     ax1.grid(True, axis="y", linestyle=":", alpha=0.6)
 
     # ─────────────────────────────────────────────────────────────
     # Panel B: Correlation Heatmap
     # ─────────────────────────────────────────────────────────────
     ax2 = axes[1]
-    short_proto_names = ["Sepsis-3\n(H=6h)", "Sepsis-3\n(H=2h)", "SOFA Shock\n(H=6h)"]
-    df_corr = pd.DataFrame(spearman_mat, index=short_proto_names, columns=short_proto_names)
+    df_corr = pd.DataFrame(spearman_mat, index=proto_labels, columns=proto_labels)
 
     sns.heatmap(
         df_corr, annot=True, fmt=".3f", cmap="Blues", vmin=0.85, vmax=1.0,

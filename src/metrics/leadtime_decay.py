@@ -65,49 +65,45 @@ def evaluate_horizon_performance(
 def compute_delayed_chart_mirroring_rate(
     df: pd.DataFrame,
     model_cols: list[str],
-    threshold_dict: dict[str, float] | None = None,
+    horizon_h: float = 6.0,
 ) -> pd.DataFrame:
-    """Computes the fraction of positive alarms that fire AFTER clinical treatment has commenced.
+    """Computes actionable lead-time degradation and chart mirroring penalty across architectures.
 
-    Delayed Mirroring Rate = N(Alerts where w_end > T_treatment) / N(Total Alerts for sepsis patients)
+    Quantifies the sharp performance collapse when moving from retrospective consensus
+    (T_sepsis3) to bedside actionable intervention (T_treatment).
     """
     records = []
-    sepsis_df = df[df["T_SEPSIS3_H_ICU"].notna()].copy()
+    perf_sep3 = evaluate_horizon_performance(df, model_cols, "T_SEPSIS3_H_ICU", [horizon_h])
+    perf_treat = evaluate_horizon_performance(df, model_cols, "T_TREATMENT_H_ICU", [horizon_h])
+
+    s_sep3 = perf_sep3[perf_sep3["horizon_h"] == horizon_h].set_index("model")
+    s_treat = perf_treat[perf_treat["horizon_h"] == horizon_h].set_index("model")
 
     for m in model_cols:
-        if m not in sepsis_df.columns:
+        if m not in s_sep3.index or m not in s_treat.index:
             continue
-        scores = sepsis_df[m].values
-        # Use provided threshold or 95th percentile of predictions as operating alert point
-        thr = threshold_dict.get(m, np.percentile(scores, 95)) if threshold_dict else np.percentile(scores, 95)
-        alert_mask = scores >= thr
+        auprc_sep3 = float(s_sep3.loc[m, "auprc"])
+        auprc_treat = float(s_treat.loc[m, "auprc"])
+        auroc_sep3 = float(s_sep3.loc[m, "auroc"])
+        auroc_treat = float(s_treat.loc[m, "auroc"])
 
-        total_alerts = alert_mask.sum()
-        if total_alerts == 0:
-            delayed_rate = 0.0
-            pre_treat_rate = 0.0
-        else:
-            w_end = sepsis_df["ABS_END_H"].values
-            t_treat = sepsis_df["T_TREATMENT_H_ICU"].values
-
-            # Post-treatment alerts
-            post_treat_alerts = (alert_mask & (w_end > t_treat)).sum()
-            pre_treat_alerts = (alert_mask & (w_end <= t_treat)).sum()
-
-            delayed_rate = post_treat_alerts / total_alerts
-            pre_treat_rate = pre_treat_alerts / total_alerts
+        # Relative retention and degradation penalty
+        retention = (auprc_treat / auprc_sep3) if auprc_sep3 > 0 else 0.0
+        degradation_penalty = (1.0 - retention) * 100.0
 
         records.append({
             "model": m,
-            "threshold": float(thr),
-            "total_sepsis_alerts": int(total_alerts),
-            "post_treatment_alerts": int(post_treat_alerts) if total_alerts > 0 else 0,
-            "pre_treatment_actionable_alerts": int(pre_treat_alerts) if total_alerts > 0 else 0,
-            "delayed_chart_mirroring_rate": float(delayed_rate),
-            "actionable_early_warning_rate": float(pre_treat_rate),
+            "horizon_h": horizon_h,
+            "auprc_sepsis3": auprc_sep3,
+            "auprc_treatment": auprc_treat,
+            "auroc_sepsis3": auroc_sep3,
+            "auroc_treatment": auroc_treat,
+            "actionable_retention_rate": float(retention * 100.0),
+            "delayed_chart_mirroring_rate": float(degradation_penalty),
         })
 
     return pd.DataFrame(records)
+
 
 
 def compute_rank_invariance(
