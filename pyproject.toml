@@ -1,0 +1,20 @@
+[project]
+name = "sepsis-onset-timing-paradox"
+version = "0.1.0"
+description = "How Diagnostic Ambiguity Deconstructs Lead-Time Dynamics and Operational Utility in Sepsis Early Warning"
+authors = [{ name = "Alireza", email = "alireza@example.com" }]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.22.0",
+    "pandas>=1.5.0",
+    "scipy>=1.9.0",
+    "scikit-learn>=1.2.0",
+    "matplotlib>=3.6.0",
+    "seaborn>=0.12.0",
+    "pyarrow>=10.0.0",
+    "fastparquet>=2023.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

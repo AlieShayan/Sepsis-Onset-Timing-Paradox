@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+miniconda3/
+
+# Data and large artifacts
+data/raw/
+*.csv.gz
+*.tar.gz
+*.parquet
+*.npy
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+.ipynb_checkpoints/
