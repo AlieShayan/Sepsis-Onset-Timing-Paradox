@@ -1,6 +1,9 @@
 # Supplementary Material
 
 **Title:** Surveillance Coverage, Treatment Precedence, and Workload Constraints in Machine Learning Early Warning for Sepsis: An Operational Evaluation  
+**Authors:** Alireza Shayan$^1$, Somayeh Afrasiabi$^1$  
+$^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran  
+*(Corresponding Author: Somayeh Afrasiabi, afrasiabi@shirazu.ac.ir)*  
 **Target Journal:** *Journal of the American Medical Informatics Association (JAMIA)* / *JAMIA Open*  
 **Track:** Research and Applications  
 **Analytical Release Version:** `1.0.0-freeze` (Git Commit `b0932ca`)  

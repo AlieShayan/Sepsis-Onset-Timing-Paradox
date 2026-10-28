@@ -1,12 +1,12 @@
 ---
-title: "Evaluating Sepsis Early Warning Under a Prespecified Second-Day ICU Surveillance Protocol: Separating Surveillance Coverage, Treatment Precedence, and Clinical Workload"
+title: "Surveillance Coverage, Treatment Precedence, and Workload Constraints in Machine Learning Early Warning for Sepsis: An Operational Evaluation"
 authors:
-  - name: "Alireza Shayan [Lead Author & Principal Investigator]"
+  - name: "Alireza Shayan"
     affiliation: "Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran"
-  - name: "Dr. Somayeh Afrasiabi [Academic Supervisor]"
-    affiliation: "Department of Computer Science and Engineering & IT, Shiraz University, Shiraz, Iran"
-  - name: "Dr. Samaneh Kouchaki [Senior Research Collaborator]"
-    affiliation: "Institute for People-Centred AI & Department of Electrical and Electronic Engineering, University of Surrey, Guildford, United Kingdom"
+    email: "Ali404@hafez.shirazu.ac.ir"
+  - name: "Somayeh Afrasiabi"
+    affiliation: "Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran"
+    email: "afrasiabi@shirazu.ac.ir"
 target_journal: "JAMIA (Journal of the American Medical Informatics Association) — Research and Applications"
 article_type: "Original Research / Research and Applications"
 word_count: 3850
@@ -15,7 +15,14 @@ figures: 3
 supplementary_materials: 1
 ---
 
-# Evaluating Sepsis Early Warning Under a Prespecified Second-Day ICU Surveillance Protocol: Separating Surveillance Coverage, Treatment Precedence, and Clinical Workload
+# Surveillance Coverage, Treatment Precedence, and Workload Constraints in Machine Learning Early Warning for Sepsis: An Operational Evaluation
+
+**Authors:**  
+Alireza Shayan$^1$ (Email: Ali404@hafez.shirazu.ac.ir)  
+Somayeh Afrasiabi$^1$ (Email: afrasiabi@shirazu.ac.ir)  
+
+$^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran  
+*(Corresponding Author: Somayeh Afrasiabi, afrasiabi@shirazu.ac.ir)*
 
 ## Abstract
 
