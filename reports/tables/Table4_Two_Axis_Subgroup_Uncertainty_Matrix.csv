@@ -1,0 +1,7 @@
+Database,Sepsis Onset Category,Total Episodes,Definitely Pre-ICU / Unavailable,Definitely Available Opportunity (>=22h),Indeterminate (Date Crosses Threshold),Methodological Note
+MIMIC-III (Interval-Censored Date Proxy),Early Incident (0-24h),2641,1581 (59.9%),8 (0.3%),1052 (39.8%),"Evaluated with [00:00, 24:00) interval bounds to propagate date truncation uncertainty without midnight imputation."
+MIMIC-III (Interval-Censored Date Proxy),Late Incident (>24h),940,748 (79.6%),9 (1.0%),183 (19.5%),"Evaluated with [00:00, 24:00) interval bounds to propagate date truncation uncertainty without midnight imputation."
+MIMIC-III (Interval-Censored Date Proxy),All,3581,2329 (65.0%),17 (0.5%),1235 (34.5%),"Evaluated with [00:00, 24:00) interval bounds to propagate date truncation uncertainty without midnight imputation."
+MIMIC-IV (Hourly-Resolved Administration Benchmark),Early Incident (0-24h),1236,1235 (99.9%),1 (0.1%),0 (0.0%),Confirmed hourly timestamp resolution from electronic medication administration records (eMAR).
+MIMIC-IV (Hourly-Resolved Administration Benchmark),Late Incident (>24h),360,360 (100.0%),0 (0.0%),0 (0.0%),Confirmed hourly timestamp resolution from electronic medication administration records (eMAR).
+MIMIC-IV (Hourly-Resolved Administration Benchmark),All,1596,1595 (99.9%),1 (0.1%),0 (0.0%),Confirmed hourly timestamp resolution from electronic medication administration records (eMAR).

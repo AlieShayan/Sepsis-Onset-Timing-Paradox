@@ -1,0 +1,8 @@
+Progression Stage,Stay / Patient Count,Observation Windows,Monitored Person-Time,Prevalence / Attrition,Methodological Definition & Accounting Rule
+1. Base Test Cohort Monitored,"8,254","97,700",4070.8 patient-days,100.0%,All patient-disjoint ICU stays in the held-out test partition with streaming replay during ICU hours 19–30.
+2. Control (Non-Sepsis) ICU Stays,"7,846","93,427",3892.8 patient-days,95.06% of stays,Patients without consensus Sepsis-3 during entire hospitalization. All windows serve as true negative surveillance.
+3. Consensus Sepsis-3 Stays (S=1),408,"4,273",178.0 patient-days,4.94% of stays,Patients meeting Sepsis-3 consensus criteria (blood culture + antibiotic + acute delta SOFA >= 2). All 408 had onset > 0h.
+  3a. Late-Onset Sepsis (Onset > 36h),257,"3,084",128.5 patient-days,63.0% of septic stays,"Onset occurs after surveillance window [19, 30]. Windows in hours 19–30 are legitimate pre-onset control surveillance (V=0)."
+  3b. Surveillance-Covered Sepsis (V=1),151,"1,189",49.5 patient-days,37.0% of septic stays,"Onset occurs between ICU hours 20 and 36, so [T_S3 - 6h, T_S3] intersects the active surveillance window [19, 30]."
+4. Evaluated Sepsis-3 Target Windows (H=6h),151,"678 positive / 97,022 control",28.2 positive pt-days,0.694% window prevalence,Windows with end time within 6h before Sepsis-3 onset. Evaluated for window AUROC and AUPRC.
+5. Pretreatment Actionable Windows (O=1 | V=1),150,"674 positive / 97,022 control",28.1 positive pt-days,99.3% of covered stays,Positive windows where prediction time strictly precedes systemic IV antibiotic initiation (w_end <= T_treatment).
