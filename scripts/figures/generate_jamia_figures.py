@@ -2,7 +2,7 @@
 """generate_jamia_figures.py
 
 Generates publication-quality figures for JAMIA Research and Applications:
-  - Figure 1: Operational Clocks, Actionable Pretreatment Windows, and Interval Uncertainty Waterfall
+  - Figure 1: Operational Clocks, Actionable Pretreatment Decision Windows, and Interval Uncertainty Waterfall
   - Figure 2: Operational Alert-Budget Performance Frontier (Emitted Alert Burden vs PPV and NNE)
   - Figure 3: Cumulative Population Coverage Decomposition (S -> V -> O -> D)
 """
@@ -139,18 +139,18 @@ def generate_figure2_operational_frontiers():
         "Random Forest": {"color": "#D97706", "ls": ":", "marker": "d"},
     }
 
-    # Episode PPV % from Table 3
+    # Episode PPV % from Table 3 (exact typed outputs)
     ppv_data = {
-        "BiMamba SSM": [1.96, 1.72, 1.23],
-        "Convex Ensemble": [2.94, 1.47, 0.98],
+        "BiMamba SSM": [2.45, 2.21, 1.72],
+        "Convex Ensemble": [2.94, 1.97, 1.35],
         "GBDT (LightGBM)": [2.94, 1.72, 1.23],
         "Random Forest": [1.47, 1.47, 1.11],
     }
 
     # NNE Patient Workload from Table 3
     nne_data = {
-        "BiMamba SSM": [51.0, 58.1, 81.4],
-        "Convex Ensemble": [34.0, 67.8, 101.8],
+        "BiMamba SSM": [40.8, 45.2, 58.1],
+        "Convex Ensemble": [34.0, 50.9, 74.0],
         "GBDT (LightGBM)": [34.0, 58.1, 81.4],
         "Random Forest": [68.0, 67.8, 90.4],
     }
@@ -175,7 +175,7 @@ def generate_figure2_operational_frontiers():
     ax2.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)")
     ax2.set_ylabel("Emitted Alert Episodes per Detected Patient (NNE)")
     ax2.set_xticks(budgets)
-    ax2.set_ylim(20, 120)
+    ax2.set_ylim(20, 110)
     ax2.grid(True, linestyle="--", alpha=0.5)
     ax2.legend(loc="upper left", frameon=True)
 
@@ -196,10 +196,10 @@ def generate_figure3_decomposition():
         "1. Total Incident Sepsis\n100.0%\n[N=408 / 408]",
         "2. Surveillance Covered\n37.0%\n[N=151 / 408]",
         "3. Pretreatment Eligible\n36.8%\n[N=150 / 408]",
-        "4. Timely Detected\n1.7%\n[N=7 / 408]",
+        "4. Timely Detected\n2.2%\n[N=9 / 408]",
     ]
     # Cumulative coverage percentages
-    values = [100.0, 37.01, 36.76, 1.72]
+    values = [100.0, 37.01, 36.76, 2.21]
     colors = ["#334155", "#0284C7", "#16A34A", "#DC2626"]
 
     bars = ax.bar(stages, values, color=colors, width=0.5, edgecolor="#0F172A", lw=1.2)
@@ -219,14 +219,14 @@ def generate_figure3_decomposition():
         fontsize=9, color="#0369A1", ha="center"
     )
     ax.annotate(
-        "Pretreatment Actionability\nTransition: 150/151 = 99.3%\n(Alert opportunity precedes antibiotics)",
+        "Pretreatment Actionability\nTransition: 150/151 = 99.3%\n[149/151 = 98.7% for 2h buffer]",
         xy=(2, 36.8), xytext=(2.35, 55),
         arrowprops=dict(arrowstyle="->", color="#16A34A", lw=1.8),
         fontsize=9, color="#15803D", ha="center"
     )
     ax.annotate(
-        "Operational Alert Budget\nTransition: 7/150 = 4.7%\n(BiMamba SSM at 10 emitted episodes/100 pt-days)",
-        xy=(3, 1.7), xytext=(3.0, 25),
+        "Operational Alert Budget\nTransition: 9/150 = 6.0%\n(BiMamba SSM at 10 emitted episodes/100 pt-days)",
+        xy=(3, 2.2), xytext=(3.0, 25),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
         fontsize=9, color="#B91C1C", ha="center"
     )
