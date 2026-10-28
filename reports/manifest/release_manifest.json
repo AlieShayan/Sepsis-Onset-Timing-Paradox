@@ -1,0 +1,393 @@
+{
+  "manifest_version": "1.0.0-freeze",
+  "timestamp_utc": "2026-10-28T19:14:07.891328+00:00",
+  "git_commit": "73e7241",
+  "environment": {
+    "os": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "python": "3.10.19",
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "scikit_learn": "1.6.1"
+  },
+  "study_parameters": {
+    "cohort": "MIMIC-IV v2.2 first adult ICU stays with LOS >= 30h",
+    "test_stays_N": 8254,
+    "evaluated_windows_total": 97700,
+    "surveillance_interval": "ICU hours [19, 30] (12 scheduled hourly bins [t-1, t])",
+    "lookback_horizon_H": "6.0 hours before Sepsis-3 clinical onset",
+    "refractory_suppression_period": "12 hours (at most 1 emitted alert episode per patient in window)",
+    "bootstrap_replicates_B": 1000,
+    "bootstrap_seed": 42,
+    "quantile_convention": "percentile (2.5%, 97.5%) with exact reciprocal derivation for NNE"
+  },
+  "predicate_verification": {
+    "verified_model": "Tabular GBDT (LightGBM)",
+    "target_k": 814,
+    "tau_boundary_float64": 0.010536972856183402,
+    "selected_patients_count": 814,
+    "detections_count": 10,
+    "pretreatment_verified_fraction": 1.0,
+    "lead_2h_buffer_verified_fraction": 1.0,
+    "predicate_assertion": "PASSED: Full equivalence established between boundary selection and first-alert timestamps."
+  },
+  "boundary_ties_audit": [
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "BiMamba SSM (Proposed)",
+      "model_col": "BiMamba_SSM",
+      "cutoff_float64": 0.018661742064306867,
+      "cutoff_repr": "0.018661742064306867",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "BiMamba SSM (Proposed)",
+      "model_col": "BiMamba_SSM",
+      "cutoff_float64": 0.01648605113894274,
+      "cutoff_repr": "0.01648605113894274",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "BiMamba SSM (Proposed)",
+      "model_col": "BiMamba_SSM",
+      "cutoff_float64": 0.014203889864641855,
+      "cutoff_repr": "0.014203889864641855",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Multi-Model Stacking Ensemble",
+      "model_col": "Proposed Champion (Ensemble+T-Smooth)",
+      "cutoff_float64": 0.014490108370127998,
+      "cutoff_repr": "0.014490108370127998",
+      "strictly_above": 203,
+      "tied_exact": 2,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Multi-Model Stacking Ensemble",
+      "model_col": "Proposed Champion (Ensemble+T-Smooth)",
+      "cutoff_float64": 0.013139252456356856,
+      "cutoff_repr": "0.013139252456356856",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Multi-Model Stacking Ensemble",
+      "model_col": "Proposed Champion (Ensemble+T-Smooth)",
+      "cutoff_float64": 0.011495256215940339,
+      "cutoff_repr": "0.011495256215940339",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Tabular GBDT (LightGBM)",
+      "model_col": "Tabular GBDT (LightGBM)",
+      "cutoff_float64": 0.011661715388954007,
+      "cutoff_repr": "0.011661715388954007",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Tabular GBDT (LightGBM)",
+      "model_col": "Tabular GBDT (LightGBM)",
+      "cutoff_float64": 0.010989327177412314,
+      "cutoff_repr": "0.010989327177412314",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Tabular GBDT (LightGBM)",
+      "model_col": "Tabular GBDT (LightGBM)",
+      "cutoff_float64": 0.010536972856183402,
+      "cutoff_repr": "0.010536972856183402",
+      "strictly_above": 623,
+      "tied_exact": 2636,
+      "selected_from_tied": 191,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Tabular GBDT (XGBoost)",
+      "model_col": "Tabular GBDT (XGBoost)",
+      "cutoff_float64": 0.012191135167301949,
+      "cutoff_repr": "0.012191135167301949",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Tabular GBDT (XGBoost)",
+      "model_col": "Tabular GBDT (XGBoost)",
+      "cutoff_float64": 0.011434263207360061,
+      "cutoff_repr": "0.011434263207360061",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Tabular GBDT (XGBoost)",
+      "model_col": "Tabular GBDT (XGBoost)",
+      "cutoff_float64": 0.010525625922113648,
+      "cutoff_repr": "0.010525625922113648",
+      "strictly_above": 812,
+      "tied_exact": 5,
+      "selected_from_tied": 2,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Random Forest",
+      "model_col": "Random Forest",
+      "cutoff_float64": 0.017658340327200716,
+      "cutoff_repr": "0.017658340327200716",
+      "strictly_above": 202,
+      "tied_exact": 2,
+      "selected_from_tied": 2,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Random Forest",
+      "model_col": "Random Forest",
+      "cutoff_float64": 0.01580192967346779,
+      "cutoff_repr": "0.01580192967346779",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Random Forest",
+      "model_col": "Random Forest",
+      "cutoff_float64": 0.013146476157447838,
+      "cutoff_repr": "0.013146476157447838",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Mask-Aware Clinical Transformer",
+      "model_col": "Transformer_FairMasked",
+      "cutoff_float64": 0.012048462303472274,
+      "cutoff_repr": "0.012048462303472274",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Mask-Aware Clinical Transformer",
+      "model_col": "Transformer_FairMasked",
+      "cutoff_float64": 0.011033384067938086,
+      "cutoff_repr": "0.011033384067938086",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Mask-Aware Clinical Transformer",
+      "model_col": "Transformer_FairMasked",
+      "cutoff_float64": 0.009901162697335387,
+      "cutoff_repr": "0.009901162697335387",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Clinical Transformer (Baseline Unmasked)",
+      "model_col": "Clinical Transformer",
+      "cutoff_float64": 0.010135621946921575,
+      "cutoff_repr": "0.010135621946921575",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Clinical Transformer (Baseline Unmasked)",
+      "model_col": "Clinical Transformer",
+      "cutoff_float64": 0.009437835128964595,
+      "cutoff_repr": "0.009437835128964595",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Clinical Transformer (Baseline Unmasked)",
+      "model_col": "Clinical Transformer",
+      "cutoff_float64": 0.008801319153615652,
+      "cutoff_repr": "0.008801319153615652",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "5.0 episodes / 100 pt-days",
+      "nominal_k": 204,
+      "model_name": "Logistic Regression (L2)",
+      "model_col": "Logistic Regression (L2)",
+      "cutoff_float64": 0.010303362086776183,
+      "cutoff_repr": "0.010303362086776183",
+      "strictly_above": 203,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "10.0 episodes / 100 pt-days",
+      "nominal_k": 407,
+      "model_name": "Logistic Regression (L2)",
+      "model_col": "Logistic Regression (L2)",
+      "cutoff_float64": 0.009471559563025835,
+      "cutoff_repr": "0.009471559563025835",
+      "strictly_above": 406,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    },
+    {
+      "budget_label": "20.0 episodes / 100 pt-days",
+      "nominal_k": 814,
+      "model_name": "Logistic Regression (L2)",
+      "model_col": "Logistic Regression (L2)",
+      "cutoff_float64": 0.008773614504605964,
+      "cutoff_repr": "0.008773614504605964",
+      "strictly_above": 813,
+      "tied_exact": 1,
+      "selected_from_tied": 1,
+      "tie_breaking_policy": "Deterministic secondary key sort: [score DESC, ICUSTAY_ID ASC]"
+    }
+  ],
+  "file_checksums": {
+    "reports/predictions/canonical_test_predictions_harmonized.parquet": {
+      "sha256": "c436a1bcea5e387dd2dc142f093120704a292abe5b0b5d05b56b21e4df0580d4",
+      "size_bytes": 7785009
+    },
+    "reports/tables/Table1_Cohort_Progression_Ledger.csv": {
+      "sha256": "2619eeb455550153cd3f18274f4a859a0881ceeea5a8385e5a64c65b93f4310e",
+      "size_bytes": 2857
+    },
+    "reports/tables/Table2_Pretreatment_Sepsis_Benchmark_CI.csv": {
+      "sha256": "4c2b765a09a33eff7ba955ae1852df1ae54ec38adb11465d5dce00b04dc44701",
+      "size_bytes": 2058
+    },
+    "reports/tables/Table3_Alert_Budget_Refractory_Workload.csv": {
+      "sha256": "20fa591c271622e67a87982159e9f17a7f6c49f30d77c782abf84bab21270a7f",
+      "size_bytes": 4337
+    },
+    "reports/tables/Table4_Two_Axis_Subgroup_Uncertainty_Matrix.csv": {
+      "sha256": "4b23f7b72752b58e1311bb5f91d22584fba1dea457db73a52e1f26014c8d3eaa",
+      "size_bytes": 1609
+    },
+    "reports/figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf": {
+      "sha256": "941e11e3ceb5919804cf2c922eef69944ee04177dff779a50ab1d76e76d46739",
+      "size_bytes": 60550
+    },
+    "reports/figures/Figure1_Clocks_and_Opportunity_Waterfall.png": {
+      "sha256": "d95e5d22950afb4c2023cc8ef4b8d6f2beeb90ed4680d6e5be1e7d9c856ccd88",
+      "size_bytes": 415123
+    },
+    "reports/figures/Figure2_Operational_Alert_Budget_Frontier.pdf": {
+      "sha256": "e980412af01c9aacea4615494fd7e7c83323076c5b1fb2b1f1f12665126bb1a0",
+      "size_bytes": 32902
+    },
+    "reports/figures/Figure2_Operational_Alert_Budget_Frontier.png": {
+      "sha256": "3f653fd164789be8b6d756a514a7931b4a6d70aec3393d0c2896f97907c35cb7",
+      "size_bytes": 437004
+    },
+    "reports/figures/Figure3_Three_Stage_Decomposition.pdf": {
+      "sha256": "3beff49a387d8c34819a5dae56eb873eaf3100559a99ca97643882db015b7c5a",
+      "size_bytes": 31723
+    },
+    "reports/figures/Figure3_Three_Stage_Decomposition.png": {
+      "sha256": "8c1b97694d802b19cb6add1ed0aa4ff675e6dd56a0b1f1988088ea2ef5dd4665",
+      "size_bytes": 298458
+    },
+    "scripts/metrics/generate_table1_cohort_progression_ledger.py": {
+      "sha256": "c81df43adc118c0747c72b68729b11f2df3dc21a977c49e7b5b60243a292c776",
+      "size_bytes": 9514
+    },
+    "scripts/metrics/compute_pretreatment_sepsis_benchmark.py": {
+      "sha256": "24ec8045cc095b6dc12c4201a2606b529d1f03720f107db24ee849534f8e83ff",
+      "size_bytes": 7590
+    },
+    "scripts/metrics/compute_alert_budget_and_refractory.py": {
+      "sha256": "f30e310a9938e542c8569e89c21188de71e2540f21a07937fa85b293884fa97f",
+      "size_bytes": 9812
+    },
+    "scripts/metrics/compute_interval_censored_bounds.py": {
+      "sha256": "b1729e530f9b308d9b7098ef1189f7de64d2400094e40642d6058baf762925f8",
+      "size_bytes": 8619
+    },
+    "scripts/figures/generate_jamia_figures.py": {
+      "sha256": "be6af2844f0754704c422c6de6cc83ce7077d2525fbd473d52e310f7b0d9300f",
+      "size_bytes": 11745
+    },
+    "manuscript/draft_jamia_open_v1.md": {
+      "sha256": "24000f8931c2dbf78c24255fed1c1f279d77cb2939dfc8a32ec5b7292ecf175c",
+      "size_bytes": 52138
+    }
+  }
+}
