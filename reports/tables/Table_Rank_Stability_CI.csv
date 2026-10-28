@@ -1,0 +1,4 @@
+Protocol Comparison,Spearman rho,95% Clustered CI
+Early Horizon (H=2h) vs. Canonical Sepsis-3 (H=6h),0.945,(0.810 to 1.000)
+Canonical Sepsis-3 (H=6h) vs. Extended Horizon (H=12h),0.940,(0.786 to 1.000)
+Early Horizon (H=2h) vs. Extended Horizon (H=12h),0.917,(0.738 to 1.000)

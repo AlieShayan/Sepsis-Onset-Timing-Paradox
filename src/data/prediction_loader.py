@@ -22,7 +22,7 @@ MODEL_NAME_MAP = {
     "Proposed Champion (Ensemble+T-Smooth)": "★ Proposed Champion (Ensemble)",
     "BiMamba_SSM": "BiMamba SSM (Proposed)",
     "Random Forest": "Random Forest",
-    "Transformer_FairMasked": "Clinical Transformer (Fair Mask-Aware)",
+    "Transformer_FairMasked": "Mask-Aware Clinical Transformer",
     "Clinical Transformer": "Clinical Transformer (Baseline Unmasked)",
     "Transformer_Baseline": "Clinical Transformer (Baseline Unmasked)",
     "Tabular GBDT (XGBoost)": "Tabular GBDT (XGBoost)",

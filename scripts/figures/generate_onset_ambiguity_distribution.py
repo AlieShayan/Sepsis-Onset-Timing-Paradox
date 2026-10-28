@@ -83,7 +83,7 @@ def plot_figure_1(
     )
     sns.histplot(
         iv_gaps, bins=bins, kde=True, color=c_iv, alpha=0.35,
-        line_kws={"linewidth": 2.2}, label=f"MIMIC-IV Modern Epic (Median: +{iv_med:.1f}h)",
+        line_kws={"linewidth": 2.2}, label=f"MIMIC-IV MetaVision (Median: +{iv_med:.1f}h)",
         ax=ax1, stat="density"
     )
 

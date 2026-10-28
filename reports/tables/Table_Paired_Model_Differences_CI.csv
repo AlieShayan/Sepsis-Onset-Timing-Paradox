@@ -1,0 +1,7 @@
+Horizon,Comparison,Delta AUROC,95% Clustered CI,Empirical P-value,Conclusion
+H=2h,BiMamba SSM vs. Proposed Champion,+0.0099,(-0.0114 to +0.0299),0.171,Competitive / Equivalent
+H=2h,Mask-Aware Transformer vs. Baseline Unmasked,+0.0729,(+0.0246 to +0.1194),0.0000,Statistically Superior (p < 0.001)
+H=6h,BiMamba SSM vs. Proposed Champion,+0.0041,(-0.0110 to +0.0192),0.311,Competitive / Equivalent
+H=6h,Mask-Aware Transformer vs. Baseline Unmasked,+0.0706,(+0.0302 to +0.1116),0.0000,Statistically Superior (p < 0.001)
+H=12h,BiMamba SSM vs. Proposed Champion,-0.0017,(-0.0150 to +0.0121),0.397,Competitive / Equivalent
+H=12h,Mask-Aware Transformer vs. Baseline Unmasked,+0.0805,(+0.0464 to +0.1136),0.0000,Statistically Superior (p < 0.001)
