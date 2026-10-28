@@ -2,12 +2,11 @@
 """compute_pretreatment_sepsis_benchmark.py
 
 Computes patient-clustered bootstrap confidence intervals (B=1000) comparing:
-  1. Canonical Sepsis-3 (H=6h)
-  2. True Pretreatment Sepsis Detection (delta_treatment = 0h)
-  3. Pretreatment Sepsis Detection with 2h lead buffer (delta_treatment = 2h)
+  1. Canonical Sepsis-3 (H=6h) on full surveillance risk set (N=97,700 windows, 678 positives)
+  2. True Pretreatment Sepsis Detection (delta=0h) on risk set R_0 excluding post-treatment windows (N=70,192 windows, 674 positives)
+  3. Pretreatment Sepsis Detection with 2h buffer (delta=2h) on risk set R_2 (N=70,129 windows, 663 positives)
 
-Also computes the 3-term operational decomposition:
-  P(D=1 | S=1) = P(V=1 | S=1) * P(O=1 | V=1, S=1) * P(D=1 | O=1, V=1, S=1)
+Also computes paired differences (Delta AUROC = R_0 - Canonical) with 95% CIs.
 """
 from __future__ import annotations
 
@@ -33,7 +32,7 @@ def run_pretreatment_sepsis_bootstrap(
     df: pd.DataFrame,
     n_boot: int = 1000,
     seed: int = 42,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     np.random.seed(seed)
 
     models = [
@@ -56,24 +55,12 @@ def run_pretreatment_sepsis_bootstrap(
     t_s = df["T_SEPSIS3_H_ICU"].values
     t_tr = df["T_TREATMENT_H_ICU"].values
     is_s = df["T_SEPSIS3_H_ICU"].notna().values
+    has_tr = df["T_TREATMENT_H_ICU"].notna().values
 
     # Pre-allocate bootstrap arrays: [n_boot, n_models, 3 tasks]
-    # Task 0: Canonical Sepsis-3 (H=6h)
-    # Task 1: True Pretreatment Sepsis (delta=0h)
-    # Task 2: Pretreatment Sepsis with 2h buffer (delta=2h)
     auroc_boot = np.zeros((n_boot, len(models_present), 3))
     auprc_boot = np.zeros((n_boot, len(models_present), 3))
-
-    # Pre-allocate decomposition metrics for Proposed Champion & BiMamba
-    # [n_boot, 2 models]
-    idx_champ = models_present.index("Proposed Champion (Ensemble+T-Smooth)")
-    idx_mamba = models_present.index("BiMamba_SSM")
-
-    # Fixed alert budget threshold (10 alerts / 100 pt-days -> top 407 alerts)
-    p_v_boot = np.zeros(n_boot)
-    p_o_boot = np.zeros(n_boot)
-    p_d_champ_boot = np.zeros(n_boot)
-    p_d_mamba_boot = np.zeros(n_boot)
+    delta_auroc_boot = np.zeros((n_boot, len(models_present)))
 
     logger.info("Running %d patient-clustered bootstrap iterations on %d stays...", n_boot, n_stays)
     t0 = time.time()
@@ -89,84 +76,62 @@ def run_pretreatment_sepsis_bootstrap(
         ts_b = t_s[idx_boot]
         tr_b = t_tr[idx_boot]
         iss_b = is_s[idx_boot]
+        hastr_b = has_tr[idx_boot]
 
-        # Stays in sample
-        septic_stay_mask = iss_b
-        sampled_unique_stays = pd.Series(sampled_stays)
-        
-        # 1. Canonical Sepsis-3 (H=6h)
+        # 1. Canonical Sepsis-3 (H=6h) on full stream
         pos_s3 = iss_b & (w_b <= ts_b) & (w_b >= ts_b - 6.0)
         valid_s3 = (~iss_b) | (iss_b & (w_b <= ts_b))
         y_s3 = np.zeros(len(idx_boot), dtype=int)
         y_s3[pos_s3] = 1
 
-        # 2. True Pretreatment Sepsis (delta=0h)
-        valid_pretreat = (~iss_b) | (iss_b & (w_b <= tr_b))
-        y_pretreat = np.zeros(len(idx_boot), dtype=int)
-        pos_pretreat = pos_s3 & (w_b <= tr_b)
-        y_pretreat[pos_pretreat] = 1
+        # 2. Pretreatment Risk Set R_0 (w_b <= tr_b)
+        r0_mask = (~hastr_b) | (hastr_b & (w_b <= tr_b))
+        y_r0 = y_s3[r0_mask]
 
-        # 3. Pretreatment Sepsis with 2h lead buffer (delta=2h)
-        valid_pretreat_2h = (~iss_b) | (iss_b & (w_b <= tr_b - 2.0))
-        y_pretreat_2h = np.zeros(len(idx_boot), dtype=int)
-        pos_pretreat_2h = pos_s3 & (w_b <= tr_b - 2.0)
-        y_pretreat_2h[pos_pretreat_2h] = 1
+        # 3. Pretreatment Risk Set R_2 (w_b + 2h <= tr_b)
+        r2_mask = (~hastr_b) | (hastr_b & (w_b <= tr_b - 2.0))
+        y_r2 = y_s3[r2_mask]
 
         # Evaluate models
         for m_idx, m in enumerate(models_present):
             preds = df[m].values[idx_boot]
 
-            # Task 0
+            # Task 0 (Canonical)
             sub_y0 = y_s3[valid_s3]
             sub_p0 = preds[valid_s3]
-            auroc_boot[b, m_idx, 0] = roc_auc_score(sub_y0, sub_p0)
-            auprc_boot[b, m_idx, 0] = average_precision_score(sub_y0, sub_p0)
+            roc0 = roc_auc_score(sub_y0, sub_p0)
+            prc0 = average_precision_score(sub_y0, sub_p0)
+            auroc_boot[b, m_idx, 0] = roc0
+            auprc_boot[b, m_idx, 0] = prc0
 
-            # Task 1
-            sub_y1 = y_pretreat[valid_pretreat]
-            sub_p1 = preds[valid_pretreat]
-            auroc_boot[b, m_idx, 1] = roc_auc_score(sub_y1, sub_p1)
-            auprc_boot[b, m_idx, 1] = average_precision_score(sub_y1, sub_p1)
+            # Task 1 (Pretreatment Risk Set R_0)
+            sub_p1 = preds[r0_mask]
+            roc1 = roc_auc_score(y_r0, sub_p1)
+            prc1 = average_precision_score(y_r0, sub_p1)
+            auroc_boot[b, m_idx, 1] = roc1
+            auprc_boot[b, m_idx, 1] = prc1
 
-            # Task 2
-            sub_y2 = y_pretreat_2h[valid_pretreat_2h]
-            sub_p2 = preds[valid_pretreat_2h]
-            auroc_boot[b, m_idx, 2] = roc_auc_score(sub_y2, sub_p2)
-            auprc_boot[b, m_idx, 2] = average_precision_score(sub_y2, sub_p2)
+            # Task 2 (Pretreatment Risk Set R_2)
+            sub_p2 = preds[r2_mask]
+            roc2 = roc_auc_score(y_r2, sub_p2)
+            prc2 = average_precision_score(y_r2, sub_p2)
+            auroc_boot[b, m_idx, 2] = roc2
+            auprc_boot[b, m_idx, 2] = prc2
 
-        # 3-Stage Decomposition for sample
-        # Distinct stay level
-        stay_b_df = pd.DataFrame({
-            "stay": df["ICUSTAY_ID"].values[idx_boot],
-            "is_septic": iss_b,
-            "pos_s3": pos_s3,
-            "pos_pretreat": pos_pretreat,
-        })
-        septic_stays_b = stay_b_df[stay_b_df["is_septic"]]["stay"].unique()
-        n_septic_b = len(septic_stays_b)
-        
-        if n_septic_b > 0:
-            # Stays with V=1 (at least one H=6h window in surveillance interval)
-            v1_stays = stay_b_df[stay_b_df["pos_s3"]]["stay"].unique()
-            p_v = len(v1_stays) / n_septic_b
-            p_v_boot[b] = p_v
+            # Paired difference Delta AUROC = R_0 - Canonical
+            delta_auroc_boot[b, m_idx] = roc1 - roc0
 
-            # Stays with O=1 | V=1 (precedes treatment)
-            o1_stays = stay_b_df[stay_b_df["pos_pretreat"]]["stay"].unique()
-            p_o = len(o1_stays) / len(v1_stays) if len(v1_stays) > 0 else 0.0
-            p_o_boot[b] = p_o
-
-    # 1. Compile Table 2: Benchmark Performance Across Tasks
+    # Compile Table 2
     table2_rows = []
     task_names = [
-        "Canonical Sepsis-3 (H=6h)",
-        "Pretreatment Sepsis-3 (delta=0h)",
-        "Pretreatment Sepsis-3 (delta=2h buffer)",
+        "Canonical Sepsis-3 (Full Risk Set)",
+        "Pretreatment Sepsis (Risk Set R0, delta=0h)",
+        "Pretreatment Sepsis (Risk Set R2, delta=2h)",
     ]
 
     for m_idx, m in enumerate(models_present):
-        disp_name = MODEL_NAME_MAP.get(m, m)
-        row = {"Model": disp_name}
+        disp_name = MODEL_NAME_MAP.get(m, m).replace("★ ", "")
+        row = {"Model Architecture": disp_name}
         for t_idx, t_name in enumerate(task_names):
             rocs = auroc_boot[:, m_idx, t_idx]
             prcs = auprc_boot[:, m_idx, t_idx] * 100.0
@@ -178,28 +143,17 @@ def run_pretreatment_sepsis_bootstrap(
 
             row[f"{t_name} AUROC [95% CI]"] = f"{r_m:.4f} ({r_lo:.4f}–{r_hi:.4f})"
             row[f"{t_name} AUPRC % [95% CI]"] = f"{p_m:.3f}% ({p_lo:.3f}%–{p_hi:.3f}%)"
+
+        # Paired difference
+        deltas = delta_auroc_boot[:, m_idx]
+        d_m = np.mean(deltas)
+        d_lo, d_hi = np.percentile(deltas, [2.5, 97.5])
+        p_val = np.mean(deltas <= 0) if d_m > 0 else np.mean(deltas >= 0)
+        row["Paired Delta AUROC (R0 - Canonical) [95% CI]"] = f"{d_m:+.4f} ({d_lo:+.4f} to {d_hi:+.4f})"
+
         table2_rows.append(row)
 
-    df_table2 = pd.DataFrame(table2_rows)
-
-    # 2. Compile Decomposition Table
-    decomp_rows = [
-        {
-            "Decomposition Metric": "Surveillance Interval Coverage P(V=1 | S=1)",
-            "Point Estimate": f"{np.mean(p_v_boot)*100:.1f}%",
-            "95% Clustered CI": f"({np.percentile(p_v_boot, 2.5)*100:.1f}%–{np.percentile(p_v_boot, 97.5)*100:.1f}%)",
-            "Clinical Meaning": "Proportion of sepsis episodes whose pre-onset 6h window falls into ICU surveillance hours 19–30 (151/408).",
-        },
-        {
-            "Decomposition Metric": "Pretreatment Actionability P(O=1 | V=1, S=1)",
-            "Point Estimate": f"{np.mean(p_o_boot)*100:.1f}%",
-            "95% Clustered CI": f"({np.percentile(p_o_boot, 2.5)*100:.1f}%–{np.percentile(p_o_boot, 97.5)*100:.1f}%)",
-            "Clinical Meaning": "Proportion of surveillance-covered episodes where decision time strictly precedes systemic antibiotic initiation (150/151).",
-        },
-    ]
-    df_decomp = pd.DataFrame(decomp_rows)
-
-    return df_table2, df_decomp
+    return pd.DataFrame(table2_rows)
 
 
 def main():
@@ -209,16 +163,11 @@ def main():
     logger.info("Loading canonical dataset...")
     df = load_harmonized_benchmark_dataset()
 
-    df_t2, df_decomp = run_pretreatment_sepsis_bootstrap(df, n_boot=1000, seed=42)
-
+    df_t2 = run_pretreatment_sepsis_bootstrap(df, n_boot=1000, seed=42)
     t2_path = table_dir / "Table2_Pretreatment_Sepsis_Benchmark_CI.csv"
-    decomp_path = table_dir / "Table_Decomposition_Coverage_Opportunity.csv"
-
     df_t2.to_csv(t2_path, index=False)
-    df_decomp.to_csv(decomp_path, index=False)
-
     logger.info("Saved Table 2 to %s", t2_path)
-    logger.info("Saved Decomposition Table to %s", decomp_path)
+    print(df_t2.to_string())
 
 
 if __name__ == "__main__":

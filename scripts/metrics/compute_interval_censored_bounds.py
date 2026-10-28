@@ -7,7 +7,10 @@ honest interval-censored bounds: [STARTDATE 00:00:00, STARTDATE + 1 day 00:00:00
 
 Contrasts:
   - MIMIC-III (MetaVision/CareVue): Bounded date-level prescription proxy with interval uncertainty.
-  - MIMIC-IV: Exact hourly-resolved order and administration timeline.
+  - MIMIC-IV: Exact hourly-resolved order and administration timeline (eMAR).
+
+Opportunity deadline is defined relative to the surveillance protocol parameters:
+  T_deadline = T_0 + b + delta = 18h + 4h = 22h after ICU admission.
 """
 from __future__ import annotations
 
@@ -34,15 +37,7 @@ def analyze_mimiciii_interval_censoring(path: Path) -> pd.DataFrame:
     b_i = a_i + pd.Timedelta(days=1)
     intime = df["INTIME"]
 
-    # 1. Classification relative to ICU entry
-    # Definitely Pre-ICU: entire interval ended before admission
-    def_pre_icu = b_i <= intime
-    # Definitely In-ICU: interval starts strictly at or after admission
-    def_in_icu = a_i >= intime
-    # Indeterminate: admission time falls within the day of prescription
-    indet_icu = (a_i < intime) & (b_i > intime)
-
-    # 2. Classification relative to 22h surveillance opportunity threshold (b=18h, delta=4h)
+    # Classification relative to 22h surveillance opportunity deadline (b=18h, delta=4h)
     thresh_22h = intime + pd.Timedelta(hours=22)
     def_unavail = b_i <= thresh_22h
     def_avail = a_i >= thresh_22h
@@ -56,13 +51,9 @@ def analyze_mimiciii_interval_censoring(path: Path) -> pd.DataFrame:
     onset_cat[t_s > 24] = "Late Incident (>24h)"
 
     df["onset_cat"] = onset_cat
-    df["icu_timing_bound"] = np.where(
-        def_pre_icu, "Definitely Pre-ICU",
-        np.where(def_in_icu, "Definitely In-ICU", "Indeterminate (Same Calendar Day)")
-    )
     df["opp_22h_bound"] = np.where(
-        def_unavail, "Definitely Unavailable (<=22h)",
-        np.where(def_avail, "Definitely Available (>=22h)", "Indeterminate (Crosses 22h)")
+        def_unavail, "Treatment at or before deadline (<=22h)",
+        np.where(def_avail, "Treatment after deadline (>22h)", "Indeterminate (Date crosses deadline)")
     )
 
     return df
@@ -79,12 +70,10 @@ def analyze_mimiciv_exact_timing(path: Path) -> pd.DataFrame:
     onset_cat[(t_s > 0) & (t_s <= 24)] = "Early Incident (0-24h)"
     onset_cat[t_s > 24] = "Late Incident (>24h)"
 
-    # Axis 2: Exact hourly treatment timing
+    # Axis 2: Treatment relative to 22h deadline
     treat_cat = pd.Series("Unknown", index=df.index)
-    treat_cat[t_tr <= 0] = "Pre-ICU / ED Treated (<=0h)"
-    treat_cat[(t_tr > 0) & (t_tr <= 2)] = "Ultra-Early ICU Treated (0-2h)"
-    treat_cat[(t_tr > 2) & (t_tr <= 22)] = "Early ICU Treated (2-22h)"
-    treat_cat[t_tr > 22] = "Actionable Opportunity (>22h)"
+    treat_cat[t_tr <= 22] = "Treatment at or before deadline (<=22h)"
+    treat_cat[t_tr > 22] = "Treatment after deadline (>22h)"
 
     df["onset_cat"] = onset_cat
     df["treat_cat_exact"] = treat_cat
@@ -102,50 +91,39 @@ def main():
     logger.info("Analyzing MIMIC-IV exact hourly timing...")
     df4 = analyze_mimiciv_exact_timing(c4_path)
 
-    # 1. Compile MIMIC-III cross-tabulation
-    ct3_icu = pd.crosstab(df3["onset_cat"], df3["icu_timing_bound"], margins=True)
     ct3_opp = pd.crosstab(df3["onset_cat"], df3["opp_22h_bound"], margins=True)
-
-    # 2. Compile MIMIC-IV cross-tabulation
     ct4_exact = pd.crosstab(df4["onset_cat"], df4["treat_cat_exact"], margins=True)
 
-    logger.info("=== MIMIC-III ICU Entry Timing Bounds ===")
-    print(ct3_icu)
-    logger.info("=== MIMIC-III 22h Opportunity Bounds ===")
-    print(ct3_opp)
-    logger.info("=== MIMIC-IV Exact Hourly Timing ===")
-    print(ct4_exact)
-
-    # Export a structured Table 4
     t4_rows = []
     # MIMIC-III summary rows
     for onset in ["Early Incident (0-24h)", "Late Incident (>24h)", "All"]:
         t4_rows.append({
-            "Database": "MIMIC-III (Interval-Censored Date Proxy)",
+            "Database Release & Cohort": "MIMIC-III v1.4 (Broad Incident Sepsis, N=3,581)",
             "Sepsis Onset Category": onset,
-            "Total Episodes": ct3_icu.loc[onset, "All"],
-            "Definitely Pre-ICU / Unavailable": f"{ct3_opp.loc[onset, 'Definitely Unavailable (<=22h)']} ({ct3_opp.loc[onset, 'Definitely Unavailable (<=22h)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
-            "Definitely Available Opportunity (>=22h)": f"{ct3_opp.loc[onset, 'Definitely Available (>=22h)']} ({ct3_opp.loc[onset, 'Definitely Available (>=22h)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
-            "Indeterminate (Date Crosses Threshold)": f"{ct3_opp.loc[onset, 'Indeterminate (Crosses 22h)']} ({ct3_opp.loc[onset, 'Indeterminate (Crosses 22h)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
-            "Methodological Note": "Evaluated with [00:00, 24:00) interval bounds to propagate date truncation uncertainty without midnight imputation.",
+            "Total Incident Episodes": ct3_opp.loc[onset, "All"],
+            "Treatment at or before Opportunity Deadline (<=22h)": f"{ct3_opp.loc[onset, 'Treatment at or before deadline (<=22h)']} ({ct3_opp.loc[onset, 'Treatment at or before deadline (<=22h)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
+            "Treatment after Opportunity Deadline (>22h)": f"{ct3_opp.loc[onset, 'Treatment after deadline (>22h)']} ({ct3_opp.loc[onset, 'Treatment after deadline (>22h)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
+            "Indeterminate (Date Crosses Deadline)": f"{ct3_opp.loc[onset, 'Indeterminate (Date crosses deadline)']} ({ct3_opp.loc[onset, 'Indeterminate (Date crosses deadline)']/ct3_opp.loc[onset, 'All']*100:.1f}%)",
+            "Clinical & Measurement Specification": "Prescription start date proxy evaluated with [00:00, 24:00) interval bounds. Deadline reflects b=18h lookback + delta=4h lead buffer.",
         })
 
     # MIMIC-IV summary rows
     for onset in ["Early Incident (0-24h)", "Late Incident (>24h)", "All"]:
         t4_rows.append({
-            "Database": "MIMIC-IV (Hourly-Resolved Administration Benchmark)",
+            "Database Release & Cohort": "MIMIC-IV v3.1 (Broad Incident Sepsis, N=1,596)",
             "Sepsis Onset Category": onset,
-            "Total Episodes": ct4_exact.loc[onset, "All"],
-            "Definitely Pre-ICU / Unavailable": f"{ct4_exact.loc[onset, 'Pre-ICU / ED Treated (<=0h)'] + ct4_exact.loc[onset, 'Ultra-Early ICU Treated (0-2h)'] + ct4_exact.loc[onset, 'Early ICU Treated (2-22h)']} ({(ct4_exact.loc[onset, 'Pre-ICU / ED Treated (<=0h)'] + ct4_exact.loc[onset, 'Ultra-Early ICU Treated (0-2h)'] + ct4_exact.loc[onset, 'Early ICU Treated (2-22h)'])/ct4_exact.loc[onset, 'All']*100:.1f}%)",
-            "Definitely Available Opportunity (>=22h)": f"{ct4_exact.loc[onset, 'Actionable Opportunity (>22h)']} ({ct4_exact.loc[onset, 'Actionable Opportunity (>22h)']/ct4_exact.loc[onset, 'All']*100:.1f}%)",
-            "Indeterminate (Date Crosses Threshold)": "0 (0.0%)",
-            "Methodological Note": "Confirmed hourly timestamp resolution from electronic medication administration records (eMAR).",
+            "Total Incident Episodes": ct4_exact.loc[onset, "All"],
+            "Treatment at or before Opportunity Deadline (<=22h)": f"{ct4_exact.loc[onset, 'Treatment at or before deadline (<=22h)']} ({ct4_exact.loc[onset, 'Treatment at or before deadline (<=22h)']/ct4_exact.loc[onset, 'All']*100:.1f}%)",
+            "Treatment after Opportunity Deadline (>22h)": f"{ct4_exact.loc[onset, 'Treatment after deadline (>22h)']} ({ct4_exact.loc[onset, 'Treatment after deadline (>22h)']/ct4_exact.loc[onset, 'All']*100:.1f}%)",
+            "Indeterminate (Date Crosses Deadline)": "0 (0.0%)",
+            "Clinical & Measurement Specification": "Confirmed hourly administration timestamps from electronic medication administration records (eMAR).",
         })
 
     df_t4 = pd.DataFrame(t4_rows)
     out_path = TABLE_DIR / "Table4_Two_Axis_Subgroup_Uncertainty_Matrix.csv"
     df_t4.to_csv(out_path, index=False)
     logger.info("Saved Table 4 to %s", out_path)
+    print(df_t4.to_string())
 
 
 if __name__ == "__main__":

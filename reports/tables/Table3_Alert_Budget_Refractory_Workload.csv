@@ -1,25 +1,25 @@
-Target Budget,Model,Operating Threshold,Achieved Burden (alerts/100 pt-days),Raw Alert Windows,Window Sepsis-3 PPV (%),12h Refractory Episodes,Unique Patients Detected,Coverage-Conditioned Sens P(D|V=1),Population Sens P(D|S=1),Workload NNE (Episodes / Patient),False Episodes per True Patient (NNE - 1)
-5 alerts / 100 pt-days,★ Proposed Champion (Ensemble),0.0157,5.01,204,2.94%,114,3 / 408,2.0%,0.7%,38.0,37.0
-5 alerts / 100 pt-days,BiMamba SSM (Proposed),0.0204,5.01,204,4.41%,116,5 / 408,3.3%,1.2%,23.2,22.2
-5 alerts / 100 pt-days,Mask-Aware Clinical Transformer,0.0125,5.01,204,0.00%,141,0 / 408,0.0%,0.0%,Undef (0 TP),Undef
-5 alerts / 100 pt-days,Random Forest,0.0189,5.01,204,2.45%,120,3 / 408,2.0%,0.7%,40.0,39.0
-5 alerts / 100 pt-days,Tabular GBDT (XGBoost),0.0128,5.01,204,3.43%,138,4 / 408,2.6%,1.0%,34.5,33.5
-5 alerts / 100 pt-days,Tabular GBDT (LightGBM),0.0123,5.01,204,3.43%,142,5 / 408,3.3%,1.2%,28.4,27.4
-5 alerts / 100 pt-days,Logistic Regression (L2),0.0110,5.01,204,0.00%,123,0 / 408,0.0%,0.0%,Undef (0 TP),Undef
-5 alerts / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0105,5.01,204,2.45%,134,2 / 408,1.3%,0.5%,67.0,66.0
-10 alerts / 100 pt-days,★ Proposed Champion (Ensemble),0.0143,10.00,407,2.95%,231,6 / 408,4.0%,1.5%,38.5,37.5
-10 alerts / 100 pt-days,BiMamba SSM (Proposed),0.0185,10.00,407,2.95%,227,5 / 408,3.3%,1.2%,45.4,44.4
-10 alerts / 100 pt-days,Mask-Aware Clinical Transformer,0.0118,10.00,407,0.49%,266,2 / 408,1.3%,0.5%,133.0,132.0
-10 alerts / 100 pt-days,Random Forest,0.0173,10.00,407,1.72%,223,3 / 408,2.0%,0.7%,74.3,73.3
-10 alerts / 100 pt-days,Tabular GBDT (XGBoost),0.0119,10.00,407,1.97%,249,4 / 408,2.6%,1.0%,62.2,61.2
-10 alerts / 100 pt-days,Tabular GBDT (LightGBM),0.0114,10.00,407,2.46%,264,6 / 408,4.0%,1.5%,44.0,43.0
-10 alerts / 100 pt-days,Logistic Regression (L2),0.0102,10.00,407,0.74%,212,2 / 408,1.3%,0.5%,106.0,105.0
-10 alerts / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0099,10.00,407,1.23%,247,2 / 408,1.3%,0.5%,123.5,122.5
-20 alerts / 100 pt-days,★ Proposed Champion (Ensemble),0.0131,20.00,814,2.33%,422,5 / 408,3.3%,1.2%,84.4,83.4
-20 alerts / 100 pt-days,BiMamba SSM (Proposed),0.0166,20.00,814,1.97%,391,6 / 408,4.0%,1.5%,65.2,64.2
-20 alerts / 100 pt-days,Mask-Aware Clinical Transformer,0.0109,20.00,814,0.74%,447,6 / 408,4.0%,1.5%,74.5,73.5
-20 alerts / 100 pt-days,Random Forest,0.0156,20.00,814,1.47%,431,6 / 408,4.0%,1.5%,71.8,70.8
-20 alerts / 100 pt-days,Tabular GBDT (XGBoost),0.0112,20.00,814,1.72%,481,8 / 408,5.3%,2.0%,60.1,59.1
-20 alerts / 100 pt-days,Tabular GBDT (LightGBM),0.0107,20.00,814,1.60%,526,9 / 408,6.0%,2.2%,58.4,57.4
-20 alerts / 100 pt-days,Logistic Regression (L2),0.0095,20.00,814,0.98%,384,4 / 408,2.6%,1.0%,96.0,95.0
-20 alerts / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0093,20.00,814,1.11%,465,5 / 408,3.3%,1.2%,93.0,92.0
+Target Emitted Budget (episodes/100 pt-days),Model Architecture,Operating Threshold,Achieved Emitted Burden (episodes/100 pt-days),Emitted Alert Episodes (Stays),Unique Septic Patients Detected,Episode PPV (%),Coverage-Conditioned Sens P(D|V=1),Whole-Population Sens P(D|S=1),Workload NNE (Episodes / Patient),False Episodes per Detected Patient (NNE - 1)
+5,Proposed Champion (Ensemble),0.0145,5.01,204,6 / 408,2.94%,4.0%,1.5%,34.0,33.0
+5,BiMamba SSM (Proposed),0.0187,5.01,204,4 / 408,1.96%,2.6%,1.0%,51.0,50.0
+5,Mask-Aware Clinical Transformer,0.0120,5.01,204,0 / 408,0.00%,0.0%,0.0%,Undef (0 TP),Undef
+5,Random Forest,0.0177,5.01,204,3 / 408,1.47%,2.0%,0.7%,68.0,67.0
+5,Tabular GBDT (XGBoost),0.0122,5.01,204,4 / 408,1.96%,2.6%,1.0%,51.0,50.0
+5,Tabular GBDT (LightGBM),0.0117,5.01,204,6 / 408,2.94%,4.0%,1.5%,34.0,33.0
+5,Logistic Regression (L2),0.0103,5.01,204,2 / 408,0.98%,1.3%,0.5%,102.0,101.0
+5,Clinical Transformer (Baseline Unmasked),0.0101,5.01,204,2 / 408,0.98%,1.3%,0.5%,102.0,101.0
+10,Proposed Champion (Ensemble),0.0131,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
+10,BiMamba SSM (Proposed),0.0165,10.00,407,7 / 408,1.72%,4.6%,1.7%,58.1,57.1
+10,Mask-Aware Clinical Transformer,0.0110,10.00,407,5 / 408,1.23%,3.3%,1.2%,81.4,80.4
+10,Random Forest,0.0158,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
+10,Tabular GBDT (XGBoost),0.0114,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
+10,Tabular GBDT (LightGBM),0.0110,10.00,407,7 / 408,1.72%,4.6%,1.7%,58.1,57.1
+10,Logistic Regression (L2),0.0095,10.00,407,4 / 408,0.98%,2.6%,1.0%,101.8,100.8
+10,Clinical Transformer (Baseline Unmasked),0.0094,10.00,407,5 / 408,1.23%,3.3%,1.2%,81.4,80.4
+20,Proposed Champion (Ensemble),0.0115,20.00,814,8 / 408,0.98%,5.3%,2.0%,101.8,100.8
+20,BiMamba SSM (Proposed),0.0142,20.00,814,10 / 408,1.23%,6.6%,2.5%,81.4,80.4
+20,Mask-Aware Clinical Transformer,0.0099,20.00,814,14 / 408,1.72%,9.3%,3.4%,58.1,57.1
+20,Random Forest,0.0131,20.00,814,9 / 408,1.11%,6.0%,2.2%,90.4,89.4
+20,Tabular GBDT (XGBoost),0.0105,20.00,814,15 / 408,1.84%,9.9%,3.7%,54.3,53.3
+20,Tabular GBDT (LightGBM),0.0105,20.00,814,10 / 408,1.23%,6.6%,2.5%,81.4,80.4
+20,Logistic Regression (L2),0.0088,20.00,814,11 / 408,1.35%,7.3%,2.7%,74.0,73.0
+20,Clinical Transformer (Baseline Unmasked),0.0088,20.00,814,7 / 408,0.86%,4.6%,1.7%,116.3,115.3

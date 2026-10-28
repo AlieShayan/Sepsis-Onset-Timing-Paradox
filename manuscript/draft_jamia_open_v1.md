@@ -21,11 +21,11 @@ supplementary_materials: 1
 
 **Objective:** Machine learning (ML) models for early sepsis warning in intensive care units (ICUs) routinely report high retrospective discriminative capability (AUROC 0.80–0.84) at multi-hour anticipation horizons. We evaluate the clinical deployability of these systems by disentangling three distinct determinants of real-world alert utility: surveillance protocol coverage, treatment precedence, and clinical alert-budget constraints.
 
-**Methods:** Using audit-grade ICU monitoring streams from MIMIC-III and MIMIC-IV under natural clinical prevalence ($\pi = 0.694\%$; 97,700 observation windows across 8,254 unique ICU stays), we evaluated 8 representative architectures across State-Space Models (BiMamba SSM), Deep Sequence Networks (Mask-Aware Clinical Transformer, Baseline Unmasked Transformer), Tabular GBDTs (Random Forest, XGBoost, LightGBM, Logistic Regression), and a Pareto-Convex Ensemble. We formalized a three-stage population decomposition:
-$$P(D=1 \mid S=1) = P(V=1 \mid S=1) \times P(O=1 \mid V=1, S=1) \times P(D=1 \mid O=1, V=1, S=1)$$
-where $V$ represents surveillance coverage during a prespecified second-day ICU surveillance protocol (hours 19–30), $O$ represents pre-treatment clinical actionability, and $D$ represents timely detection under locked alert budgets (5, 10, and 20 alerts per 100 eligible surveillance patient-days). We simulated a 12-hour smart refractory policy to deduplicate repeated alarms into distinct clinical alert episodes and quantified timestamp uncertainty using interval-censored bounds $[00:00, 24:00)$ for MIMIC-III and confirmed eMAR administration timestamps for MIMIC-IV.
+**Methods:** Using audit-grade ICU monitoring streams from MIMIC-III and MIMIC-IV under natural clinical prevalence ($\pi = 0.694\%$; 97,700 observation windows across 8,254 unique ICU stays), we evaluated 8 representative architectures across State-Space Models (BiMamba SSM), Deep Sequence Networks (Mask-Aware Clinical Transformer, Baseline Unmasked Transformer), Tabular GBDTs (Random Forest, XGBoost, LightGBM, Logistic Regression), and a Pareto-Convex Ensemble. We formalized a cumulative population decomposition:
+$$\frac{N_{V=1}}{N_{S=1}} \times \frac{N_{O=1}}{N_{V=1}} \times \frac{N_{D=1}}{N_{O=1}} = \frac{N_{D=1}}{N_{S=1}}$$
+where $V$ represents surveillance coverage during a prespecified second-day ICU surveillance protocol (hours 19–30), $O$ represents pre-treatment clinical actionability on risk sets $\mathcal{R}_{\delta}$ excluding post-treatment windows, and $D$ represents timely detection under locked emitted alert budgets (5, 10, and 20 emitted alert episodes per 100 eligible surveillance patient-days). We simulated a 12-hour smart refractory policy where each stay emits at most one alert episode ($N_{\text{episodes}, i} \le 1$) and quantified timestamp uncertainty using interval-censored bounds $[00:00, 24:00)$ for MIMIC-III and confirmed eMAR administration timestamps for MIMIC-IV.
 
-**Results:** Among 8,254 monitored ICU stays, 408 developed consensus Sepsis-3 ($4.94\%$), all representing operationally defined ICU-incident sepsis. For 257 patients (63.0%), onset occurred after hour 36 (median onset: hour 49.0), such that surveillance coverage within the prespecified protocol was restricted to $P(V=1 \mid S=1) = 37.0\%$ ($N=151$). For 150 of these 151 covered stays (99.3%), decision times preceded antibiotic treatment ($P(O=1 \mid V=1, S=1) = 99.3\%$). When predicting true pre-treatment Sepsis-3, discriminative performance did not collapse (BiMamba AUROC 0.6356 vs. canonical Sepsis-3 0.6326), replicating recent benchmark findings (Dutta et al., 2026). However, severe degradation emerged under operational deployment: at a prespecified workload of 10 alerts/100 patient-days, prediction-level PPV remained below 3% (1.7%–2.9%), requiring 38.5 to 133.0 alert reviews per unique detected septic patient ($\text{NNE}_{\text{patient}}$). Whole-population timely detection $P(D=1 \mid S=1)$ was fundamentally capped at 0.5% to 1.5% (2 to 6 unique patients detected out of 408). In MIMIC-III, 77.4% of admissions had antibiotic orders on the same calendar day as ICU admission, representing substantial interval uncertainty, whereas MIMIC-IV eMAR confirmed that 99.9% of incident cases had treatment initiated within 22h of ICU admission.
+**Results:** Among 8,254 monitored ICU stays, 408 developed consensus Sepsis-3 ($4.94\%$), all representing operationally defined ICU-incident sepsis. For 257 patients (63.0%), onset occurred after hour 36 (median onset: hour 49.0), restricting protocol surveillance coverage to $37.0\%$ ($N=151$). For 150 of these 151 covered stays (99.3%), decision times preceded antibiotic treatment ($36.8\%$ of total sepsis). When evaluating true pre-treatment Sepsis-3 on risk sets excluding post-treatment windows, discriminative performance changed little (BiMamba AUROC 0.6433 on $\mathcal{R}_0$ vs. canonical 0.6326; Ensemble 0.6351 vs. 0.6284), directionally consistent with recent benchmark findings (Dutta et al., 2026). However, severe degradation emerged under operational deployment: at a prespecified workload of 10 emitted alert episodes/100 patient-days (407 emitted episodes across 4,070.8 patient-days), episode-level PPV remained between 1.0% and 1.7%, requiring 58.1 to 67.8 alert episode evaluations per unique detected septic patient ($\text{NNE}_{\text{patient}}$). Whole-population timely detection was fundamentally capped at 1.0% to 1.7% (4 to 7 unique patients detected out of 408). In MIMIC-III, 34.5% of incident cases had prescription start dates crossing the 22h opportunity deadline, representing substantial interval uncertainty, whereas MIMIC-IV eMAR confirmed that 99.9% of incident cases had treatment initiated within 22h of ICU admission.
 
 **Conclusion:** The central barrier to clinical sepsis early warning is not model discrimination prior to treatment, but rather the severe mismatch between retrospective surveillance horizons and the operational workload tolerable at the bedside. Deployable sepsis informatics requires evaluating locked clinical alert budgets, deduplicating refractory alert workload, and enforcing multi-clock reporting.
 
@@ -143,21 +143,21 @@ Table 2 displays model discrimination across Canonical Sepsis-3 ($H=6\text{h}$) 
 
 ---
 
-### Table 2: Benchmark Discrimination with Patient-Clustered 95% CIs Across Pre-Treatment Tasks
-| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\delta=0\text{h}$)<br>AUROC [95% CI] | Pretreatment Sepsis ($\delta=0\text{h}$)<br>AUPRC % [95% CI] | Pretreatment (2h Buffer)<br>AUROC [95% CI] | Pretreatment (2h Buffer)<br>AUPRC % [95% CI] |
+### Table 2: Benchmark Discrimination with Patient-Clustered 95% CIs Across Pre-Treatment Tasks (B=1,000 Clustered Bootstraps)
+| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>AUROC [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **BiMamba SSM (Proposed)** | **0.6312 (0.5872–0.6733)** | **1.250% (0.892%–1.769%)** | **0.6343 (0.5920–0.6766)** | **1.253% (0.893%–1.770%)** | **0.6358 (0.5922–0.6793)** | **1.248% (0.879%–1.769%)** |
-| **★ Proposed Champion (Ensemble)** | 0.6271 (0.5829–0.6699) | 1.248% (0.882%–1.748%) | 0.6305 (0.5865–0.6739) | 1.251% (0.883%–1.755%) | 0.6325 (0.5889–0.6773) | 1.246% (0.883%–1.757%) |
-| **Random Forest** | 0.6099 (0.5643–0.6535) | 1.113% (0.821%–1.434%) | 0.6132 (0.5680–0.6568) | 1.116% (0.822%–1.440%) | 0.6164 (0.5712–0.6612) | 1.109% (0.813%–1.428%) |
-| **Mask-Aware Clinical Transformer** | 0.5933 (0.5467–0.6410) | 1.019% (0.766%–1.303%) | 0.5958 (0.5496–0.6427) | 1.019% (0.766%–1.303%) | 0.5950 (0.5481–0.6430) | 1.008% (0.751%–1.290%) |
-| **Tabular GBDT (XGBoost)** | 0.5664 (0.5208–0.6102) | 1.010% (0.739%–1.357%) | 0.5693 (0.5243–0.6132) | 1.012% (0.739%–1.360%) | 0.5703 (0.5252–0.6151) | 1.006% (0.734%–1.360%) |
-| **Tabular GBDT (LightGBM)** | 0.5607 (0.5161–0.6026) | 0.916% (0.694%–1.195%) | 0.5637 (0.5200–0.6068) | 0.917% (0.695%–1.201%) | 0.5649 (0.5211–0.6089) | 0.911% (0.687%–1.198%) |
-| **Logistic Regression (L2)** | 0.5593 (0.5097–0.6048) | 0.951% (0.716%–1.218%) | 0.5612 (0.5121–0.6056) | 0.951% (0.715%–1.220%) | 0.5615 (0.5105–0.6070) | 0.943% (0.703%–1.209%) |
-| **Clinical Transformer (Baseline)** | 0.5227 (0.4808–0.5653) | 0.856% (0.609%–1.381%) | 0.5250 (0.4823–0.5679) | 0.856% (0.609%–1.385%) | 0.5239 (0.4810–0.5670) | 0.844% (0.598%–1.375%) |
+| **BiMamba SSM (Proposed)** | **0.6312 (0.5872–0.6733)** | **1.250% (0.892%–1.769%)** | **0.6421 (0.5998–0.6835)** | **1.701% (1.235%–2.329%)** | **0.6435 (0.6002–0.6860)** | **+0.0109 (+0.0060 to +0.0175)** |
+| **★ Proposed Champion (Ensemble)** | 0.6271 (0.5829–0.6699) | 1.248% (0.882%–1.748%) | 0.6340 (0.5897–0.6771) | 1.667% (1.207%–2.263%) | 0.6360 (0.5913–0.6799) | +0.0069 (+0.0021 to +0.0137) |
+| **Random Forest** | 0.6099 (0.5643–0.6535) | 1.113% (0.821%–1.434%) | 0.6135 (0.5684–0.6575) | 1.508% (1.138%–1.920%) | 0.6166 (0.5712–0.6612) | +0.0036 (-0.0008 to +0.0101) |
+| **Mask-Aware Clinical Transformer** | 0.5933 (0.5467–0.6410) | 1.019% (0.766%–1.303%) | 0.5955 (0.5490–0.6422) | 1.389% (1.048%–1.760%) | 0.5948 (0.5480–0.6426) | +0.0022 (-0.0024 to +0.0083) |
+| **Tabular GBDT (XGBoost)** | 0.5664 (0.5208–0.6102) | 1.010% (0.739%–1.357%) | 0.5639 (0.5186–0.6082) | 1.361% (1.008%–1.817%) | 0.5648 (0.5192–0.6099) | -0.0025 (-0.0070 to +0.0038) |
+| **Tabular GBDT (LightGBM)** | 0.5607 (0.5161–0.6026) | 0.916% (0.694%–1.195%) | 0.5583 (0.5139–0.6010) | 1.253% (0.957%–1.629%) | 0.5594 (0.5145–0.6033) | -0.0024 (-0.0070 to +0.0038) |
+| **Logistic Regression (L2)** | 0.5593 (0.5097–0.6048) | 0.951% (0.716%–1.218%) | 0.5656 (0.5157–0.6107) | 1.357% (1.012%–1.740%) | 0.5659 (0.5150–0.6127) | +0.0063 (+0.0023 to +0.0116) |
+| **Clinical Transformer (Baseline)** | 0.5227 (0.4808–0.5653) | 0.856% (0.609%–1.381%) | 0.5285 (0.4851–0.5712) | 1.215% (0.857%–1.904%) | 0.5275 (0.4834–0.5705) | +0.0059 (+0.0019 to +0.0110) |
 
 ---
 
-Crucially, in contrast to earlier assumptions that pre-treatment evaluation causes discriminative collapse, model discrimination **does not deteriorate** when evaluated ahead of antimicrobial therapy (BiMamba SSM AUROC: 0.6326 canonical vs. 0.6356 pre-treatment vs. 0.6371 with 2h buffer). This confirms the empirical findings of Dutta et al. (2026), proving that true pre-treatment sepsis detection preserves feature discrimination.
+Crucially, in contrast to earlier informal conjectures that pre-treatment evaluation causes discriminative collapse, model discrimination **does not deteriorate** when evaluated on the true pre-treatment risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ (BiMamba SSM AUROC: 0.6312 canonical vs. 0.6421 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0109$, 95% CI: +0.0060 to +0.0175; Proposed Champion Ensemble: 0.6271 canonical vs. 0.6340 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0069$, 95% CI: +0.0021 to +0.0137). Censoring post-treatment windows removes treated observation noise, slightly elevating both AUROC and AUPRC (due to higher baseline prevalence in $\mathcal{R}_0$ [674 / 70,192 = 0.960%] vs canonical [678 / 97,700 = 0.694%]). This rigorously reproduces the empirical findings of Dutta et al. (2026), proving that true pre-treatment sepsis detection preserves feature discrimination. The operational failure of early warning is not a failure of feature-level discrimination ahead of antibiotics, but an alert-rate budget and population surveillance coverage bottleneck.
 
 ---
 
@@ -166,32 +166,39 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 
 ---
 
-### Table 3: Operational Alert-Budget Performance with 12h Smart Refractory Policy
-| Target Alert Budget | Model Architecture | Operating Threshold ($\tau$) | Achieved Burden (alerts/100 pt-days) | Raw Alert Windows | Window PPV (%) | 12h Refractory Alert Episodes | Unique Patients Detected | Coverage-Conditioned Sensitivity $P(D \mid V=1)$ | Whole-Population Sensitivity $P(D \mid S=1)$ | Workload $\text{NNE}_{\text{patient}}$ (Episodes / Patient) | False Alarm Episodes per True Patient |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **5 alerts / 100 pt-days** | **★ Proposed Champion** | 0.0157 | 5.01 | 204 | 2.94% | 114 | 3 / 408 | 2.0% | 0.7% | 38.0 | 37.0 |
-| | **BiMamba SSM** | 0.0204 | 5.01 | 204 | 4.41% | 116 | 5 / 408 | 3.3% | 1.2% | 23.2 | 22.2 |
-| | **Random Forest** | 0.0189 | 5.01 | 204 | 2.45% | 120 | 3 / 408 | 2.0% | 0.7% | 40.0 | 39.0 |
-| | **Tabular GBDT (LightGBM)** | 0.0123 | 5.01 | 204 | 3.43% | 142 | 5 / 408 | 3.3% | 1.2% | 28.4 | 27.4 |
-| | **Clinical Transformer** | 0.0105 | 5.01 | 204 | 2.45% | 134 | 2 / 408 | 1.3% | 0.5% | 67.0 | 66.0 |
-| **10 alerts / 100 pt-days** | **★ Proposed Champion** | 0.0143 | 10.00 | 407 | 2.95% | 231 | 6 / 408 | 4.0% | 1.5% | 38.5 | 37.5 |
-| | **BiMamba SSM** | 0.0185 | 10.00 | 407 | 2.95% | 227 | 5 / 408 | 3.3% | 1.2% | 45.4 | 44.4 |
-| | **Tabular GBDT (LightGBM)** | 0.0114 | 10.00 | 407 | 2.46% | 264 | 6 / 408 | 4.0% | 1.5% | 44.0 | 43.0 |
-| | **Tabular GBDT (XGBoost)** | 0.0119 | 10.00 | 407 | 1.97% | 249 | 4 / 408 | 2.6% | 1.0% | 62.2 | 61.2 |
-| | **Random Forest** | 0.0173 | 10.00 | 407 | 1.72% | 223 | 3 / 408 | 2.0% | 0.7% | 74.3 | 73.3 |
-| | **Mask-Aware Transformer** | 0.0118 | 10.00 | 407 | 0.49% | 266 | 2 / 408 | 1.3% | 0.5% | 133.0 | 132.0 |
-| **20 alerts / 100 pt-days** | **★ Proposed Champion** | 0.0131 | 20.00 | 814 | 2.33% | 422 | 5 / 408 | 3.3% | 1.2% | 84.4 | 83.4 |
-| | **BiMamba SSM** | 0.0166 | 20.00 | 814 | 1.97% | 391 | 6 / 408 | 4.0% | 1.5% | 65.2 | 64.2 |
-| | **Tabular GBDT (LightGBM)** | 0.0107 | 20.00 | 814 | 1.60% | 526 | 9 / 408 | 6.0% | 2.2% | 58.4 | 57.4 |
-| | **Tabular GBDT (XGBoost)** | 0.0112 | 20.00 | 814 | 1.72% | 481 | 8 / 408 | 5.3% | 2.0% | 60.1 | 59.1 |
+### Table 3: Operational Emitted-Alert Budget Performance with 12h Refractory Suppression
+| Target Emitted Budget | Model Architecture | Operating Threshold ($\tau$) | Achieved Emitted Burden (episodes/100 pt-days) | Emitted Alert Episodes (Stays) | Unique Septic Patients Detected | Episode PPV (%) | Coverage-Conditioned Sensitivity $P(D \mid V=1)$ | Whole-Population Sensitivity $P(D \mid S=1)$ | Workload $\text{NNE}_{\text{patient}}$ (Episodes / Patient) | False Episodes per True Patient ($\text{NNE}-1$) |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **5 episodes / 100 pt-days** | **Convex Ensemble** | 0.0145 | 5.01 | 204 | 6 / 408 | 2.94% | 4.0% | 1.5% | 34.0 | 33.0 |
+| | **BiMamba SSM** | 0.0187 | 5.01 | 204 | 4 / 408 | 1.96% | 2.6% | 1.0% | 51.0 | 50.0 |
+| | **GBDT (LightGBM)** | 0.0117 | 5.01 | 204 | 6 / 408 | 2.94% | 4.0% | 1.5% | 34.0 | 33.0 |
+| | **GBDT (XGBoost)** | 0.0122 | 5.01 | 204 | 4 / 408 | 1.96% | 2.6% | 1.0% | 51.0 | 50.0 |
+| | **Random Forest** | 0.0177 | 5.01 | 204 | 3 / 408 | 1.47% | 2.0% | 0.7% | 68.0 | 67.0 |
+| | **Clinical Transformer** | 0.0101 | 5.01 | 204 | 2 / 408 | 0.98% | 1.3% | 0.5% | 102.0 | 101.0 |
+| **10 episodes / 100 pt-days** | **Convex Ensemble** | 0.0131 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
+| | **BiMamba SSM** | 0.0165 | 10.00 | 407 | 7 / 408 | 1.72% | 4.6% | 1.7% | 58.1 | 57.1 |
+| | **GBDT (LightGBM)** | 0.0110 | 10.00 | 407 | 7 / 408 | 1.72% | 4.6% | 1.7% | 58.1 | 57.1 |
+| | **GBDT (XGBoost)** | 0.0114 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
+| | **Random Forest** | 0.0158 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
+| | **Mask-Aware Transformer** | 0.0110 | 10.00 | 407 | 5 / 408 | 1.23% | 3.3% | 1.2% | 81.4 | 80.4 |
+| | **Clinical Transformer** | 0.0094 | 10.00 | 407 | 5 / 408 | 1.23% | 3.3% | 1.2% | 81.4 | 80.4 |
+| **20 episodes / 100 pt-days** | **Convex Ensemble** | 0.0115 | 20.00 | 814 | 8 / 408 | 0.98% | 5.3% | 2.0% | 101.8 | 100.8 |
+| | **BiMamba SSM** | 0.0142 | 20.00 | 814 | 10 / 408 | 1.23% | 6.6% | 2.5% | 81.4 | 80.4 |
+| | **GBDT (XGBoost)** | 0.0105 | 20.00 | 814 | 15 / 408 | 1.84% | 9.9% | 3.7% | 54.3 | 53.3 |
+| | **Mask-Aware Transformer** | 0.0099 | 20.00 | 814 | 14 / 408 | 1.72% | 9.3% | 3.4% | 58.1 | 57.1 |
+| | **GBDT (LightGBM)** | 0.0105 | 20.00 | 814 | 10 / 408 | 1.23% | 6.6% | 2.5% | 81.4 | 80.4 |
+| | **Random Forest** | 0.0131 | 20.00 | 814 | 9 / 408 | 1.11% | 6.0% | 2.2% | 90.4 | 89.4 |
+| | **Clinical Transformer** | 0.0088 | 20.00 | 814 | 7 / 408 | 0.86% | 4.6% | 1.7% | 116.3 | 115.3 |
 
 ---
 
-At a standard clinical workload of 10 alerts per 100 patient-days:
-- The 12-hour refractory policy successfully collapses repetitive alarms, reducing alarm fatigue by 35% to 45% (e.g., from 407 raw alerting windows to 231 distinct clinical alert episodes in the Champion Ensemble).
-- However, window-level PPV remains severely depressed between **1.72% and 2.95%**.
-- Across the entire test cohort of 408 septic patients, the ensemble uniquely detects only **6 patients** ($\text{Sensitivity} = 1.5\%$), requiring clinicians to review **38.5 independent alert episodes** for every single uniquely detected septic patient ($\text{NNE}_{\text{patient}} = 38.5$; 37.5 false alarm episodes per true patient).
-- For deep sequence models, $\text{NNE}_{\text{patient}}$ exceeds 130 episodes per true detection.
+*Note: Because the surveillance protocol evaluates ICU hours 19 to 30 (11 elapsed hours), a 12-hour refractory policy ensures that each stay emits at most one alert episode ($N_{\text{episodes}, i} \le 1$). Emitted alert episodes therefore correspond exactly to distinct alerted patients. True positive episodes correspond to uniquely detected septic patients alerting within their pre-onset horizon ($[T_{\text{S3}}-6\text{h}, T_{\text{S3}}]$). Workload $\text{NNE}_{\text{patient}} = N_{\text{emitted episodes}} / N_{\text{detected patients}}$, and False Episodes per True Patient $= \text{NNE} - 1$.*
+
+At an emitted workload of 10 episodes per 100 surveillance patient-days:
+- The 12-hour refractory policy bounds bedside reviews to exactly 407 unique patient evaluations across 4,070.8 patient-days.
+- However, episode-level PPV remains severely depressed between **0.98% and 1.72%**.
+- Across the entire test cohort of 408 septic patients, the ensemble uniquely detects only **6 patients** ($\text{Sensitivity} = 1.5\%$), requiring clinicians to review **67.8 independent alert episodes** for every single uniquely detected septic patient ($\text{NNE}_{\text{patient}} = 67.8$; 66.8 false alarm episodes per true patient).
+- For deep sequence models, $\text{NNE}_{\text{patient}}$ exceeds 80 episodes per true detection.
 
 ---
 
@@ -201,13 +208,13 @@ Table 4 presents the two-axis cross-tabulation of Sepsis Onset Timing against Tr
 ---
 
 ### Table 4: Two-Axis Subgroup & Timestamp Uncertainty Matrix
-| Database | Sepsis Onset Category | Total Episodes | Definitely Pre-ICU / Unavailable ($T_{\text{treat}} \le 22\text{h}$) | Definitely Available Opportunity ($T_{\text{treat}} > 22\text{h}$) | Indeterminate (Interval Crosses Threshold) | Methodological Note |
+| Database Release & Cohort | Sepsis Onset Category | Total Incident Episodes | Treatment at or before Opportunity Deadline ($\le 22\text{h}$) | Treatment after Opportunity Deadline ($> 22\text{h}$) | Indeterminate (Interval Crosses Deadline) | Clinical & Measurement Specification |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **MIMIC-III** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 2,641 | 1,581 (59.9%) | 8 (0.3%) | 1,052 (39.8%) | Evaluated with $[00:00, 24:00)$ interval bounds to propagate date truncation uncertainty without midnight imputation. |
-| *(Date Proxy)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 940 | 748 (79.6%) | 9 (1.0%) | 183 (19.5%) | |
+| **MIMIC-III v1.4** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 2,641 | 1,581 (59.9%) | 8 (0.3%) | 1,052 (39.8%) | Prescription start date proxy evaluated with $[00:00, 24:00)$ interval bounds. Deadline reflects $b=18\text{h}$ lookback $+ \delta=4\text{h}$ lead buffer. |
+| *(Date Proxy, N=3,581)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 940 | 748 (79.6%) | 9 (1.0%) | 183 (19.5%) | |
 | | **All Incident Episodes** | **3,581** | **2,329 (65.0%)** | **17 (0.5%)** | **1,235 (34.5%)** | |
-| **MIMIC-IV** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 1,236 | 1,235 (99.9%) | 1 (0.1%) | 0 (0.0%) | Confirmed hourly timestamp resolution from electronic medication administration records (`emar`). |
-| *(Hourly eMAR)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 360 | 360 (100.0%) | 0 (0.0%) | 0 (0.0%) | |
+| **MIMIC-IV v3.1** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 1,236 | 1,235 (99.9%) | 1 (0.1%) | 0 (0.0%) | Confirmed hourly administration timestamps from electronic medication administration records (`emar`). |
+| *(Hourly eMAR, N=1,596)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 360 | 360 (100.0%) | 0 (0.0%) | 0 (0.0%) | |
 | | **All Incident Episodes** | **1,596** | **1,595 (99.9%)** | **1 (0.1%)** | **0 (0.0%)** | |
 
 ---
@@ -216,12 +223,18 @@ In MIMIC-III, 34.5% of incident cases (1,235 / 3,581) have prescription start da
 
 ---
 
-### 3.5 Three-Stage Actionability Decomposition (Figure 3)
-Evaluating the decomposition identity reveals the exact sources of population sensitivity loss (**Figure 3**):
-$$P(D=1 \mid S=1) = \underbrace{P(V=1 \mid S=1)}_{37.0\%} \times \underbrace{P(O=1 \mid V=1, S=1)}_{99.3\%} \times \underbrace{P(D=1 \mid O=1, V=1, S=1)}_{4.0\%} = 1.47\% \approx 1.5\%$$
-1. **Surveillance Truncation ($P(V=1 \mid S=1) = 37.0\%$):** 63% of sepsis patients develop sepsis outside the prespecified second-day monitoring window.
-2. **Pre-treatment Actionability ($P(O=1 \mid V=1, S=1) = 99.3\%$):** Among patients with covered windows, treatment has almost never occurred prematurely.
-3. **Operational Model Detection ($P(D=1 \mid O=1, V=1, S=1) = 4.0\%$):** Under a locked workload of 10 alerts/100 pt-days, the model fires timely warnings for only 4.0% of covered cases (6 of 150 patients).
+### 3.5 Cumulative Population Coverage & Actionability Decomposition (Figure 3)
+Evaluating the cumulative population coverage identity reveals the exact sources of population sensitivity attrition (**Figure 3**):
+- **1. Base Incident Sepsis ($S=1$):** 408 / 408 (100.0%)
+- **2. Surveillance Interval Covered ($V=1$):** 151 / 408 (37.0%) [Transition: $151 / 408 = 37.0\%$]
+- **3. Pretreatment Actionable Opportunity ($O=1 \mid V=1$):** 150 / 408 (36.8%) [Transition: $150 / 151 = 99.3\%$]
+- **4. Timely Detected ($D=1 \mid O=1, V=1$):** 6 / 408 (1.5%) [Transition: $6 / 150 = 4.0\%$]
+
+$$\frac{151}{408} \times \frac{150}{151} \times \frac{6}{150} = \frac{6}{408} = 1.47\% \approx 1.5\%$$
+
+1. **Surveillance Truncation ($151 / 408 = 37.0\%$):** 63.0% of sepsis patients (257 / 408) develop sepsis after hour 36, outside the prespecified second-day surveillance protocol (hours 19–30).
+2. **Pre-treatment Actionability ($150 / 151 = 99.3\%$):** Among patients with covered windows, treatment has almost never occurred prematurely.
+3. **Operational Model Detection ($6 / 150 = 4.0\%$):** Under an emitted alert budget of 10 episodes per 100 patient-days (407 emitted episodes), the Convex Ensemble uniquely detects 6 of the 150 actionable patients.
 
 ---
 
@@ -229,8 +242,8 @@ $$P(D=1 \mid S=1) = \underbrace{P(V=1 \mid S=1)}_{37.0\%} \times \underbrace{P(O
 
 ### 4.1 Principal Insights: Why Models Fail at Deployment
 The central finding of this investigation resolves the paradox between published retrospective discriminative success and real-world clinical failure:
-1. **Pre-treatment Discrimination Is Preserved:** In alignment with Dutta et al. (2026), model discrimination (AUROC) does not collapse when evaluating true pre-treatment sepsis detection. Models are capable of identifying physiological derangements ahead of antimicrobial intervention.
-2. **The Collapse Is Operational and Workload-Driven:** When models are forced to operate under realistic clinical alert budgets ($\le 10$ alerts per 100 patient-days), their clinical yield collapses completely. Even with smart 12-hour refractory deduplication, positive predictive value remains below 3%, and clinicians must review nearly 40 false alarm episodes to detect a single septic patient.
+1. **Pre-treatment Discrimination Is Preserved:** In directional consistency with Dutta et al. (2026), model discrimination (AUROC) does not collapse when evaluating true pre-treatment sepsis detection on risk sets excluding post-treatment windows. Models are capable of identifying physiological derangements ahead of antimicrobial intervention.
+2. **The Collapse Is Operational and Workload-Driven:** When models are forced to operate under realistic clinical alert budgets ($\le 10$ emitted alert episodes per 100 patient-days), their clinical yield collapses completely. Even with smart 12-hour refractory deduplication, episode-level PPV remains between 1.0% and 1.7%, requiring clinicians to evaluate 58.1 to 67.8 independent alert episodes to detect a single septic patient.
 3. **Surveillance Coverage Truncation Explains Missing Patients:** Sepsis in critical care does not adhere to narrow 12-hour evaluation windows; median onset occurs 49 hours into admission. In second-day surveillance benchmarks, over 60% of patients appear undetectable simply because their onset has not yet occurred.
 
 ### 4.2 Distinguishing Care-Process Forecasting from Sepsis Anticipation
