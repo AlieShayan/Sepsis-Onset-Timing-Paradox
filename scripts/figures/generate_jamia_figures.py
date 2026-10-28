@@ -17,6 +17,7 @@ import matplotlib.patches as patches
 
 PROJECT_ROOT = Path("/home/alireza/Sepsis-Onset-Timing-Paradox")
 FIG_DIR = PROJECT_ROOT / "reports" / "figures"
+TABLE_DIR = PROJECT_ROOT / "reports" / "tables"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -59,34 +60,34 @@ def generate_figure1_clocks_and_waterfall():
 
     # Diagnostic lead gap G = T_S3 - T_treatment = +24.2h
     ax1.annotate(
-        "", xy=(8.5, 4.3), xytext=(5.5, 4.3),
-        arrowprops=dict(arrowstyle="<->", color="#0F172A", lw=2)
+        "", xy=(5.5, 4.3), xytext=(8.5, 4.3),
+        arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
     )
-    ax1.text(7.0, 3.9, "Diagnostic Lead Gap\n($G = T_{\\mathrm{S3}} - T_{\\mathrm{treatment}} = +24.2\\mathrm{h}$)", ha="center", fontsize=9, color="#0F172A", fontweight="bold")
+    ax1.text(7.0, 3.85, "Diagnostic Lead Gap\n$G = T_{\\mathrm{S3}} - T_{\\mathrm{treatment}} = +24.2\\mathrm{h}$ (median)",
+             ha="center", fontsize=8.5, color="#334155", fontweight="bold")
 
-    # Actionable Decision Window: t in [T_S3 - H, min(T_S3, T_treatment - delta)]
-    ax1.annotate(
-        "", xy=(5.0, 3.3), xytext=(2.5, 3.3),
-        arrowprops=dict(arrowstyle="<->", color="#16A34A", lw=2.2)
-    )
-    ax1.text(3.75, 2.8, "Actionable Pretreatment Window\n($t + \\delta \\leq T_{\\mathrm{treatment}}$, with $\\delta$ response lead buffer)", ha="center", fontsize=8.5, color="#15803D", fontweight="bold")
+    # Lookback horizon H=6h before Sepsis-3
+    ax1.add_patch(patches.Rectangle((6.0, 2.7), 2.5, 0.5, color="#FED7AA", alpha=0.8, zorder=1))
+    ax1.text(7.25, 2.95, "Canonical Lookback $[T_{\\mathrm{S3}}-6\\mathrm{h}, T_{\\mathrm{S3}}]$", ha="center", va="center", fontsize=8.5, color="#C2410C", fontweight="bold")
 
-    # Evidence tiers
-    ax1.text(0, 2.2, "Evidence Hierarchy for Clinical Treatment Timing:", fontsize=10.5, fontweight="bold", color="#0F172A")
-    tiers = [
-        ("Tier 1 (MIMIC-IV eMAR):", "Confirmed administration with minute-level timestamps (Primary Actionability Benchmark)", "#16A34A"),
-        ("Tier 2 (MIMIC-IV POE):", "Computerized order entry and prescription start time (Order-based lead time)", "#0284C7"),
-        ("Tier 3 (MIMIC-III Rx):", "Calendar-date proxy [00:00, 24:00) with interval censoring (Bounded Sensitivity Proxy)", "#D97706"),
-    ]
-    y_pos = 1.65
-    for title, desc, col in tiers:
-        ax1.add_patch(patches.Rectangle((0, y_pos - 0.1), 0.25, 0.3, color=col))
-        ax1.text(0.4, y_pos + 0.05, title, fontsize=9, fontweight="bold", color=col)
-        ax1.text(0.4, y_pos - 0.2, desc, fontsize=8, color="#475569")
-        y_pos -= 0.65
+    # Actionable Decision Window A_i (t <= T_treatment)
+    ax1.add_patch(patches.Rectangle((2.5, 1.6), 3.0, 0.5, color="#BBF7D0", alpha=0.9, zorder=1))
+    ax1.text(4.0, 1.85, "Actionable Window $\\mathcal{A}_i = [19\\mathrm{h}, T_{\\mathrm{treatment}}]$", ha="center", va="center", fontsize=8.5, color="#15803D", fontweight="bold")
 
-    # --- Panel B: Bounded Opportunity Waterfall ---
-    ax2.set_title("B. Opportunity Attrition & Timestamp Uncertainty", fontweight="bold", pad=12)
+    # Antimicrobial Contamination Zone
+    ax1.add_patch(patches.Rectangle((5.5, 0.5), 3.0, 0.5, color="#FECACA", alpha=0.8, zorder=1))
+    ax1.text(7.0, 0.75, "Treatment Contamination Zone ($t > T_{\\mathrm{treatment}}$)", ha="center", va="center", fontsize=8.5, color="#B91C1C", fontweight="bold")
+
+    # Boundary conditions notes
+    ax1.text(0.0, -0.3, "Mathematical Formulation:\n"
+                        "$\\bullet$ Canonical Risk Set: $\\mathcal{R}_{\\mathrm{canonical}} = \\{t : 0 < T_{\\mathrm{S3}} - t \\leq 6\\mathrm{h}\\}$\n"
+                        "$\\bullet$ Pretreatment Risk Set: $\\mathcal{R}_0 = \\{t \\in \\mathcal{R}_{\\mathrm{canonical}} : t \\leq T_{\\mathrm{treatment}}\\}$\n"
+                        "$\\bullet$ Actionable Buffer ($\\delta=2\\mathrm{h}$): $\\mathcal{R}_2 = \\{t \\in \\mathcal{R}_{\\mathrm{canonical}} : t + 2\\mathrm{h} \\leq T_{\\mathrm{treatment}}\\}$",
+             fontsize=8.5, color="#1E293B", family="monospace")
+
+    # --- Panel B: Opportunity Waterfall with Interval Bounds ---
+    ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=12)
+
     categories = [
         "Total Incident Sepsis",
         "Surveillance Covered (V=1)",
@@ -94,9 +95,7 @@ def generate_figure1_clocks_and_waterfall():
         "Indeterminate Opportunity",
     ]
     # Data from Table 4:
-    # MIMIC-III (N=3581): Total=100.0%, Covered=9.4%, DefElig=0.03%, Indet=3.07%
     m3_vals = [100.0, 9.4, 0.03, 3.07]
-    # MIMIC-IV (N=408): Total=100.0%, Covered=37.0%, DefElig=36.8%, Indet=0.0%
     m4_vals = [100.0, 37.0, 36.8, 0.0]
 
     y = np.arange(len(categories))
@@ -131,51 +130,61 @@ def generate_figure1_clocks_and_waterfall():
 def generate_figure2_operational_frontiers():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5))
 
+    t3_path = TABLE_DIR / "Table3_Alert_Budget_Refractory_Workload.csv"
+    if not t3_path.exists():
+        logger.warning("Table 3 not found, skipping Figure 2 generation.")
+        return
+
+    df_t3 = pd.read_csv(t3_path)
+
+    model_display = {
+        "BiMamba SSM (Proposed)": {"label": "BiMamba SSM", "color": "#2563EB", "ls": "-", "marker": "s"},
+        "Multi-Model Stacking Ensemble": {"label": "Stacking Ensemble", "color": "#DC2626", "ls": "--", "marker": "o"},
+        "Tabular GBDT (LightGBM)": {"label": "LightGBM", "color": "#16A34A", "ls": "-.", "marker": "^"},
+        "Tabular GBDT (XGBoost)": {"label": "XGBoost", "color": "#9333EA", "ls": "-.", "marker": "v"},
+        "Random Forest": {"label": "Random Forest", "color": "#D97706", "ls": ":", "marker": "d"},
+    }
+
     budgets = [5.01, 10.00, 20.00]
-    models = {
-        "BiMamba SSM": {"color": "#2563EB", "ls": "-", "marker": "s"},
-        "Convex Ensemble": {"color": "#DC2626", "ls": "--", "marker": "o"},
-        "GBDT (LightGBM)": {"color": "#16A34A", "ls": "-.", "marker": "^"},
-        "Random Forest": {"color": "#D97706", "ls": ":", "marker": "d"},
-    }
-
-    # Episode PPV % from Table 3 (exact typed outputs)
-    ppv_data = {
-        "BiMamba SSM": [2.45, 2.21, 1.72],
-        "Convex Ensemble": [2.94, 1.97, 1.35],
-        "GBDT (LightGBM)": [2.94, 1.72, 1.23],
-        "Random Forest": [1.47, 1.47, 1.11],
-    }
-
-    # NNE Patient Workload from Table 3
-    nne_data = {
-        "BiMamba SSM": [40.8, 45.2, 58.1],
-        "Convex Ensemble": [34.0, 50.9, 74.0],
-        "GBDT (LightGBM)": [34.0, 58.1, 81.4],
-        "Random Forest": [68.0, 67.8, 90.4],
-    }
 
     # --- Left Panel: Episode PPV vs Budget ---
     ax1.set_title("A. Episode-Level PPV vs. Emitted Alert Budget", fontweight="bold")
-    for name, cfg in models.items():
-        ax1.plot(budgets, ppv_data[name], label=name, color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
+    for mname, cfg in model_display.items():
+        sub = df_t3[df_t3["Model Architecture"] == mname]
+        if len(sub) == 0:
+            continue
+        ppv_vals = []
+        for s in sub["Episode PPV % [95% CI]"]:
+            val_str = s.split(" ")[0]
+            ppv_vals.append(float(val_str))
+        ax1.plot(budgets, ppv_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
 
     ax1.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)")
     ax1.set_ylabel("Episode-Level PPV (%)")
     ax1.set_xticks(budgets)
-    ax1.set_ylim(0, 4.0)
+    ax1.set_ylim(0, 3.5)
     ax1.grid(True, linestyle="--", alpha=0.5)
     ax1.legend(loc="upper right", frameon=True)
 
     # --- Right Panel: 12h Refractory Workload (NNE) ---
     ax2.set_title("B. Evaluation Workload (NNE) per Detected Sepsis Patient", fontweight="bold")
-    for name, cfg in models.items():
-        ax2.plot(budgets, nne_data[name], label=name, color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
+    for mname, cfg in model_display.items():
+        sub = df_t3[df_t3["Model Architecture"] == mname]
+        if len(sub) == 0:
+            continue
+        nne_vals = []
+        for s in sub["NNE per Detected Patient [95% CI]"]:
+            val_str = s.split(" ")[0]
+            if val_str == "Undefined":
+                nne_vals.append(np.nan)
+            else:
+                nne_vals.append(float(val_str))
+        ax2.plot(budgets, nne_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
 
     ax2.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)")
     ax2.set_ylabel("Emitted Alert Episodes per Detected Patient (NNE)")
     ax2.set_xticks(budgets)
-    ax2.set_ylim(20, 110)
+    ax2.set_ylim(20, 115)
     ax2.grid(True, linestyle="--", alpha=0.5)
     ax2.legend(loc="upper left", frameon=True)
 
@@ -196,10 +205,9 @@ def generate_figure3_decomposition():
         "1. Total Incident Sepsis\n100.0%\n[N=408 / 408]",
         "2. Surveillance Covered\n37.0%\n[N=151 / 408]",
         "3. Pretreatment Eligible\n36.8%\n[N=150 / 408]",
-        "4. Timely Detected\n2.2%\n[N=9 / 408]",
+        "4. Timely Detected\n1.7%\n[N=7 / 408]",
     ]
-    # Cumulative coverage percentages
-    values = [100.0, 37.01, 36.76, 2.21]
+    values = [100.0, 37.01, 36.76, 1.72]
     colors = ["#334155", "#0284C7", "#16A34A", "#DC2626"]
 
     bars = ax.bar(stages, values, color=colors, width=0.5, edgecolor="#0F172A", lw=1.2)
@@ -225,8 +233,8 @@ def generate_figure3_decomposition():
         fontsize=9, color="#15803D", ha="center"
     )
     ax.annotate(
-        "Operational Alert Budget\nTransition: 9/150 = 6.0%\n(BiMamba SSM at 10 emitted episodes/100 pt-days)",
-        xy=(3, 2.2), xytext=(3.0, 25),
+        "Operational Alert Budget\nTransition: 7/150 = 4.7%\n(BiMamba SSM at 10 emitted episodes/100 pt-days)",
+        xy=(3, 1.72), xytext=(3.0, 25),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
         fontsize=9, color="#B91C1C", ha="center"
     )

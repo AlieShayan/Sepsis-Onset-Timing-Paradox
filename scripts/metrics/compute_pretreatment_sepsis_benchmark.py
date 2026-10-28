@@ -121,7 +121,40 @@ def run_pretreatment_sepsis_bootstrap(
             # Paired difference Delta AUROC = R_0 - Canonical
             delta_auroc_boot[b, m_idx] = roc1 - roc0
 
-    # Compile Table 2
+    # 1. Point estimates on original held-out test dataset
+    valid_s3_pt = (~is_s) | (is_s & (w_end <= t_s))
+    pos_s3_pt = is_s & (w_end <= t_s) & (w_end >= t_s - 6.0)
+    y_s3_pt = np.zeros(len(df), dtype=int)
+    y_s3_pt[pos_s3_pt] = 1
+
+    r0_mask_pt = (~has_tr) | (has_tr & (w_end <= t_tr))
+    y_r0_pt = y_s3_pt[r0_mask_pt]
+
+    r2_mask_pt = (~has_tr) | (has_tr & (w_end <= t_tr - 2.0))
+    y_r2_pt = y_s3_pt[r2_mask_pt]
+
+    pt_estimates = {}
+    for m_idx, m in enumerate(models_present):
+        preds_pt = df[m].values
+        # Task 0
+        roc0_pt = roc_auc_score(y_s3_pt[valid_s3_pt], preds_pt[valid_s3_pt])
+        prc0_pt = average_precision_score(y_s3_pt[valid_s3_pt], preds_pt[valid_s3_pt]) * 100.0
+        # Task 1
+        roc1_pt = roc_auc_score(y_r0_pt, preds_pt[r0_mask_pt])
+        prc1_pt = average_precision_score(y_r0_pt, preds_pt[r0_mask_pt]) * 100.0
+        # Task 2
+        roc2_pt = roc_auc_score(y_r2_pt, preds_pt[r2_mask_pt])
+        prc2_pt = average_precision_score(y_r2_pt, preds_pt[r2_mask_pt]) * 100.0
+
+        delta_pt = roc1_pt - roc0_pt
+        pt_estimates[m] = {
+            0: (roc0_pt, prc0_pt),
+            1: (roc1_pt, prc1_pt),
+            2: (roc2_pt, prc2_pt),
+            "delta": delta_pt,
+        }
+
+    # 2. Compile Table 2 with original held-out point estimates and bootstrap percentile CIs
     table2_rows = []
     task_names = [
         "Canonical Sepsis-3 (Full Risk Set)",
@@ -131,25 +164,25 @@ def run_pretreatment_sepsis_bootstrap(
 
     for m_idx, m in enumerate(models_present):
         disp_name = MODEL_NAME_MAP.get(m, m).replace("★ ", "")
+        if disp_name == "Proposed Champion (Ensemble)":
+            disp_name = "Multi-Model Stacking Ensemble"
         row = {"Model Architecture": disp_name}
         for t_idx, t_name in enumerate(task_names):
             rocs = auroc_boot[:, m_idx, t_idx]
             prcs = auprc_boot[:, m_idx, t_idx] * 100.0
 
-            r_m = np.mean(rocs)
+            r_pt, p_pt = pt_estimates[m][t_idx]
             r_lo, r_hi = np.percentile(rocs, [2.5, 97.5])
-            p_m = np.mean(prcs)
             p_lo, p_hi = np.percentile(prcs, [2.5, 97.5])
 
-            row[f"{t_name} AUROC [95% CI]"] = f"{r_m:.4f} ({r_lo:.4f}–{r_hi:.4f})"
-            row[f"{t_name} AUPRC % [95% CI]"] = f"{p_m:.3f}% ({p_lo:.3f}%–{p_hi:.3f}%)"
+            row[f"{t_name} AUROC [95% CI]"] = f"{r_pt:.4f} ({r_lo:.4f}–{r_hi:.4f})"
+            row[f"{t_name} AUPRC % [95% CI]"] = f"{p_pt:.3f}% ({p_lo:.3f}%–{p_hi:.3f}%)"
 
         # Paired difference
         deltas = delta_auroc_boot[:, m_idx]
-        d_m = np.mean(deltas)
+        d_pt = pt_estimates[m]["delta"]
         d_lo, d_hi = np.percentile(deltas, [2.5, 97.5])
-        p_val = np.mean(deltas <= 0) if d_m > 0 else np.mean(deltas >= 0)
-        row["Paired Delta AUROC (R0 - Canonical) [95% CI]"] = f"{d_m:+.4f} ({d_lo:+.4f} to {d_hi:+.4f})"
+        row["Paired Delta AUROC (R0 - Canonical) [95% CI]"] = f"{d_pt:+.4f} ({d_lo:+.4f} to {d_hi:+.4f})"
 
         table2_rows.append(row)
 

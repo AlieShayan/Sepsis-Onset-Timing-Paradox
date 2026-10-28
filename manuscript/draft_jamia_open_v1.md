@@ -81,7 +81,7 @@ We evaluated 8 representative architectures across the contemporary machine lear
 - **State-Space Models (SSM):** BiMamba SSM (bidirectional selective state-space architecture with linear time-complexity).
 - **Deep Sequence Architectures:** Mask-Aware Clinical Transformer (incorporating `SequenceValidityMask` and `MaskedGlobalAvgPooling1D` to prevent zero-padding gradient dilution over irregular sequence lengths), and Baseline Clinical Transformer (unmasked standard multi-head attention).
 - **Tabular GBDTs & Linear Baselines:** Random Forest, Tabular GBDT (XGBoost), Tabular GBDT (LightGBM), and Platt-calibrated Logistic Regression (L2).
-- **Ensemble Meta-Learner:** Proposed Champion Pareto-Convex Blend.
+- **Ensemble Meta-Learner:** Multi-Model Stacking Ensemble.
 
 All models received standardized 21 physiological time-series channels (vital signs, blood gases, complete blood count, coagulation, liver and renal chemistry) sampled hourly, excluding pharmacological intervention variables (antibiotics, vasopressors, fluid boluses) to prevent explicit feature leakage.
 
@@ -148,11 +148,23 @@ Table 2 displays model discrimination across Canonical Sepsis-3 (H=6h) versus Tr
 
 ---
 
-### Table 2: Benchmark Discrimination with Patient-Clustered 95% CIs Across Pre-Treatment Tasks (B=1,000 Clustered Bootstraps)
-| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUROC [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+### Table 2: Benchmark Discrimination Across Pre-Treatment Tasks (Held-Out Point Estimates and B=1,000 Patient-Clustered 95% CIs)
+*Note on Estimands: Point estimates are calculated directly on the held-out test cohort (B=0); 95% confidence intervals are derived from B=1,000 patient-clustered bootstrap resamples. Baseline outcome prevalence is reported directly below each task heading.*
+
+| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUROC [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUPRC % [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **BiMamba SSM (Proposed)** | **0.6326 (0.5872–0.6733)** | **1.209% (0.892%–1.769%)** | **0.6433 (0.5998–0.6835)** | **1.656% (1.235%–2.329%)** | **0.6447 (0.6002–0.6860)** | **1.647% (1.220%–2.331%)** | **+0.0107 (+0.0060 to +0.0175)** |
+| **Multi-Model Stacking Ensemble** | 0.6284 (0.5829–0.6699) | 1.206% (0.882%–1.748%) | 0.6351 (0.5897–0.6771) | 1.621% (1.207%–2.263%) | 0.6370 (0.5913–0.6799) | 1.613% (1.198%–2.255%) | +0.0067 (+0.0021 to +0.0137) |
+| **Random Forest** | 0.6108 (0.5643–0.6535) | 1.080% (0.821%–1.434%) | 0.6143 (0.5684–0.6575) | 1.470% (1.138%–1.920%) | 0.6173 (0.5712–0.6612) | 1.461% (1.120%–1.916%) | +0.0034 (-0.0008 to +0.0101) |
+| **Mask-Aware Clinical Transformer** | 0.5942 (0.5467–0.6410) | 1.013% (0.766%–1.303%) | 0.5961 (0.5490–0.6422) | 1.382% (1.048%–1.760%) | 0.5954 (0.5480–0.6426) | 1.365% (1.032%–1.752%) | +0.0020 (-0.0024 to +0.0083) |
+| **Tabular GBDT (XGBoost)** | 0.5670 (0.5208–0.6102) | 0.977% (0.739%–1.357%) | 0.5643 (0.5186–0.6082) | 1.320% (1.008%–1.817%) | 0.5652 (0.5192–0.6099) | 1.313% (0.998%–1.811%) | -0.0027 (-0.0070 to +0.0038) |
+| **Tabular GBDT (LightGBM)** | 0.5613 (0.5161–0.6026) | 0.893% (0.694%–1.195%) | 0.5587 (0.5139–0.6010) | 1.222% (0.957%–1.629%) | 0.5598 (0.5145–0.6033) | 1.214% (0.949%–1.630%) | -0.0026 (-0.0070 to +0.0038) |
+| **Logistic Regression (L2)** | 0.5593 (0.5097–0.6048) | 0.939% (0.716%–1.218%) | 0.5654 (0.5157–0.6107) | 1.337% (1.012%–1.740%) | 0.5657 (0.5150–0.6127) | 1.325% (1.002%–1.731%) | +0.0061 (+0.0023 to +0.0116) |
+| **Clinical Transformer (Baseline)** | 0.5239 (0.4808–0.5653) | 0.808% (0.609%–1.381%) | 0.5296 (0.4851–0.5712) | 1.147% (0.857%–1.904%) | 0.5286 (0.4834–0.5705) | 1.131% (0.845%–1.894%) | +0.0057 (+0.0019 to +0.0110) |
+
+--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **BiMamba SSM (Proposed)** | **0.6312 (0.5872–0.6733)** | **1.250% (0.892%–1.769%)** | **0.6421 (0.5998–0.6835)** | **1.701% (1.235%–2.329%)** | **0.6435 (0.6002–0.6860)** | **+0.0109 (+0.0060 to +0.0175)** |
-| **Proposed Champion (Ensemble)** | 0.6271 (0.5829–0.6699) | 1.248% (0.882%–1.748%) | 0.6340 (0.5897–0.6771) | 1.667% (1.207%–2.263%) | 0.6360 (0.5913–0.6799) | +0.0069 (+0.0021 to +0.0137) |
+| **Multi-Model Stacking Ensemble (Ensemble)** | 0.6271 (0.5829–0.6699) | 1.248% (0.882%–1.748%) | 0.6340 (0.5897–0.6771) | 1.667% (1.207%–2.263%) | 0.6360 (0.5913–0.6799) | +0.0069 (+0.0021 to +0.0137) |
 | **Random Forest** | 0.6099 (0.5643–0.6535) | 1.113% (0.821%–1.434%) | 0.6135 (0.5684–0.6575) | 1.508% (1.138%–1.920%) | 0.6166 (0.5712–0.6612) | +0.0036 (-0.0008 to +0.0101) |
 | **Mask-Aware Clinical Transformer** | 0.5933 (0.5467–0.6410) | 1.019% (0.766%–1.303%) | 0.5955 (0.5490–0.6422) | 1.389% (1.048%–1.760%) | 0.5948 (0.5480–0.6426) | +0.0022 (-0.0024 to +0.0083) |
 | **Tabular GBDT (XGBoost)** | 0.5664 (0.5208–0.6102) | 1.010% (0.739%–1.357%) | 0.5639 (0.5186–0.6082) | 1.361% (1.008%–1.817%) | 0.5648 (0.5192–0.6099) | -0.0025 (-0.0070 to +0.0038) |
@@ -164,7 +176,7 @@ Table 2 displays model discrimination across Canonical Sepsis-3 (H=6h) versus Tr
 
 *Note: All differences Delta-AUROC and confidence intervals were computed on unrounded estimates across B=1,000 patient-clustered bootstrap iterations. Baseline outcome prevalence is reported directly below each task heading.*
 
-Crucially, in contrast to earlier conjectures that pre-treatment evaluation causes severe discriminative collapse, discrimination was slightly higher in the restricted pretreatment risk sets R0 and R2 than in the canonical risk set (BiMamba SSM AUROC: 0.6312 canonical vs. 0.6421 on R0, paired Delta-AUROC = +0.0109, 95% CI: +0.0060 to +0.0175; Proposed Champion Ensemble: 0.6271 canonical vs. 0.6340 on R0, paired Delta-AUROC = +0.0069, 95% CI: +0.0021 to +0.0137). 
+Crucially, in contrast to earlier conjectures that pre-treatment evaluation causes severe discriminative collapse, discrimination was slightly higher in the restricted pretreatment risk sets R0 and R2 than in the canonical risk set (BiMamba SSM AUROC: 0.6312 canonical vs. 0.6421 on R0, paired Delta-AUROC = +0.0109, 95% CI: +0.0060 to +0.0175; Multi-Model Stacking Ensemble: 0.6271 canonical vs. 0.6340 on R0, paired Delta-AUROC = +0.0069, 95% CI: +0.0021 to +0.0137). 
 
 However, this comparison does not distinguish treatment-related information effects from changes in the underlying case mix, time since admission, and outcome prevalence. The absolute increase in AUPRC (BiMamba: 1.250% canonical to 1.701% on R0) largely tracks the higher baseline positive prevalence in the restricted set (0.694% canonical vs. 0.960% in R0), with both estimates representing approximately 1.8x baseline prevalence. 
 
@@ -177,13 +189,47 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 
 ---
 
-### Table 3: Operational Burden-Matched Alert Frontiers with 12h Refractory Suppression
-*Bootstrap Procedure Note: Evaluated using the empirical burden-matched bootstrap procedure (re-selecting the operating threshold to match the prespecified episode budget exactly within each bootstrap resample). Under 12h refractory suppression across the 11-hour surveillance interval, N_episodes <= 1 holds strictly for all stays; emitted alert episodes correspond identically to alerted patients.*
+### Table 3: Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression
+*Protocol & Estimand: Evaluated under Procedure B (Empirical Burden-Matched Bootstrap, B=1,000 resamples). At each resample, exposure E_b is recomputed as \frac{1}{24}\sum_{i\in b} h_i and the target alert count K_b is dynamically selected as \operatorname{round}(q \cdot E_b / 100) to maintain the prespecified rate frontier. Patient-clustered resampling preserves duplicate patient copies via deterministic secondary key sorting ([score, ICUSTAY_ID, copy_idx]). Under 12h refractory suppression across the surveillance window [19, 30], each patient emits at most one alert episode. Crucially, detections are evaluated at the first emitted alert window t_{\mathrm{first}} = \min\{t : \text{score}_t \ge \tau\}.*
 
-| Prespecified Alert Budget | Model Architecture | Operating Threshold (tau) | Emitted Alert Episodes | Emitted Rate (/100 pt-days) | Episode PPV % [95% CI] | True Positive Sepsis Detections | Pretreatment Detections (delta=0h) | Pretreatment Detections (delta=2h) | Detection Sensitivity in Covered % [95% CI] | Overall Sepsis Detection Yield % [95% CI] | NNE per Detected Patient [95% CI] | Zero-Detection Fraction ($f_0$) |
+| Prespecified Alert Budget | Model Architecture | Operating Threshold ($\tau$) | Emitted Alert Episodes | Emitted Rate (/100 pt-days) | Episode PPV % [95% CI] | True Positive Sepsis Detections | Pretreatment Detections ($\delta=0\text{h}$) | Pretreatment Detections ($\delta=2\text{h}$) | Detection Sensitivity in Covered % [95% CI] | Overall Sepsis Detection Yield % [95% CI] | NNE per Detected Patient [95% CI] | Zero-Detection Fraction ($f_0$) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **5.0 episodes / 100 pt-days** | **Multi-Model Stacking Ensemble** | 0.0145 | 204 | 5.01 | 2.94 (0.98–5.88)% | 6 | 6 | 6 | 3.97 (1.31–7.65)% | 1.47 (0.49–2.86)% | 34.0 (17.0–102.0) | 0.002 |
+| | **Tabular GBDT (LightGBM)** | 0.0117 | 204 | 5.01 | 2.94 (0.98–5.39)% | 6 | 6 | 6 | 3.97 (1.26–7.10)% | 1.47 (0.47–2.61)% | 34.0 (18.5–102.0) | 0.001 |
+| | **BiMamba SSM (Proposed)** | 0.0187 | 204 | 5.01 | 1.96 (0.49–4.45)% | 4 | 4 | 4 | 2.65 (0.65–6.20)% | 0.98 (0.24–2.31)% | 51.0 (22.5–204.0) | 0.015 |
+| | **Tabular GBDT (XGBoost)** | 0.0122 | 204 | 5.01 | 1.96 (0.49–3.94)% | 4 | 4 | 4 | 2.65 (0.63–5.63)% | 0.98 (0.23–2.09)% | 51.0 (25.4–204.0) | 0.015 |
+| | **Random Forest** | 0.0177 | 204 | 5.01 | 1.47 (0.00–3.45)% | 3 | 3 | 3 | 1.99 (0.00–4.49)% | 0.74 (0.00–1.70)% | 68.0 (29.0–+inf) | 0.041 |
+| | **Clinical Transformer (Baseline)** | 0.0101 | 204 | 5.01 | 0.98 (0.00–2.46)% | 2 | 2 | 2 | 1.32 (0.00–3.50)% | 0.49 (0.00–1.27)% | 102.0 (40.6–+inf) | 0.130 |
+| | **Logistic Regression (L2)** | 0.0103 | 204 | 5.01 | 0.98 (0.00–2.94)% | 2 | 2 | 2 | 1.32 (0.00–3.85)% | 0.49 (0.00–1.45)% | 102.0 (34.0–+inf) | 0.138 |
+| | **Mask-Aware Transformer** | 0.0120 | 204 | 5.01 | 0.00 (0.00–0.00)%* | 0 | 0 | 0 | 0.00 (0.00–0.00)%* | 0.00 (0.00–0.00)%* | Undefined (+inf) | 0.989 |
+| **10.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0165 | 407 | 10.00 | 1.72 (0.49–2.95)% | 7 | 7 | 7 | 4.64 (1.33–8.16)% | 1.72 (0.49–2.93)% | 58.1 (33.9–203.5) | 0.001 |
+| | **Tabular GBDT (LightGBM)** | 0.0110 | 407 | 10.00 | 1.72 (0.49–2.95)% | 7 | 7 | 7 | 4.64 (1.38–7.74)% | 1.72 (0.49–2.89)% | 58.1 (33.9–203.5) | 0.000 |
+| | **Multi-Model Stacking Ensemble** | 0.0131 | 407 | 10.00 | 1.47 (0.25–2.46)% | 6 | 6 | 6 | 3.97 (0.70–6.98)% | 1.47 (0.26–2.54)% | 67.8 (40.7–407.0) | 0.004 |
+| | **Tabular GBDT (XGBoost)** | 0.0114 | 407 | 10.00 | 1.47 (0.49–2.94)% | 6 | 6 | 6 | 3.97 (1.32–7.65)% | 1.47 (0.49–2.85)% | 67.8 (34.0–203.5) | 0.001 |
+| | **Random Forest** | 0.0158 | 407 | 10.00 | 1.47 (0.49–2.70)% | 6 | 6 | 6 | 3.97 (1.26–7.29)% | 1.47 (0.47–2.70)% | 67.8 (37.0–204.0) | 0.004 |
+| | **Mask-Aware Transformer** | 0.0110 | 407 | 10.00 | 1.23 (0.25–2.46)% | 5 | 5 | 5 | 3.31 (0.74–6.67)% | 1.23 (0.26–2.48)% | 81.4 (40.7–407.0) | 0.004 |
+| | **Clinical Transformer (Baseline)** | 0.0094 | 407 | 10.00 | 1.23 (0.25–2.46)% | 5 | 5 | 5 | 3.31 (0.68–6.38)% | 1.23 (0.25–2.37)% | 81.4 (40.7–407.0) | 0.007 |
+| | **Logistic Regression (L2)** | 0.0095 | 407 | 10.00 | 0.98 (0.25–1.97)% | 4 | 4 | 4 | 2.65 (0.59–5.51)% | 0.98 (0.23–2.07)% | 101.8 (50.8–408.0) | 0.021 |
+| **20.0 episodes / 100 pt-days** | **Tabular GBDT (XGBoost)** | 0.0105 | 814 | 20.00 | 1.84 (0.98–2.70)% | 15 | 15 | 15 | 9.93 (5.26–14.47)% | 3.68 (1.87–5.29)% | 54.3 (37.0–101.9) | 0.000 |
+| | **Mask-Aware Transformer** | 0.0099 | 814 | 20.00 | 1.72 (0.74–2.58)% | 14 | 14 | 14 | 9.27 (4.54–13.77)% | 3.43 (1.59–5.19)% | 58.1 (38.8–135.7) | 0.000 |
+| | **Logistic Regression (L2)** | 0.0088 | 814 | 20.00 | 1.35 (0.49–2.09)% | 11 | 11 | 11 | 7.28 (2.74–11.11)% | 2.70 (0.99–4.18)% | 74.0 (47.8–203.7) | 0.000 |
+| | **BiMamba SSM (Proposed)** | 0.0142 | 814 | 20.00 | 1.23 (0.49–2.09)% | 10 | 10 | 10 | 6.62 (3.07–10.89)% | 2.45 (1.05–4.10)% | 81.4 (47.9–203.2) | 0.000 |
+| | **Tabular GBDT (LightGBM)** | 0.0105 | 814 | 20.00 | 1.23 (0.61–2.09)% | 10 | 10 | 10 | 6.62 (3.11–11.04)% | 2.45 (1.15–4.10)% | 81.4 (47.9–163.0) | 0.000 |
+| | **Random Forest** | 0.0131 | 814 | 20.00 | 1.11 (0.49–1.85)% | 9 | 9 | 9 | 5.96 (2.70–9.68)% | 2.21 (0.96–3.69)% | 90.4 (54.2–203.7) | 0.001 |
+| | **Multi-Model Stacking Ensemble** | 0.0115 | 814 | 20.00 | 0.98 (0.37–1.72)% | 8 | 8 | 8 | 5.30 (2.04–9.15)% | 1.96 (0.74–3.43)% | 101.8 (58.1–271.3) | 0.000 |
+| | **Clinical Transformer (Baseline)** | 0.0088 | 814 | 20.00 | 0.86 (0.25–1.48)% | 7 | 7 | 7 | 4.64 (1.51–8.18)% | 1.72 (0.52–3.04)% | 116.3 (67.8–407.0) | 0.001 |
+
+---
+
+*Note on Operational Mechanics and Alert Timing Verification: Workload NNE_patient = N_emitted episodes / N_true positive episodes. Crucially, timing verification at the first emitted alert t_{\mathrm{first}} confirmed that 100% of true-positive sepsis-horizon detections (0 < T_S3 - t_{\mathrm{first}} <= 6h) strictly preceded systemic antimicrobial administration (t_{\mathrm{first}} <= T_treatment) and maintained at least a 2-hour clinical response buffer (t_{\mathrm{first}} + 2h <= T_treatment).*
+
+*Boundary and Zero-Event Footnote (*): For the Mask-Aware Transformer at 5 episodes/100 pt-days (0 observed detections), the empirical percentile-bootstrap interval was degenerate at zero [0.00%, 0.00%]; this empirical boundary result reflects bootstrap degeneracy and does not establish zero population detection probability. For reference, under an idealized fixed-policy Bernoulli model with zero observed successes, the exact one-sided 95% Clopper-Pearson upper confidence limit (1 - 0.05^{1/N}) is 1.46% (PPV, N=204), 1.96% (covered sensitivity, N=151), and 0.73% (overall yield, N=408), corresponding to the approximate Hanley Rule-of-Three (3/N). NNE confidence intervals are derived by exact reciprocal transformation of unrounded PPV percentiles; when the lower PPV limit reaches 0.00%, the upper NNE bound is mathematically +\infty (reported as +inf).*
+
+*Boundary Tie Disclosure: For continuous deep models and Logistic Regression, scores are strictly continuous (tied count = 1 at cutoff). Discrete tree models exhibit leaf quantization: at 814 episodes, LightGBM has 2,636 stays tied at score 0.010537 (623 strictly above; 191 selected via deterministic ascending ICUSTAY_ID key to fulfill the exact 814 budget quota); XGBoost has 5 stays tied at 0.010526 (2 selected). At 204 episodes, the Stacking Ensemble has 2 stays tied at 0.014490 (1 selected), and Random Forest has 2 stays tied at 0.017658 (both selected).*
+
+--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **5.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0187 | 204 | 5.01 | 2.45 (0.49–4.90)% | 5 | 5 | 5 | 3.31 (0.70–6.67)% | 1.23 (0.25–2.52)% | 40.8 (20.4–204.0) | 0.005 |
-| | **Proposed Champion (Ensemble)** | 0.0145 | 204 | 5.01 | 2.94 (0.98–5.39)% | 6 | 6 | 6 | 3.97 (1.26–7.38)% | 1.47 (0.48–2.72)% | 34.0 (18.5–102.0) | 0.005 |
+| | **Multi-Model Stacking Ensemble (Ensemble)** | 0.0145 | 204 | 5.01 | 2.94 (0.98–5.39)% | 6 | 6 | 6 | 3.97 (1.26–7.38)% | 1.47 (0.48–2.72)% | 34.0 (18.5–102.0) | 0.005 |
 | | **Tabular GBDT (LightGBM)** | 0.0117 | 204 | 5.01 | 2.94 (0.98–5.39)% | 6 | 6 | 6 | 3.97 (1.20–7.28)% | 1.47 (0.47–2.67)% | 34.0 (18.5–102.0) | 0.006 |
 | | **Tabular GBDT (XGBoost)** | 0.0122 | 204 | 5.01 | 1.96 (0.49–3.92)% | 4 | 4 | 4 | 2.65 (0.61–5.44)% | 0.98 (0.23–2.01)% | 51.0 (25.5–204.0) | 0.017 |
 | | **Random Forest** | 0.0177 | 204 | 5.01 | 1.47 (0.00–3.43)% | 3 | 3 | 3 | 1.99 (0.00–4.55)% | 0.74 (0.00–1.66)% | 68.0 (29.1–+inf) | 0.046 |
@@ -191,7 +237,7 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 | | **Clinical Transformer (Baseline)** | 0.0101 | 204 | 5.01 | 0.98 (0.00–2.45)% | 2 | 2 | 2 | 1.32 (0.00–3.29)% | 0.49 (0.00–1.23)% | 102.0 (40.8–+inf) | 0.143 |
 | | **Logistic Regression (L2)** | 0.0103 | 204 | 5.01 | 0.98 (0.00–2.45)% | 2 | 2 | 2 | 1.32 (0.00–3.60)% | 0.49 (0.00–1.35)% | 102.0 (34.0–+inf) | 0.118 |
 | **10.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0165 | 407 | 10.00 | 2.21 (0.74–3.69)% | 9 | 9 | 9 | 5.96 (2.17–9.53)% | 2.21 (0.77–3.49)% | 45.2 (27.1–135.7) | 0.002 |
-| | **Proposed Champion (Ensemble)** | 0.0131 | 407 | 10.00 | 1.97 (0.74–3.44)% | 8 | 8 | 8 | 5.30 (2.07–8.97)% | 1.96 (0.76–3.31)% | 50.9 (29.1–135.7) | 0.001 |
+| | **Multi-Model Stacking Ensemble (Ensemble)** | 0.0131 | 407 | 10.00 | 1.97 (0.74–3.44)% | 8 | 8 | 8 | 5.30 (2.07–8.97)% | 1.96 (0.76–3.31)% | 50.9 (29.1–135.7) | 0.001 |
 | | **Tabular GBDT (LightGBM)** | 0.0110 | 407 | 10.00 | 1.72 (0.49–2.95)% | 7 | 7 | 7 | 4.64 (1.33–7.74)% | 1.72 (0.49–2.89)% | 58.1 (33.9–203.5) | 0.001 |
 | | **Tabular GBDT (XGBoost)** | 0.0114 | 407 | 10.00 | 1.47 (0.49–2.70)% | 6 | 6 | 6 | 3.97 (1.30–7.48)% | 1.47 (0.48–2.76)% | 67.8 (37.0–203.5) | 0.003 |
 | | **Random Forest** | 0.0158 | 407 | 10.00 | 1.47 (0.49–2.70)% | 6 | 6 | 6 | 3.97 (1.21–7.20)% | 1.47 (0.47–2.68)% | 67.8 (37.0–203.5) | 0.002 |
@@ -199,7 +245,7 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 | | **Clinical Transformer (Baseline)** | 0.0094 | 407 | 10.00 | 1.23 (0.25–2.46)% | 5 | 5 | 5 | 3.31 (0.69–6.58)% | 1.23 (0.25–2.43)% | 81.4 (40.7–407.0) | 0.006 |
 | | **Logistic Regression (L2)** | 0.0095 | 407 | 10.00 | 0.98 (0.25–2.21)% | 4 | 4 | 4 | 2.65 (0.58–5.81)% | 0.98 (0.23–2.14)% | 101.8 (45.2–407.0) | 0.023 |
 | **20.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0142 | 814 | 20.00 | 1.72 (0.86–2.70)% | 14 | 14 | 14 | 9.27 (5.26–14.01)% | 3.43 (1.81–5.21)% | 58.1 (37.0–116.3) | 0.000 |
-| | **Proposed Champion (Ensemble)** | 0.0115 | 20.00 | 814 | 1.35 (0.73–2.21)% | 11 | 11 | 11 | 7.28 (3.70–11.64)% | 2.70 (1.37–4.34)% | 74.0 (45.2–136.3) | 0.000 |
+| | **Multi-Model Stacking Ensemble (Ensemble)** | 0.0115 | 20.00 | 814 | 1.35 (0.73–2.21)% | 11 | 11 | 11 | 7.28 (3.70–11.64)% | 2.70 (1.37–4.34)% | 74.0 (45.2–136.3) | 0.000 |
 | | **Tabular GBDT (LightGBM)** | 0.0105 | 20.00 | 814 | 1.23 (0.49–2.09)% | 10 | 10 | 10 | 6.62 (2.80–10.81)% | 2.45 (1.01–4.12)% | 81.4 (47.9–203.5) | 0.000 |
 | | **Tabular GBDT (XGBoost)** | 0.0105 | 20.00 | 814 | 1.84 (0.98–2.70)% | 15 | 15 | 15 | 9.93 (5.19–14.39)% | 3.68 (1.88–5.37)% | 54.3 (37.0–102.1) | 0.000 |
 | | **Random Forest** | 0.0131 | 20.00 | 814 | 1.11 (0.49–1.84)% | 9 | 9 | 9 | 5.96 (2.60–9.68)% | 2.21 (0.95–3.61)% | 90.4 (54.3–203.5) | 0.000 |
@@ -215,8 +261,9 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 
 At an emitted workload of 10 episodes per 100 surveillance patient-days:
 - The 12-hour refractory policy bounds bedside reviews to exactly 407 unique patient evaluations across 4,070.8 patient-days.
-- Across the entire test cohort of 408 septic patients, the top-performing BiMamba SSM uniquely detects **9 patients** (Sensitivity = 2.21%, 95% CI: 0.77%–3.49%; PPV = 2.21%, 95% CI: 0.74%–3.69%), requiring clinicians to review **45.2 independent alert episodes** for every single uniquely detected septic patient (NNE_patient = 45.2, 95% CI: 27.1–135.7).
-- The Champion Ensemble detects **8 patients** (Sensitivity = 1.96%, 95% CI: 0.76%–3.31%; PPV = 1.97%, 95% CI: 0.74%–3.44%), requiring **50.9 alert episode evaluations per detected patient** (NNE_patient = 50.9, 95% CI: 29.1–135.7).
+- Across the entire test cohort of 408 septic patients, BiMamba SSM and LightGBM each uniquely detect **7 patients** (Sensitivity = 1.72%, 95% CI: 0.49%–2.89%; PPV = 1.72%, 95% CI: 0.49%–2.95%), requiring clinicians to review **58.1 independent alert episodes** for every single uniquely detected septic patient (NNE = 58.1, 95% CI: 33.9–203.5).
+- The Multi-Model Stacking Ensemble detects **6 patients** (Sensitivity = 1.47%, 95% CI: 0.26%–2.54%; PPV = 1.47%, 95% CI: 0.25%–2.46%), requiring **67.8 alert episode evaluations per detected patient** (NNE = 67.8, 95% CI: 40.7–407.0).
+- At 20 episodes per 100 patient-days (814 emitted alert episodes), XGBoost achieves the largest detection count (15 detected patients, PPV = 1.84%, NNE = 54.3), followed by the Mask-Aware Transformer (14 detected patients, PPV = 1.72%, NNE = 58.1), demonstrating that empirical model rankings depend heavily on operational workload.
 
 ---
 
@@ -226,7 +273,7 @@ $$\mathcal{A}_i = \{ t \in \mathcal{T}_i : 0 < T_{\text{S3}, i} - t \le H \}, \q
 
 ---
 
-### Table 4: Two-Axis Subgroup & Timestamp Uncertainty Matrix
+### Table 4: Two-Axis Subgroup & Timestamp Uncertainty Matrix (Opportunity Bounds Conditional on Fixed Sepsis-3 Consensus Timestamps)
 | Cohort & Timestamp Source | Sepsis Onset Category | Subgroup Denominator ($N$) | Surveillance Covered Stays ($V=1$) | Definitely Eligible Count | Indeterminate Count | Surveillance Uncovered ($V=0$) | Covered but Ineligible ($V=1, O=0$) | Within-Subgroup Opportunity Bounds | Within-Covered Opportunity Bounds | Contribution to Overall Cohort Bound |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **MIMIC-IV Prospective-Replay** | Early Incident (<=24h) | 47 | 47 (100.0%) | 47 | 0 | 0 | 0 | [100.0%, 100.0%] | [100.0%, 100.0%] | 47 / 408 (11.5%) |
@@ -251,19 +298,19 @@ Evaluating the cumulative population coverage identity reveals the exact sources
 - **1. Base Incident Sepsis ($S=1$):** 408 / 408 (100.0%)
 - **2. Surveillance Interval Covered ($V=1$):** 151 / 408 (37.0%) [Transition: $151 / 408 = 37.01\%$]
 - **3. Pretreatment Actionable Opportunity ($O_0=1 \mid V=1$):** 150 / 408 (36.8%) [Transition: $150 / 151 = 99.34\%$]
-- **4. Timely Detected by Top Model ($D=1 \mid O_0=1, V=1$):** 9 / 408 (2.21%) [Transition: $9 / 150 = 6.00\%$ for BiMamba SSM; 8 / 150 = 5.33% for Champion Ensemble]
+- **4. Timely Detected by Model ($D=1 \mid O_0=1, V=1$):** 7 / 408 (1.72%) [Transition: $7 / 150 = 4.67\%$ for BiMamba SSM; 6 / 150 = 4.00% for Stacking Ensemble]
 
-$$\frac{151}{408} \times \frac{150}{151} \times \frac{9}{150} = \frac{9}{408} = 2.21\%$$
+$$\frac{151}{408} \times \frac{150}{151} \times \frac{7}{150} = \frac{7}{408} = 1.72\%$$
 
 **Secondary Two-Hour Buffer Waterfall (delta = 2h):**
 - **1. Base Incident Sepsis ($S=1$):** 408 / 408 (100.0%)
 - **2. Surveillance Interval Covered ($V=1$):** 151 / 408 (37.0%) [Transition: $151 / 408 = 37.01\%$]
 - **3. Pretreatment Actionable Opportunity ($O_2=1 \mid V=1$):** 149 / 408 (36.5%) [Transition: $149 / 151 = 98.68\%$]
-- **4. Timely Detected with 2h Lead Time ($D=1 \mid O_2=1, V=1$):** 9 / 408 (2.21%) [Transition: $9 / 149 = 6.04\%$ for BiMamba SSM; 8 / 149 = 5.37% for Champion Ensemble]
+- **4. Timely Detected with 2h Lead Time ($D=1 \mid O_2=1, V=1$):** 7 / 408 (1.72%) [Transition: $7 / 149 = 4.70\%$ for BiMamba SSM; 6 / 149 = 4.03% for Stacking Ensemble]
 
 1. **Surveillance Truncation ($151 / 408 = 37.0\%$):** 63.0% of sepsis patients (257 / 408) develop sepsis after hour 36, outside the prespecified second-day surveillance protocol (hours 19–30).
 2. **Pre-treatment Actionability ($150 / 151 = 99.3\%$ for delta=0h; $149 / 151 = 98.7\%$ for delta=2h):** Among patients with covered windows, treatment has almost never occurred prematurely.
-3. **Operational Model Detection ($9 / 150 = 6.0\%$):** Under an emitted alert budget of 10 episodes per 100 patient-days (407 emitted episodes), BiMamba SSM uniquely detects 9 patients (2.21% whole-population yield; NNE = 45.2), and the Champion Ensemble uniquely detects 8 patients (1.96% whole-population yield; NNE = 50.9).
+3. **Operational Model Detection ($7 / 150 = 4.7\%$):** Under an emitted alert budget of 10 episodes per 100 patient-days (407 emitted episodes), BiMamba SSM uniquely detects 7 patients (1.72% whole-population yield; NNE = 58.1), and the Stacking Ensemble uniquely detects 6 patients (1.47% whole-population yield; NNE = 67.8).
 
 ---
 
@@ -295,7 +342,7 @@ We propose the **Actionable Sepsis AI Reporting (ASAIR)** framework as an essent
 This study evaluated a prespecified second-day ICU surveillance window (hours 19–30); full-stay prospective surveillance across multiple hospital systems remains essential to establish multi-center transportability. Furthermore, MIMIC-III prescription start dates exhibit substantial interval uncertainty, necessitating primary reliance on MIMIC-IV confirmed eMAR records.
 
 ### Conclusion
-Nominal prediction lead time ahead of retrospective consensus definitions conceals the dual realities of restricted surveillance coverage and low operational alert yield. By benchmarking under locked alert budgets and enforcing multi-clock reporting, clinical informatics can build early-warning systems that deliver genuine bedside value.
+In this restricted, long-stay ICU cohort, low empirical detection yield reflected limited surveillance coverage, modest discrimination, and the operating policy used to constrain emitted alerts. Most horizon-positive observations remained pretreatment eligible, and observed model rankings depended on workload. By benchmarking under locked alert budgets and enforcing multi-clock reporting, clinical informatics can build early-warning systems that deliver genuine bedside value.
 
 ---
 

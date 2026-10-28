@@ -2,15 +2,17 @@
 """compute_alert_budget_and_refractory.py
 
 Evaluates operational early warning alert budgets under a 12-hour refractory suppression policy.
-Implements the empirical burden-matched bootstrap procedure (re-selecting the operating threshold
-to match the prespecified episode budget in each bootstrap resample).
+Implements the empirical burden-matched bootstrap procedure (Procedure B) with dynamic
+exposure recomputation and first-emitted-alert timing verification.
 
 Conforms strictly to JAMIA / JAMIA Open reporting requirements:
   - Exact column schema and typed records (zero column shifts or reversals).
-  - Explicit reporting of zero-detection fractions (f_0).
-  - Proper handling of infinite NNE values when zero detections occur in resamples.
-  - Boundary-aware reporting (Hanley Rule-of-Three) for degenerate zero-event bootstrap intervals.
-  - Patient-level timing verification at the first emitted alert.
+  - Explicit reporting of zero-detection replicate fractions (f_0).
+  - Exact reciprocal derivation of NNE intervals from PPV percentiles with infinite upper bounds (+inf).
+  - Explicit reporting of degenerate percentile bootstrap intervals at zero detections.
+  - Evaluation of true detections at the FIRST emitted alert window under the refractory policy.
+  - Dynamic recomputation of exposure E_b and target budget K_b in each bootstrap resample.
+  - Neutral model nomenclature (Multi-Model Stacking Ensemble).
 """
 from __future__ import annotations
 
@@ -27,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 EVAL_MODELS = {
     "BiMamba_SSM": "BiMamba SSM (Proposed)",
-    "Proposed Champion (Ensemble+T-Smooth)": "Proposed Champion (Ensemble)",
+    "Proposed Champion (Ensemble+T-Smooth)": "Multi-Model Stacking Ensemble",
     "Tabular GBDT (LightGBM)": "Tabular GBDT (LightGBM)",
     "Tabular GBDT (XGBoost)": "Tabular GBDT (XGBoost)",
     "Random Forest": "Random Forest",
@@ -37,170 +39,226 @@ EVAL_MODELS = {
 }
 
 BUDGET_TARGETS = [
-    (204, 5.01, "5.0 episodes / 100 pt-days"),
-    (407, 10.00, "10.0 episodes / 100 pt-days"),
-    (814, 20.00, "20.0 episodes / 100 pt-days"),
+    (5.0, 204, "5.0 episodes / 100 pt-days"),
+    (10.0, 407, "10.0 episodes / 100 pt-days"),
+    (20.0, 814, "20.0 episodes / 100 pt-days"),
 ]
 
 
-def prepare_stay_table(df: pd.DataFrame, model_col: str) -> pd.DataFrame:
-    """Pre-aggregates max score and first-alert timing per stay to ensure fast, deterministic bootstrapping."""
-    stay_rows = []
+def extract_stay_data(df: pd.DataFrame, model_col: str):
+    """Pre-extracts per-stay temporal arrays for efficient simulation of the refractory policy."""
+    stay_dict = {}
     for sid, grp in df.groupby("ICUSTAY_ID"):
-        max_score = grp[model_col].max()
-        is_septic = int(grp["SEPSIS_LABEL"].iloc[0] == 1)
-        t_s3 = grp["T_SEPSIS3_H_ICU"].iloc[0] if is_septic else np.nan
-        t_tr = grp["T_TREATMENT_H_ICU"].iloc[0] if is_septic else np.nan
-        is_covered = int(is_septic and t_s3 <= 36.0)
-
-        # First window reaching max_score
-        first_w = grp[grp[model_col] == max_score].sort_values("ABS_END_H").iloc[0]
-        t_w = first_w["ABS_END_H"]
-
-        # Detection criteria at first emitted alert
-        is_sepsis_det = int(is_septic and (t_s3 - t_w > 0) and (t_s3 - t_w <= 6.0))
-        is_pretr_det = int(is_sepsis_det and (t_w <= t_tr))
-        is_pretr_2h_det = int(is_sepsis_det and (t_w + 2.0 <= t_tr))
-
-        stay_rows.append({
-            "ICUSTAY_ID": sid,
-            "max_score": max_score,
-            "is_septic": is_septic,
-            "is_covered": is_covered,
-            "is_sepsis_det": is_sepsis_det,
-            "is_pretr_det": is_pretr_det,
-            "is_pretr_2h_det": is_pretr_2h_det,
-        })
-    df_stays = pd.DataFrame(stay_rows)
-    return df_stays.sort_values(["max_score", "ICUSTAY_ID"], ascending=[False, True]).reset_index(drop=True)
+        grp_sorted = grp.sort_values("ABS_END_H")
+        times = grp_sorted["ABS_END_H"].values
+        scores = grp_sorted[model_col].values
+        is_sep = grp_sorted["SEPSIS_LABEL"].iloc[0] == 1
+        t_s3 = grp_sorted["T_SEPSIS3_H_ICU"].iloc[0] if is_sep else np.nan
+        t_tr = grp_sorted["T_TREATMENT_H_ICU"].iloc[0] if is_sep else np.nan
+        is_cov = int(is_sep and t_s3 <= 36.0)
+        h_i = len(times)
+        max_s = scores.max()
+        stay_dict[sid] = {
+            "times": times,
+            "scores": scores,
+            "max_s": max_s,
+            "is_sep": is_sep,
+            "is_cov": is_cov,
+            "t_s3": t_s3,
+            "t_tr": t_tr,
+            "h_i": h_i,
+        }
+    return stay_dict
 
 
-def evaluate_burden_matched_bootstrap(
-    df_stays: pd.DataFrame, target_n: int, B: int = 1000, seed: int = 42
+def evaluate_model_at_budget(
+    stays: np.ndarray,
+    stay_dict: dict,
+    rate_target: float,
+    nominal_k: int,
+    budget_label: str,
+    model_name: str,
+    B: int = 1000,
+    seed: int = 42,
 ) -> dict:
+    n_stays = len(stays)
+    stay_max_s = np.array([stay_dict[s]["max_s"] for s in stays])
+    stay_is_sep = np.array([stay_dict[s]["is_sep"] for s in stays], dtype=bool)
+    stay_is_cov = np.array([stay_dict[s]["is_cov"] for s in stays], dtype=bool)
+    stay_hi = np.array([stay_dict[s]["h_i"] for s in stays], dtype=float)
+
+    # 1. Point estimate on held-out dataset
+    sort_order = np.lexsort((stays, -stay_max_s))
+    top_k = sort_order[:nominal_k]
+    cutoff_tau = stay_max_s[top_k[-1]]
+
+    # Boundary ties analysis
+    tied_mask = (stay_max_s == cutoff_tau)
+    tied_total = int(tied_mask.sum())
+    strictly_above = int((stay_max_s > cutoff_tau).sum())
+    selected_from_tied = nominal_k - strictly_above
+
+    tp_pt = 0
+    tp_pretr_pt = 0
+    tp_pretr_2h_pt = 0
+    for idx in top_k:
+        if not stay_is_sep[idx]:
+            continue
+        sid = stays[idx]
+        data = stay_dict[sid]
+        w_mask = data["scores"] >= cutoff_tau
+        if np.any(w_mask):
+            t_first = data["times"][w_mask][0]
+            if 0 < (data["t_s3"] - t_first) <= 6.0:
+                tp_pt += 1
+                if t_first <= data["t_tr"]:
+                    tp_pretr_pt += 1
+                if t_first + 2.0 <= data["t_tr"]:
+                    tp_pretr_2h_pt += 1
+
+    ppv_pt = tp_pt / nominal_k * 100.0
+    sens_cov_pt = tp_pt / 151 * 100.0
+    yield_all_pt = tp_pt / 408 * 100.0
+    nne_pt = 100.0 / ppv_pt if ppv_pt > 0 else np.nan
+
+    # 2. Patient-clustered bootstrap with exposure recomputation
     np.random.seed(seed)
-    n_stays = len(df_stays)
-
-    # Point estimate: top target_n stays
-    top_point = df_stays.iloc[:target_n]
-    thresh_point = top_point["max_score"].min()
-    tp_point = int(top_point["is_sepsis_det"].sum())
-    pretr_point = int(top_point["is_pretr_det"].sum())
-    pretr_2h_point = int(top_point["is_pretr_2h_det"].sum())
-
-    ppv_point = tp_point / target_n * 100.0
-    sens_cov_point = tp_point / 151 * 100.0
-    yield_all_point = tp_point / 408 * 100.0
-    nne_point = target_n / tp_point if tp_point > 0 else np.inf
-
-    # Bootstrap replicates
     ppv_boots = []
     sens_cov_boots = []
     yield_all_boots = []
-    nne_boots = []
-    zero_detections = 0
+    zero_cnt = 0
 
-    for _ in range(B):
-        idx = np.random.choice(n_stays, size=n_stays, replace=True)
-        sample = df_stays.iloc[idx].sort_values(["max_score", "ICUSTAY_ID"], ascending=[False, True])
-        top_k = sample.iloc[:target_n]
+    for b in range(B):
+        b_idx = np.random.choice(n_stays, size=n_stays, replace=True)
+        b_max_s = stay_max_s[b_idx]
+        b_hi = stay_hi[b_idx]
+        b_sids = stays[b_idx]
+        b_is_sep = stay_is_sep[b_idx]
+        b_is_cov = stay_is_cov[b_idx]
 
-        n_tp = int(top_k["is_sepsis_det"].sum())
-        n_cov = int(sample["is_covered"].sum())
-        n_sep = int(sample["is_septic"].sum())
+        # Recompute exposure and target alert count
+        E_b = b_hi.sum() / 24.0
+        K_b = int(np.round(rate_target * E_b / 100.0))
 
-        ppv_b = n_tp / target_n * 100.0
-        sens_cov_b = n_tp / n_cov * 100.0 if n_cov > 0 else 0.0
-        yield_all_b = n_tp / n_sep * 100.0 if n_sep > 0 else 0.0
+        # Secondary sort key preserves bootstrap multiplicity
+        sort_b = np.lexsort((np.arange(n_stays), b_sids, -b_max_s))
+        top_b = sort_b[:K_b]
+        tau_b = b_max_s[top_b[-1]]
 
-        ppv_boots.append(ppv_b)
-        sens_cov_boots.append(sens_cov_b)
-        yield_all_boots.append(yield_all_b)
+        d_b = 0
+        for pos_in_top in top_b:
+            orig_idx = b_idx[pos_in_top]
+            if not stay_is_sep[orig_idx]:
+                continue
+            sid = stays[orig_idx]
+            data = stay_dict[sid]
+            w_mask = data["scores"] >= tau_b
+            if np.any(w_mask):
+                t_first = data["times"][w_mask][0]
+                if 0 < (data["t_s3"] - t_first) <= 6.0:
+                    d_b += 1
 
-        if n_tp == 0:
-            zero_detections += 1
-            nne_boots.append(np.inf)
-        else:
-            nne_boots.append(target_n / n_tp)
+        if d_b == 0:
+            zero_cnt += 1
 
-    f_zero = zero_detections / B
+        n_cov_b = b_is_cov.sum()
+        n_sep_b = b_is_sep.sum()
 
-    # Format intervals
-    if tp_point == 0:
-        # Rule of three upper bound for zero event binomial proportion: 3 / target_n
-        rule_of_three = 3.0 / target_n * 100.0
-        ppv_str = f"0.00 (0.00–{rule_of_three:.2f})%*"
-        sens_cov_str = f"0.00 (0.00–{3.0/151*100.0:.2f})%*"
-        yield_all_str = f"0.00 (0.00–{3.0/408*100.0:.2f})%*"
+        ppv_boots.append(d_b / K_b * 100.0)
+        sens_cov_boots.append(d_b / n_cov_b * 100.0 if n_cov_b > 0 else 0.0)
+        yield_all_boots.append(d_b / n_sep_b * 100.0 if n_sep_b > 0 else 0.0)
+
+    f_0 = zero_cnt / B
+    p_lo, p_hi = np.percentile(ppv_boots, [2.5, 97.5])
+    sc_lo, sc_hi = np.percentile(sens_cov_boots, [2.5, 97.5])
+    ya_lo, ya_hi = np.percentile(yield_all_boots, [2.5, 97.5])
+
+    # Reciprocal derivation of NNE intervals from PPV
+    if tp_pt == 0:
+        ppv_str = f"0.00 (0.00–0.00)%*"
+        sc_str = f"0.00 (0.00–0.00)%*"
+        ya_str = f"0.00 (0.00–0.00)%*"
         nne_str = "Undefined (+inf)"
     else:
-        p_low, p_high = np.percentile(ppv_boots, [2.5, 97.5])
-        ppv_str = f"{ppv_point:.2f} ({p_low:.2f}–{p_high:.2f})%"
+        ppv_str = f"{ppv_pt:.2f} ({p_lo:.2f}–{p_hi:.2f})%"
+        sc_str = f"{sens_cov_pt:.2f} ({sc_lo:.2f}–{sc_hi:.2f})%"
+        ya_str = f"{yield_all_pt:.2f} ({ya_lo:.2f}–{ya_hi:.2f})%"
 
-        sc_low, sc_high = np.percentile(sens_cov_boots, [2.5, 97.5])
-        sens_cov_str = f"{sens_cov_point:.2f} ({sc_low:.2f}–{sc_high:.2f})%"
-
-        ya_low, ya_high = np.percentile(yield_all_boots, [2.5, 97.5])
-        yield_all_str = f"{yield_all_point:.2f} ({ya_low:.2f}–{ya_high:.2f})%"
-
-        # NNE formatting with exact handling of infinite replicates
-        if f_zero > 0.025:
-            # Upper percentile is infinity
-            finite_nnes = [x for x in nne_boots if not np.isinf(x)]
-            nne_low = np.percentile(finite_nnes, 2.5) if len(finite_nnes) > 0 else target_n
-            nne_str = f"{nne_point:.1f} ({nne_low:.1f}–+inf)"
+        nne_low = 100.0 / p_hi if p_hi > 0 else np.nan
+        if p_lo > 0:
+            nne_high = 100.0 / p_lo
+            nne_str = f"{nne_pt:.1f} ({nne_low:.1f}–{nne_high:.1f})"
         else:
-            n_low, n_high = np.percentile(nne_boots, [2.5, 97.5])
-            nne_str = f"{nne_point:.1f} ({n_low:.1f}–{n_high:.1f})"
+            nne_str = f"{nne_pt:.1f} ({nne_low:.1f}–+inf)"
 
     return {
-        "thresh": thresh_point,
-        "n_alerted": target_n,
-        "tp_sepsis": tp_point,
-        "tp_pretr": pretr_point,
-        "tp_pretr_2h": pretr_2h_point,
-        "ppv_str": ppv_str,
-        "sens_cov_str": sens_cov_str,
-        "yield_all_str": yield_all_str,
-        "nne_str": nne_str,
-        "f_zero": f_zero,
+        "Prespecified Alert Budget": budget_label,
+        "Model Architecture": model_name,
+        "Operating Threshold (tau)": f"{cutoff_tau:.4f}",
+        "Emitted Alert Episodes": nominal_k,
+        "Emitted Rate (/100 pt-days)": f"{nominal_k / 4070.83 * 100:.2f}",
+        "Episode PPV % [95% CI]": ppv_str,
+        "True Positive Sepsis Detections": tp_pt,
+        "Pretreatment Detections (delta=0h)": tp_pretr_pt,
+        "Pretreatment Detections (delta=2h)": tp_pretr_2h_pt,
+        "Detection Sensitivity in Covered % [95% CI]": sc_str,
+        "Overall Sepsis Detection Yield % [95% CI]": ya_str,
+        "NNE per Detected Patient [95% CI]": nne_str,
+        "Zero-Detection Replicate Fraction (f_0)": f"{f_0:.3f}",
+        "_tied_total": tied_total,
+        "_strictly_above": strictly_above,
+        "_selected_from_tied": selected_from_tied,
     }
 
 
 def main():
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
-    df = pd.read_parquet(PROJECT_ROOT / "reports" / "predictions" / "canonical_test_predictions_harmonized.parquet")
+    parquet_path = PROJECT_ROOT / "reports" / "predictions" / "canonical_test_predictions_harmonized.parquet"
+    df = pd.read_parquet(parquet_path)
 
-    logger.info("Computing typed Table 3 with empirical burden-matched bootstrap...")
-    records = []
+    stays = np.array(df["ICUSTAY_ID"].unique())
+    logger.info("Loaded dataset with %d stays and %d evaluated windows.", len(stays), len(df))
 
-    for target_n, rate, budget_name in BUDGET_TARGETS:
-        logger.info("Processing budget: %s (%d episodes)...", budget_name, target_n)
-        for model_key, model_display in EVAL_MODELS.items():
-            df_stays = prepare_stay_table(df, model_key)
-            res = evaluate_burden_matched_bootstrap(df_stays, target_n, B=1000)
+    all_rows = []
+    tie_reports = []
 
-            records.append({
-                "Prespecified Alert Budget": budget_name,
-                "Model Architecture": model_display,
-                "Operating Threshold (tau)": f"{res['thresh']:.4f}",
-                "Emitted Alert Episodes": int(res["n_alerted"]),
-                "Emitted Rate (/100 pt-days)": f"{rate:.2f}",
-                "Episode PPV % [95% CI]": res["ppv_str"],
-                "True Positive Sepsis Detections": int(res["tp_sepsis"]),
-                "Pretreatment Detections (delta=0h)": int(res["tp_pretr"]),
-                "Pretreatment Detections (delta=2h)": int(res["tp_pretr_2h"]),
-                "Detection Sensitivity in Covered % [95% CI]": res["sens_cov_str"],
-                "Overall Sepsis Detection Yield % [95% CI]": res["yield_all_str"],
-                "NNE per Detected Patient [95% CI]": res["nne_str"],
-                "Zero-Detection Replicate Fraction (f_0)": f"{res['f_zero']:.3f}",
+    for rate_target, target_k, b_label in BUDGET_TARGETS:
+        logger.info("Evaluating alert budget: %s (target_k=%d)...", b_label, target_k)
+        for mcol, mname in EVAL_MODELS.items():
+            stay_dict = extract_stay_data(df, mcol)
+            res = evaluate_model_at_budget(
+                stays=stays,
+                stay_dict=stay_dict,
+                rate_target=rate_target,
+                nominal_k=target_k,
+                budget_label=b_label,
+                model_name=mname,
+                B=1000,
+                seed=42,
+            )
+            tie_reports.append({
+                "Budget": b_label,
+                "Model": mname,
+                "tau": res["Operating Threshold (tau)"],
+                "Tied Total": res["_tied_total"],
+                "Strictly Above": res["_strictly_above"],
+                "Selected from Tied": res["_selected_from_tied"],
             })
+            del res["_tied_total"], res["_strictly_above"], res["_selected_from_tied"]
+            all_rows.append(res)
 
-    out_df = pd.DataFrame(records)
-    out_csv = TABLE_DIR / "Table3_Alert_Budget_Refractory_Workload.csv"
-    out_df.to_csv(out_csv, index=False)
-    logger.info("Saved Table 3 to %s", out_csv)
-    print(out_df[["Prespecified Alert Budget", "Model Architecture", "Operating Threshold (tau)", "Emitted Alert Episodes", "Emitted Rate (/100 pt-days)", "Episode PPV % [95% CI]", "True Positive Sepsis Detections", "Pretreatment Detections (delta=0h)", "NNE per Detected Patient [95% CI]"]].to_string())
+    df_table3 = pd.DataFrame(all_rows)
+    t3_path = TABLE_DIR / "Table3_Alert_Budget_Refractory_Workload.csv"
+    df_table3.to_csv(t3_path, index=False)
+    logger.info("Saved Table 3 to %s", t3_path)
+
+    # Print summary
+    print(df_table3.to_string())
+
+    # Print tie report
+    df_ties = pd.DataFrame(tie_reports)
+    print("\n=== BOUNDARY SCORE TIE AUDIT ===")
+    print(df_ties[df_ties["Tied Total"] > 1].to_string())
 
 
 if __name__ == "__main__":
