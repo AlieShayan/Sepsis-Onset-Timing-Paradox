@@ -1,7 +1,9 @@
-Database Release & Cohort,Sepsis Onset Category,Total Incident Episodes,Treatment at or before Opportunity Deadline (<=22h),Treatment after Opportunity Deadline (>22h),Indeterminate (Date Crosses Deadline),Clinical & Measurement Specification
-"MIMIC-III v1.4 (Broad Incident Sepsis, N=3,581)",Early Incident (0-24h),2641,1581 (59.9%),8 (0.3%),1052 (39.8%),"Prescription start date proxy evaluated with [00:00, 24:00) interval bounds. Deadline reflects b=18h lookback + delta=4h lead buffer."
-"MIMIC-III v1.4 (Broad Incident Sepsis, N=3,581)",Late Incident (>24h),940,748 (79.6%),9 (1.0%),183 (19.5%),"Prescription start date proxy evaluated with [00:00, 24:00) interval bounds. Deadline reflects b=18h lookback + delta=4h lead buffer."
-"MIMIC-III v1.4 (Broad Incident Sepsis, N=3,581)",All,3581,2329 (65.0%),17 (0.5%),1235 (34.5%),"Prescription start date proxy evaluated with [00:00, 24:00) interval bounds. Deadline reflects b=18h lookback + delta=4h lead buffer."
-"MIMIC-IV v3.1 (Broad Incident Sepsis, N=1,596)",Early Incident (0-24h),1236,1235 (99.9%),1 (0.1%),0 (0.0%),Confirmed hourly administration timestamps from electronic medication administration records (eMAR).
-"MIMIC-IV v3.1 (Broad Incident Sepsis, N=1,596)",Late Incident (>24h),360,360 (100.0%),0 (0.0%),0 (0.0%),Confirmed hourly administration timestamps from electronic medication administration records (eMAR).
-"MIMIC-IV v3.1 (Broad Incident Sepsis, N=1,596)",All,1596,1595 (99.9%),1 (0.1%),0 (0.0%),Confirmed hourly administration timestamps from electronic medication administration records (eMAR).
+Cohort & Timestamp Source,Sepsis Onset Category,Subgroup Denominator (N),Surveillance Covered Stays (V=1),Definitely Eligible Count,Indeterminate Count,Definitely Ineligible Count,Within-Subgroup Opportunity Bounds,Within-Covered Opportunity Bounds,Contribution to Overall Cohort Bound
+MIMIC-IV Prospective-Replay Test Cohort (eMAR Confirmed),Early Incident (<=24h),47,47 (100.0%),47,0,0,"[100.0%, 100.0%]","[100.0%, 100.0%]",47 / 408 (11.5%)
+MIMIC-IV Prospective-Replay Test Cohort (eMAR Confirmed),Intermediate Incident (24-48h),156,104 (66.7%),103,0,53,"[66.0%, 66.0%]","[99.0%, 99.0%]",103 / 408 (25.2%)
+MIMIC-IV Prospective-Replay Test Cohort (eMAR Confirmed),Late Incident (>48h),205,0 (0.0%),0,0,205,"[0.0%, 0.0%]",N/A (No covered stays),0 / 408 (0.0%)
+MIMIC-IV Prospective-Replay Test Cohort (eMAR Confirmed),All Incident Sepsis-3 Cases,408,151 (37.0%),150,0,258,"[36.8%, 36.8%]","[99.3%, 99.3%]",150 / 408 (36.8%)
+MIMIC-III Broad Incident Sepsis (Prescription Proxy),Early Incident (<=24h),2641,102 (3.9%),0,74,2567,"[0.0%, 2.8%]","[0.0%, 72.5%]","[0, 74] / 3581 ([0.00%, 2.07%])"
+MIMIC-III Broad Incident Sepsis (Prescription Proxy),Intermediate Incident (24-48h),361,235 (65.1%),1,36,324,"[0.3%, 10.2%]","[0.4%, 15.7%]","[1, 37] / 3581 ([0.03%, 1.03%])"
+MIMIC-III Broad Incident Sepsis (Prescription Proxy),Late Incident (>48h),579,0 (0.0%),0,0,579,"[0.0%, 0.0%]",N/A (No covered stays),"[0, 0] / 3581 ([0.00%, 0.00%])"
+MIMIC-III Broad Incident Sepsis (Prescription Proxy),All Incident Sepsis-3 Cases,3581,337 (9.4%),1,110,3470,"[0.03%, 3.10%]","[0.30%, 32.94%]","[1, 111] / 3581 ([0.03%, 3.10%])"

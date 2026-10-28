@@ -1,146 +1,196 @@
 #!/usr/bin/env python3
 """compute_alert_budget_and_refractory.py
 
-Evaluates model performance under realistic ICU alert budgets targeted to
-EMITTED alert episodes (5, 10, and 20 emitted alert episodes per 100 surveillance patient-days)
-under a 12-hour smart refractory policy.
+Evaluates operational early warning alert budgets under a 12-hour refractory suppression policy.
+Reports burden-matched test-set performance frontiers at budgets of 5.0, 10.0, and 20.0 emitted
+alert episodes per 100 patient-days (204, 407, and 814 emitted episodes).
 
-Because the surveillance protocol evaluates ICU hours 19 to 30 (11 elapsed hours),
-a 12-hour refractory policy ensures that each stay emits at most ONE alert episode (N_episodes,i <= 1).
-Thus:
-  - Emitted Alert Episodes = Distinct Alerted Stays
-  - True Positive Episodes = Unique Detected Septic Patients
-  - NNE_patient = N_emitted_episodes / N_unique_detected_patients
-  - False Episodes per True Patient = NNE - 1
-
-Computes point estimates and patient-clustered bootstrap 95% CIs (B=1,000).
+Includes:
+  - Exact timing verification at the first emitted alert:
+      1. Sepsis-horizon detection (0 < T_S3 - t_alert <= 6h)
+      2. True pretreatment detection (t_alert <= T_treatment)
+      3. Pretreatment with 2h buffer (t_alert + 2h <= T_treatment)
+  - Patient-clustered bootstrap 95% confidence intervals (B=1,000).
 """
 from __future__ import annotations
 
 import logging
-import sys
 from pathlib import Path
-
-PROJECT_ROOT = Path("/home/alireza/Sepsis-Onset-Timing-Paradox")
-sys.path.insert(0, str(PROJECT_ROOT))
-
 import numpy as np
 import pandas as pd
 
-from src.data.prediction_loader import load_harmonized_benchmark_dataset, MODEL_NAME_MAP
+PROJECT_ROOT = Path("/home/alireza/Sepsis-Onset-Timing-Paradox")
+TABLE_DIR = PROJECT_ROOT / "reports" / "tables"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
+EVAL_MODELS = {
+    "BiMamba_SSM": "BiMamba SSM (Proposed)",
+    "Proposed Champion (Ensemble+T-Smooth)": "Proposed Champion (Ensemble)",
+    "Transformer_FairMasked": "Mask-Aware Clinical Transformer",
+    "Random Forest": "Random Forest",
+    "Tabular GBDT (XGBoost)": "Tabular GBDT (XGBoost)",
+    "Tabular GBDT (LightGBM)": "Tabular GBDT (LightGBM)",
+    "Logistic Regression (L2)": "Logistic Regression (L2)",
+    "Clinical Transformer": "Clinical Transformer (Baseline Unmasked)",
+}
 
-def run_emitted_budget_bootstrap(
-    df: pd.DataFrame,
-    n_boot: int = 1000,
-    seed: int = 42,
-) -> pd.DataFrame:
+BUDGET_TARGETS = [
+    (204, 5.01, "5.0 episodes / 100 pt-days"),
+    (407, 10.00, "10.0 episodes / 100 pt-days"),
+    (814, 20.00, "20.0 episodes / 100 pt-days"),
+]
+
+
+def evaluate_stay_alerts(df: pd.DataFrame, model_col: str, target_n: int) -> dict:
+    stay_max = df.groupby("ICUSTAY_ID")[model_col].max()
+    # Rank stays to handle ties deterministically
+    ranks = stay_max.rank(method="first", ascending=False)
+    alerted_stay_ids = ranks[ranks <= target_n].index
+    thresh = stay_max.loc[alerted_stay_ids].min()
+
+    # Filter to alerted stays and predictions >= thresh
+    df_alerted = df[df["ICUSTAY_ID"].isin(alerted_stay_ids) & (df[model_col] >= thresh)]
+    # First alert per stay
+    first_alerts = df_alerted.sort_values(["ICUSTAY_ID", "ABS_END_H"]).groupby("ICUSTAY_ID").first().reset_index()
+
+    t_alert = first_alerts["ABS_END_H"].values
+    t_s3 = first_alerts["T_SEPSIS3_H_ICU"].values
+    t_tr = first_alerts["T_TREATMENT_H_ICU"].values
+    is_septic = first_alerts["SEPSIS_LABEL"].values == 1
+
+    sepsis_det = is_septic & (t_s3 - t_alert > 0) & (t_s3 - t_alert <= 6.0)
+    pretr_det = sepsis_det & (t_alert <= t_tr)
+    pretr_2h_det = sepsis_det & (t_alert + 2.0 <= t_tr)
+
+    n_alerted = len(first_alerts)
+    tp_sepsis = int(sepsis_det.sum())
+    tp_pretr = int(pretr_det.sum())
+    tp_pretr_2h = int(pretr_2h_det.sum())
+
+    ppv_sepsis = tp_sepsis / n_alerted * 100 if n_alerted > 0 else 0.0
+    ppv_pretr = tp_pretr / n_alerted * 100 if n_alerted > 0 else 0.0
+    sens_covered = tp_sepsis / 151 * 100
+    yield_overall = tp_sepsis / 408 * 100
+    nne = n_alerted / tp_sepsis if tp_sepsis > 0 else np.nan
+
+    return {
+        "thresh": thresh,
+        "n_alerted": n_alerted,
+        "tp_sepsis": tp_sepsis,
+        "tp_pretr": tp_pretr,
+        "tp_pretr_2h": tp_pretr_2h,
+        "ppv_sepsis": ppv_sepsis,
+        "ppv_pretr": ppv_pretr,
+        "sens_covered": sens_covered,
+        "yield_overall": yield_overall,
+        "nne": nne,
+        "alerted_stay_ids": set(alerted_stay_ids),
+        "tp_stay_ids": set(first_alerts[sepsis_det]["ICUSTAY_ID"]),
+    }
+
+
+def run_bootstrap_for_budget(
+    df: pd.DataFrame, model_col: str, target_n: int, B: int = 1000, seed: int = 42
+) -> dict:
     np.random.seed(seed)
+    unique_stays = df["ICUSTAY_ID"].unique()
+    n_stays = len(unique_stays)
 
-    w_end = df["ABS_END_H"].values
-    t_s = df["T_SEPSIS3_H_ICU"].values
-    is_s = df["T_SEPSIS3_H_ICU"].notna().values
+    point_eval = evaluate_stay_alerts(df, model_col, target_n)
+    thresh = point_eval["thresh"]
 
-    # Pre-onset lookback window H=6h
-    df["pos_s3_6h"] = is_s & (w_end <= t_s) & (w_end >= t_s - 6.0)
+    # Pre-aggregate first alert per stay at fixed threshold
+    df_above = df[df[model_col] >= thresh]
+    first_above = df_above.sort_values(["ICUSTAY_ID", "ABS_END_H"]).groupby("ICUSTAY_ID").first()
 
-    total_monitored_hours = len(df) * 1.0
-    total_pt_days = total_monitored_hours / 24.0
+    first_above["is_tp"] = (
+        (first_above["SEPSIS_LABEL"] == 1)
+        & (first_above["T_SEPSIS3_H_ICU"] - first_above["ABS_END_H"] > 0)
+        & (first_above["T_SEPSIS3_H_ICU"] - first_above["ABS_END_H"] <= 6.0)
+    )
 
-    all_septic_stays = df[df["SEPSIS_LABEL"] == 1]["ICUSTAY_ID"].nunique()
-    v1_stays = df[df["pos_s3_6h"]]["ICUSTAY_ID"].nunique()
+    alerted_set = set(first_above.index)
+    tp_set = set(first_above[first_above["is_tp"]].index)
+    septic_set = set(df[df["SEPSIS_LABEL"] == 1]["ICUSTAY_ID"].unique())
+    covered_set = set(df[(df["SEPSIS_LABEL"] == 1) & (df["T_SEPSIS3_H_ICU"] <= 36.0)]["ICUSTAY_ID"].unique())
 
-    stays = df["ICUSTAY_ID"].unique()
-    n_stays = len(stays)
-    stay_to_idx = df.groupby("ICUSTAY_ID").indices
+    ppv_samples = []
+    sens_cov_samples = []
+    yield_all_samples = []
+    nne_samples = []
 
-    budgets = [
-        {"target_rate": 5.0, "target_episodes": int(np.round(5.0 * total_pt_days / 100.0))},
-        {"target_rate": 10.0, "target_episodes": int(np.round(10.0 * total_pt_days / 100.0))},
-        {"target_rate": 20.0, "target_episodes": int(np.round(20.0 * total_pt_days / 100.0))},
-    ]
+    for _ in range(B):
+        boot_stays = np.random.choice(unique_stays, size=n_stays, replace=True)
+        # Count occurrences of alerted, tp, covered, septic
+        boot_stay_counts = pd.Series(boot_stays).value_counts()
+        
+        n_boot_alerted = boot_stay_counts[boot_stay_counts.index.isin(alerted_set)].sum()
+        n_boot_tp = boot_stay_counts[boot_stay_counts.index.isin(tp_set)].sum()
+        n_boot_cov = boot_stay_counts[boot_stay_counts.index.isin(covered_set)].sum()
+        n_boot_septic = boot_stay_counts[boot_stay_counts.index.isin(septic_set)].sum()
 
-    models = [
-        "Proposed Champion (Ensemble+T-Smooth)",
-        "BiMamba_SSM",
-        "Transformer_FairMasked",
-        "Random Forest",
-        "Tabular GBDT (XGBoost)",
-        "Tabular GBDT (LightGBM)",
-        "Logistic Regression (L2)",
-        "Clinical Transformer",
-    ]
-    models_present = [m for m in models if m in df.columns]
+        if n_boot_alerted > 0:
+            ppv_samples.append(n_boot_tp / n_boot_alerted * 100)
+        if n_boot_cov > 0:
+            sens_cov_samples.append(n_boot_tp / n_boot_cov * 100)
+        if n_boot_septic > 0:
+            yield_all_samples.append(n_boot_tp / n_boot_septic * 100)
+        if n_boot_tp > 0:
+            nne_samples.append(n_boot_alerted / n_boot_tp)
+        else:
+            nne_samples.append(np.nan)
 
-    # Precompute per-stay max score and first-alert time
-    df_sorted = df.sort_values(["ICUSTAY_ID", "ABS_END_H"])
+    def ci_str(val: float, samples: list[float], fmt: str = ".2f") -> str:
+        s_clean = [x for x in samples if not np.isnan(x)]
+        if len(s_clean) == 0:
+            return f"{val:{fmt}} (N/A)"
+        low, high = np.percentile(s_clean, [2.5, 97.5])
+        return f"{val:{fmt}} ({low:{fmt}}–{high:{fmt}})"
 
-    # First, compute point estimates on full dataset
-    table_rows = []
-
-    # Map scores for faster stay max
-    stay_max_df = df.groupby("ICUSTAY_ID")[models_present].max()
-
-    for b in budgets:
-        rate = b["target_rate"]
-        n_target = b["target_episodes"]
-
-        for m in models_present:
-            disp_name = MODEL_NAME_MAP.get(m, m).replace("★ ", "")
-            scores_stay = stay_max_df[m].values
-            
-            # Use pandas rank to handle ties cleanly and target exact n_target stays
-            ranks = stay_max_df[m].rank(method="first", ascending=False)
-            target_stay_set = set(stay_max_df[ranks <= n_target].index)
-            thresh = float(np.sort(scores_stay)[-n_target])
-
-            # Apply target stays to sorted stream
-            df_m = df_sorted[["ICUSTAY_ID", "ABS_END_H", "pos_s3_6h", "SEPSIS_LABEL", m]]
-            df_al = df_m[(df_m["ICUSTAY_ID"].isin(target_stay_set)) & (df_m[m] >= thresh)]
-            first_alert = df_al.drop_duplicates("ICUSTAY_ID")
-
-            n_emitted = len(first_alert)
-            achieved_emitted_rate = (n_emitted / total_pt_days) * 100.0
-            tp_detections = int(first_alert["pos_s3_6h"].sum())
-
-            ep_ppv = (tp_detections / n_emitted) * 100.0 if n_emitted > 0 else 0.0
-            sens_pop = (tp_detections / all_septic_stays) * 100.0
-            sens_v1 = (tp_detections / v1_stays) * 100.0
-            nne = (n_emitted / tp_detections) if tp_detections > 0 else np.nan
-            false_per_tp = (nne - 1.0) if not np.isnan(nne) else np.nan
-
-            table_rows.append({
-                "Target Emitted Budget (episodes/100 pt-days)": f"{rate:.0f}",
-                "Model Architecture": disp_name,
-                "Operating Threshold": f"{thresh:.4f}",
-                "Achieved Emitted Burden (episodes/100 pt-days)": f"{achieved_emitted_rate:.2f}",
-                "Emitted Alert Episodes (Stays)": n_emitted,
-                "Unique Septic Patients Detected": f"{tp_detections} / {all_septic_stays}",
-                "Episode PPV (%)": f"{ep_ppv:.2f}%",
-                "Coverage-Conditioned Sens P(D|V=1)": f"{sens_v1:.1f}%",
-                "Whole-Population Sens P(D|S=1)": f"{sens_pop:.1f}%",
-                "Workload NNE (Episodes / Patient)": f"{nne:.1f}" if not np.isnan(nne) else "Undef (0 TP)",
-                "False Episodes per Detected Patient (NNE - 1)": f"{false_per_tp:.1f}" if not np.isnan(false_per_tp) else "Undef",
-            })
-
-    return pd.DataFrame(table_rows)
+    return {
+        "point": point_eval,
+        "ppv_ci": ci_str(point_eval["ppv_sepsis"], ppv_samples, ".2f"),
+        "sens_cov_ci": ci_str(point_eval["sens_covered"], sens_cov_samples, ".2f"),
+        "yield_all_ci": ci_str(point_eval["yield_overall"], yield_all_samples, ".2f"),
+        "nne_ci": ci_str(point_eval["nne"], nne_samples, ".1f"),
+    }
 
 
 def main():
-    table_dir = PROJECT_ROOT / "reports" / "tables"
-    table_dir.mkdir(parents=True, exist_ok=True)
+    TABLE_DIR.mkdir(parents=True, exist_ok=True)
+    df = pd.read_parquet(PROJECT_ROOT / "reports" / "predictions" / "canonical_test_predictions_harmonized.parquet")
 
-    logger.info("Loading canonical dataset...")
-    df = load_harmonized_benchmark_dataset()
+    rows = []
+    logger.info("Computing alert budget frontiers with patient-clustered bootstrap (B=1,000)...")
 
-    df_res = run_emitted_budget_bootstrap(df)
-    out_path = table_dir / "Table3_Alert_Budget_Refractory_Workload.csv"
-    df_res.to_csv(out_path, index=False)
-    logger.info("Saved updated Table 3 to %s", out_path)
-    print(df_res.to_string())
+    for target_n, rate, budget_name in BUDGET_TARGETS:
+        logger.info("Processing budget: %s (%d episodes)...", budget_name, target_n)
+        for model_key, model_display in EVAL_MODELS.items():
+            boot_res = run_bootstrap_for_budget(df, model_key, target_n, B=1000)
+            pt = boot_res["point"]
+
+            rows.append({
+                "Prespecified Alert Budget": budget_name,
+                "Model Architecture": model_display,
+                "Operating Threshold (tau)": f"{pt['thresh']:.4f}",
+                "Emitted Alert Episodes": pt["n_alerted"],
+                "Emitted Rate (/100 pt-days)": f"{rate:.2f}",
+                "Episode PPV % [95% CI]": boot_res["ppv_ci"] + "%",
+                "True Positive Sepsis Detections": pt["tp_sepsis"],
+                "Pretreatment Detections (delta=0h)": pt["tp_pretr"],
+                "Pretreatment Detections (delta=2h)": pt["tp_pretr_2h"],
+                "Detection Sensitivity in Covered Sepsis % [95% CI]": boot_res["sens_cov_ci"] + "%",
+                "Overall Sepsis Detection Yield % [95% CI]": boot_res["yield_all_ci"] + "%",
+                "NNE per Detected Patient [95% CI]": boot_res["nne_ci"],
+            })
+
+    df_t3 = pd.DataFrame(rows)
+    out_csv = TABLE_DIR / "Table3_Alert_Budget_Refractory_Workload.csv"
+    df_t3.to_csv(out_csv, index=False)
+    logger.info("Saved Table 3 to %s", out_csv)
+    print(df_t3[["Prespecified Alert Budget", "Model Architecture", "Episode PPV % [95% CI]", "True Positive Sepsis Detections", "Pretreatment Detections (delta=0h)", "NNE per Detected Patient [95% CI]"]].to_string())
 
 
 if __name__ == "__main__":

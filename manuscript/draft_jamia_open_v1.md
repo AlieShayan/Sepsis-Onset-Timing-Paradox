@@ -120,21 +120,24 @@ Table 1 and Figure 1 present the complete denominator accounting ledger tracing 
 ---
 
 ### Table 1: Cohort Progression & Denominator Accounting Ledger
-| Progression Stage | Stay / Patient Count | Observation Windows | Monitored Person-Time | Prevalence / Attrition | Methodological Definition & Accounting Rule |
+| Progression Stage / Cohort Partition | ICU Stays ($N$) | Evaluated Windows | Surveillance Volume | Proportion / Window Prevalence | Clinical Definition & Measurement Convention |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **1. Base Test Cohort Monitored** | 8,254 | 97,700 | 4,070.8 patient-days | 100.0% | All patient-disjoint ICU stays in held-out test partition with streaming replay during ICU hours 19–30. |
-| **2. Control (Non-Sepsis) ICU Stays** | 7,846 | 93,427 | 3,892.8 patient-days | 95.06% of stays | Patients without consensus Sepsis-3 during hospitalization. All windows serve as true negative surveillance. |
-| **3. Consensus Sepsis-3 Stays ($S=1$)** | 408 | 4,273 | 178.0 patient-days | 4.94% of stays | Patients meeting Sepsis-3 consensus criteria (culture + antibiotic + acute $\Delta\text{SOFA} \ge 2$). All 408 had onset $>0$h. |
-| **  3a. Late-Onset Sepsis (Onset $>36$h)** | 257 | 3,084 | 128.5 patient-days | 63.0% of septic stays | Onset occurs after surveillance window $[19, 30]$. Windows in hours 19–30 are legitimate pre-onset control surveillance ($V=0$). |
-| **  3b. Surveillance-Covered Sepsis ($V=1$)** | 151 | 1,189 | 49.5 patient-days | 37.0% of septic stays | Onset occurs between ICU hours 20 and 36, so $[T_{\text{S3}} - 6\text{h}, T_{\text{S3}}]$ intersects the active surveillance window $[19, 30]$. |
-| **4. Evaluated Sepsis-3 Target Windows ($H=6$h)** | 151 | 678 positive / 97,022 control | 28.2 positive pt-days | 0.694% window prevalence | Windows with end time within 6h before Sepsis-3 onset. Evaluated for window AUROC and AUPRC. |
-| **5. Pretreatment Actionable Windows ($O=1 \mid V=1$)** | 150 | 674 positive / 97,022 control | 28.1 positive pt-days | 99.3% of covered stays | Positive windows where prediction time strictly precedes systemic IV antibiotic initiation ($w_{\text{end}} \le T_{\text{treatment}}$). |
+| **1. Base Prospective-Replay Test Cohort** | 8,254 | 97,700 (out of 99,048 scheduled) | 4,070.8 patient-days (97,700 patient-hours) | 100.0% of cohort | Adult first ICU admissions (approx. 2017–2019) conditioned on ICU stay $\ge 30$h. Evaluated at up to 12 scheduled hourly decision bins $[t-1, t]$ at $t \in \{19..30\}$. 1,348 windows right-censored (623 post-sepsis onset, 725 ICU discharge). |
+| **2. Non-Sepsis Control ICU Stays** | 7,846 | 93,427 outcome-negative | 3,892.8 patient-days (93,427 patient-hours) | 95.06% of stays | Patients without consensus Sepsis-3 during hospitalization. All windows serve as outcome-negative surveillance (180 stays censored prior to hour 30 due to ICU discharge, accounting for 725 windows). |
+| **3. Consensus Sepsis-3 Stays ($S=1$)** | 408 | 4,273 windows (678 positive, 3,595 negative) | 178.0 patient-days (4,273 patient-hours) | 4.94% of stays | Patients meeting Sepsis-3 consensus criteria (blood culture + antibiotic + acute $\Delta\text{SOFA} \ge 2$). Median onset: hour 49.0 (IQR: 30.0h–77.0h; range: 20h–369h). 110 stays censored at onset prior to hour 30 (623 windows). |
+| **  3a. Late-Onset Sepsis (Onset $>36$h)** | 257 | 3,084 outcome-negative | 128.5 patient-days (3,084 patient-hours) | 63.0% of septic stays | Onset occurs after hour 36. 6-hour lookback $[T_{\text{S3}} - 6, T_{\text{S3}}]$ does not intersect surveillance window $[19, 30]$. All windows are outcome-negative baseline surveillance ($V_i = 0$). |
+| **  3b. Surveillance-Covered Sepsis ($V=1$)** | 151 | 1,189 windows (678 positive, 511 negative) | 49.5 patient-days (1,189 patient-hours) | 37.0% of septic stays | Onset occurs between ICU hours 20 and 36, such that $[T_{\text{S3}} - 6\text{h}, T_{\text{S3}}]$ intersects surveillance interval $[19, 30]$ ($V_i = 1$). |
+| **4. Canonical Sepsis-3 Risk Set ($H=6$h)** | 8,254 (151 horizon-pos) | 97,700 (678 positive / 97,022 negative) | 4,070.8 patient-days | 0.694% window prevalence | Full unconstrained risk set. Target windows have end-time within 6 hours before Sepsis-3 onset ($0 < T_{\text{S3}} - t \le 6\text{h}$). |
+| **5. Pretreatment Sepsis Risk Set $\mathcal{R}_0$ ($\delta=0$h)** | 5,967 (150 horizon-pos) | 70,192 (674 positive / 69,518 negative) | 2,924.7 patient-days | 0.960% window prevalence | Pretreatment risk set censoring all post-treatment windows ($w_{\text{end}} \le T_{\text{treatment}}$) for both cases and controls. 150 out of 151 covered patients (99.3%) maintain $\ge 1$ pretreatment target window. |
+| **6. Pretreatment Sepsis Risk Set $\mathcal{R}_2$ ($\delta=2$h)** | 5,967 (149 horizon-pos) | 70,129 (663 positive / 69,466 negative) | 2,922.0 patient-days | 0.945% window prevalence | Pretreatment risk set requiring a 2-hour clinical buffer ($w_{\text{end}} \le T_{\text{treatment}} - 2\text{h}$) before antimicrobial therapy. 149 out of 151 covered patients (98.7%) maintain $\ge 1$ actionable target window. |
 
 ---
 
-Among 408 consensus Sepsis-3 stays, the median onset occurred at **hour 49.0** after ICU admission (IQR: 30.0h to 77.0h; range: 20h to 369h). For 257 patients (63.0%), onset occurred after hour 36. During the evaluated surveillance protocol (hours 19–30), these patients are legitimately in pre-sepsis baseline surveillance, contributing true negative control windows. 
+Among 408 consensus Sepsis-3 stays, the median onset occurred at **hour 49.0** after ICU admission (IQR: 30.0h to 77.0h; range: 20h to 369h). For 257 patients (63.0%), onset occurred after hour 36. During the evaluated surveillance protocol (hours 19–30), these patients are legitimately in pre-sepsis baseline surveillance, contributing outcome-negative surveillance windows. 
 
-Exactly **151 septic patients** experienced onset between hours 20 and 36, such that their 6-hour pre-onset evaluation window $[T_{\text{S3}} - 6\text{h}, T_{\text{S3}}]$ intersected the active surveillance window, generating **678 positive evaluation windows** (prevalence $\pi = 0.694\%$). Among these 151 patients, 150 (99.3%) had decision times that strictly preceded antimicrobial therapy (674 pre-treatment positive windows).
+Exactly **151 septic patients** experienced onset between hours 20 and 36, such that their 6-hour pre-onset evaluation window $[T_{\text{S3}} - 6\text{h}, T_{\text{S3}}]$ intersected the active surveillance window, generating **678 positive evaluation windows** (prevalence $\pi = 0.694\%$). When post-treatment windows are censored across both cases and controls, the resulting pretreatment risk set $\mathcal{R}_0$ contains **70,192 windows** (674 positive, 69,518 negative; prevalence $\pi = 0.960\%$) across 5,967 contributing stays, with 150 of 151 covered patients (99.3%) retaining at least one pretreatment decision opportunity. Requiring a 2-hour clinical buffer ($\mathcal{R}_2$) retains **70,129 windows** (663 positive, 69,466 negative; prevalence $\pi = 0.945\%$) across 5,967 stays, with 149 of 151 covered patients (98.7%) retaining actionable opportunities.
+
+*Surveillance Time & Decision Opportunity Accounting:* Each prediction row represents a single 1-hour observation window $[t-1, t]$ scored at timestamp $t \in \{19, 20, \dots, 30\}$. With up to 12 scheduled decision opportunities per stay across 8,254 stays, the scheduled surveillance volume is $99,048$ hourly opportunities ($4,127.0$ patient-days). Exactly 1,348 windows were right-censored: 623 windows were truncated immediately upon clinical Sepsis-3 onset among 110 septic patients developing sepsis prior to hour 30, and 725 windows were truncated due to ICU discharge or end-of-monitoring prior to hour 30 among 180 control patients, yielding exactly 97,700 monitored patient-hours ($4,070.8$ patient-days).
 
 ---
 
@@ -144,7 +147,7 @@ Table 2 displays model discrimination across Canonical Sepsis-3 ($H=6\text{h}$) 
 ---
 
 ### Table 2: Benchmark Discrimination with Patient-Clustered 95% CIs Across Pre-Treatment Tasks (B=1,000 Clustered Bootstraps)
-| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>AUROC [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
+| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUROC [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **BiMamba SSM (Proposed)** | **0.6312 (0.5872–0.6733)** | **1.250% (0.892%–1.769%)** | **0.6421 (0.5998–0.6835)** | **1.701% (1.235%–2.329%)** | **0.6435 (0.6002–0.6860)** | **+0.0109 (+0.0060 to +0.0175)** |
 | **★ Proposed Champion (Ensemble)** | 0.6271 (0.5829–0.6699) | 1.248% (0.882%–1.748%) | 0.6340 (0.5897–0.6771) | 1.667% (1.207%–2.263%) | 0.6360 (0.5913–0.6799) | +0.0069 (+0.0021 to +0.0137) |
@@ -157,7 +160,13 @@ Table 2 displays model discrimination across Canonical Sepsis-3 ($H=6\text{h}$) 
 
 ---
 
-Crucially, in contrast to earlier informal conjectures that pre-treatment evaluation causes discriminative collapse, model discrimination **does not deteriorate** when evaluated on the true pre-treatment risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ (BiMamba SSM AUROC: 0.6312 canonical vs. 0.6421 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0109$, 95% CI: +0.0060 to +0.0175; Proposed Champion Ensemble: 0.6271 canonical vs. 0.6340 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0069$, 95% CI: +0.0021 to +0.0137). Censoring post-treatment windows removes treated observation noise, slightly elevating both AUROC and AUPRC (due to higher baseline prevalence in $\mathcal{R}_0$ [674 / 70,192 = 0.960%] vs canonical [678 / 97,700 = 0.694%]). This rigorously reproduces the empirical findings of Dutta et al. (2026), proving that true pre-treatment sepsis detection preserves feature discrimination. The operational failure of early warning is not a failure of feature-level discrimination ahead of antibiotics, but an alert-rate budget and population surveillance coverage bottleneck.
+*Note: All differences $\Delta\text{AUROC}$ and confidence intervals were computed on unrounded estimates across $B=1,000$ patient-clustered bootstrap iterations. Baseline outcome prevalence is reported directly below each task heading.*
+
+Crucially, in contrast to earlier conjectures that pre-treatment evaluation causes severe discriminative collapse, discrimination was slightly higher in the restricted pretreatment risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ than in the canonical risk set (BiMamba SSM AUROC: 0.6312 canonical vs. 0.6421 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0109$, 95% CI: +0.0060 to +0.0175; Proposed Champion Ensemble: 0.6271 canonical vs. 0.6340 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0069$, 95% CI: +0.0021 to +0.0137). 
+
+However, this comparison does not distinguish treatment-related information effects from changes in the underlying case mix, time since admission, and outcome prevalence. The absolute increase in AUPRC (BiMamba: 1.250% canonical to 1.701% on $\mathcal{R}_0$) largely tracks the higher baseline positive prevalence in the restricted set ($0.694\%$ canonical vs. $0.960\%$ in $\mathcal{R}_0$), with both estimates representing approximately $1.8\times$ baseline prevalence. 
+
+These antibiotic-administration-restricted findings are **directionally consistent with the antibiotic-order sensitivity analysis of Dutta et al. (2026)**, confirming that restricting predictions to pre-antimicrobial windows does not cause discriminative failure. Nevertheless, an AUROC near 0.64 represents modest discrimination in absolute terms, and directly contributes to low detection yield at constrained operational workloads alongside surveillance coverage and alert budgets.
 
 ---
 
@@ -166,60 +175,69 @@ Table 3 and Figure 2 illustrate the true clinical bottleneck: when models are de
 
 ---
 
-### Table 3: Operational Emitted-Alert Budget Performance with 12h Refractory Suppression
-| Target Emitted Budget | Model Architecture | Operating Threshold ($\tau$) | Achieved Emitted Burden (episodes/100 pt-days) | Emitted Alert Episodes (Stays) | Unique Septic Patients Detected | Episode PPV (%) | Coverage-Conditioned Sensitivity $P(D \mid V=1)$ | Whole-Population Sensitivity $P(D \mid S=1)$ | Workload $\text{NNE}_{\text{patient}}$ (Episodes / Patient) | False Episodes per True Patient ($\text{NNE}-1$) |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **5 episodes / 100 pt-days** | **Convex Ensemble** | 0.0145 | 5.01 | 204 | 6 / 408 | 2.94% | 4.0% | 1.5% | 34.0 | 33.0 |
-| | **BiMamba SSM** | 0.0187 | 5.01 | 204 | 4 / 408 | 1.96% | 2.6% | 1.0% | 51.0 | 50.0 |
-| | **GBDT (LightGBM)** | 0.0117 | 5.01 | 204 | 6 / 408 | 2.94% | 4.0% | 1.5% | 34.0 | 33.0 |
-| | **GBDT (XGBoost)** | 0.0122 | 5.01 | 204 | 4 / 408 | 1.96% | 2.6% | 1.0% | 51.0 | 50.0 |
-| | **Random Forest** | 0.0177 | 5.01 | 204 | 3 / 408 | 1.47% | 2.0% | 0.7% | 68.0 | 67.0 |
-| | **Clinical Transformer** | 0.0101 | 5.01 | 204 | 2 / 408 | 0.98% | 1.3% | 0.5% | 102.0 | 101.0 |
-| **10 episodes / 100 pt-days** | **Convex Ensemble** | 0.0131 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
-| | **BiMamba SSM** | 0.0165 | 10.00 | 407 | 7 / 408 | 1.72% | 4.6% | 1.7% | 58.1 | 57.1 |
-| | **GBDT (LightGBM)** | 0.0110 | 10.00 | 407 | 7 / 408 | 1.72% | 4.6% | 1.7% | 58.1 | 57.1 |
-| | **GBDT (XGBoost)** | 0.0114 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
-| | **Random Forest** | 0.0158 | 10.00 | 407 | 6 / 408 | 1.47% | 4.0% | 1.5% | 67.8 | 66.8 |
-| | **Mask-Aware Transformer** | 0.0110 | 10.00 | 407 | 5 / 408 | 1.23% | 3.3% | 1.2% | 81.4 | 80.4 |
-| | **Clinical Transformer** | 0.0094 | 10.00 | 407 | 5 / 408 | 1.23% | 3.3% | 1.2% | 81.4 | 80.4 |
-| **20 episodes / 100 pt-days** | **Convex Ensemble** | 0.0115 | 20.00 | 814 | 8 / 408 | 0.98% | 5.3% | 2.0% | 101.8 | 100.8 |
-| | **BiMamba SSM** | 0.0142 | 20.00 | 814 | 10 / 408 | 1.23% | 6.6% | 2.5% | 81.4 | 80.4 |
-| | **GBDT (XGBoost)** | 0.0105 | 20.00 | 814 | 15 / 408 | 1.84% | 9.9% | 3.7% | 54.3 | 53.3 |
-| | **Mask-Aware Transformer** | 0.0099 | 20.00 | 814 | 14 / 408 | 1.72% | 9.3% | 3.4% | 58.1 | 57.1 |
-| | **GBDT (LightGBM)** | 0.0105 | 20.00 | 814 | 10 / 408 | 1.23% | 6.6% | 2.5% | 81.4 | 80.4 |
-| | **Random Forest** | 0.0131 | 20.00 | 814 | 9 / 408 | 1.11% | 6.0% | 2.2% | 90.4 | 89.4 |
-| | **Clinical Transformer** | 0.0088 | 20.00 | 814 | 7 / 408 | 0.86% | 4.6% | 1.7% | 116.3 | 115.3 |
+### Table 3: Operational Emitted-Alert Budget Performance Frontiers with 12h Refractory Suppression
+| Prespecified Alert Budget | Model Architecture | Operating Threshold (tau) | Emitted Alert Episodes | Emitted Rate (/100 pt-days) | Episode PPV % [95% CI] | True Positive Sepsis Detections | Pretreatment Detections (delta=0h) | Pretreatment Detections (delta=2h) | Detection Sensitivity in Covered % [95% CI] | Overall Sepsis Detection Yield % [95% CI] | NNE per Detected Patient [95% CI] |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **5.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0187 | 204 | 5.01 | 1.96 (0.46–4.04)% | 4 | 4 | 4 | 2.65 (0.61–5.59)% | 0.98 (0.23–2.06)% | 51.0 (24.7–208.0) |
+| | **Proposed Champion (Ensemble)** | 0.0145 | 204 | 5.01 | 2.94 (0.93–5.66)% | 6 | 6 | 6 | 3.97 (1.31–7.65)% | 1.47 (0.49–2.86)% | 34.0 (17.7–107.0) |
+| | **Tabular GBDT (LightGBM)** | 0.0117 | 204 | 5.01 | 2.94 (0.94–5.24)% | 6 | 6 | 6 | 3.97 (1.28–7.50)% | 1.47 (0.48–2.68)% | 34.0 (19.1–106.0) |
+| | **Tabular GBDT (XGBoost)** | 0.0122 | 204 | 5.01 | 1.96 (0.47–4.17)% | 4 | 4 | 4 | 2.65 (0.63–5.63)% | 0.98 (0.23–2.09)% | 51.0 (24.0–208.0) |
+| | **Random Forest** | 0.0177 | 204 | 5.01 | 1.47 (0.00–3.30)% | 3 | 3 | 3 | 1.99 (0.00–4.49)% | 0.74 (0.00–1.70)% | 68.0 (30.2–218.0) |
+| | **Logistic Regression (L2)** | 0.0103 | 204 | 5.01 | 0.98 (0.00–2.51)% | 2 | 2 | 2 | 1.32 (0.00–3.43)% | 0.49 (0.00–1.25)% | 102.0 (39.2–224.0) |
+| | **Clinical Transformer (Baseline)** | 0.0101 | 204 | 5.01 | 0.98 (0.00–2.46)% | 2 | 2 | 2 | 1.32 (0.00–3.50)% | 0.49 (0.00–1.27)% | 102.0 (39.5–222.0) |
+| | **Mask-Aware Transformer** | 0.0120 | 204 | 5.01 | 0.00 (0.00–0.00)% | 0 | 0 | 0 | 0.00 (0.00–0.00)% | 0.00 (0.00–0.00)% | N/A (0 detections) |
+| **10.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0165 | 407 | 10.00 | 1.72 (0.55–3.13)% | 7 | 7 | 7 | 4.64 (1.55–8.33)% | 1.72 (0.53–3.11)% | 58.1 (31.9–182.6) |
+| | **Proposed Champion (Ensemble)** | 0.0131 | 407 | 10.00 | 1.47 (0.48–2.66)% | 6 | 6 | 6 | 3.97 (1.30–7.27)% | 1.47 (0.48–2.68)% | 67.8 (37.5–207.0) |
+| | **Tabular GBDT (LightGBM)** | 0.0110 | 10.00 | 407 | 1.72 (0.53–3.03)% | 7 | 7 | 7 | 4.64 (1.61–8.33)% | 1.72 (0.54–3.04)% | 58.1 (33.0–187.0) |
+| | **Tabular GBDT (XGBoost)** | 0.0114 | 10.00 | 407 | 1.47 (0.49–2.75)% | 6 | 6 | 6 | 3.97 (1.31–7.65)% | 1.47 (0.49–2.86)% | 67.8 (36.4–205.5) |
+| | **Random Forest** | 0.0158 | 10.00 | 407 | 1.47 (0.47–2.74)% | 6 | 6 | 6 | 3.97 (1.27–7.34)% | 1.47 (0.48–2.74)% | 67.8 (36.5–206.8) |
+| | **Mask-Aware Transformer** | 0.0110 | 10.00 | 407 | 1.23 (0.25–2.35)% | 5 | 5 | 5 | 3.31 (0.71–6.54)% | 1.23 (0.26–2.38)% | 81.4 (42.6–390.2) |
+| | **Clinical Transformer (Baseline)** | 0.0094 | 10.00 | 407 | 1.23 (0.25–2.41)% | 5 | 5 | 5 | 3.31 (0.69–6.49)% | 1.23 (0.25–2.43)% | 81.4 (41.5–389.1) |
+| | **Logistic Regression (L2)** | 0.0095 | 10.00 | 407 | 0.98 (0.23–2.03)% | 4 | 4 | 4 | 2.65 (0.59–5.51)% | 0.98 (0.23–2.07)% | 101.8 (48.9–416.5) |
+| **20.0 episodes / 100 pt-days** | **BiMamba SSM (Proposed)** | 0.0142 | 814 | 20.00 | 1.23 (0.50–2.03)% | 10 | 10 | 10 | 6.62 (2.98–10.84)% | 2.45 (1.04–4.10)% | 81.4 (49.3–198.3) |
+| | **Proposed Champion (Ensemble)** | 0.0115 | 20.00 | 814 | 0.98 (0.37–1.72)% | 8 | 8 | 8 | 5.30 (2.04–9.04)% | 1.96 (0.74–3.43)% | 101.8 (58.1–272.7) |
+| | **Tabular GBDT (XGBoost)** | 0.0105 | 20.00 | 814 | 15 | 15 | 15 | 9.93 (5.51–15.00)% | 3.68 (1.97–5.58)% | 54.3 (36.0–101.1) |
+| | **Mask-Aware Transformer** | 0.0099 | 20.00 | 814 | 14 | 14 | 14 | 9.27 (4.79–14.07)% | 3.43 (1.71–5.28)% | 58.1 (37.9–117.6) |
+| | **Logistic Regression (L2)** | 0.0088 | 20.00 | 814 | 1.35 (0.62–2.23)% | 11 | 11 | 11 | 7.28 (3.43–11.81)% | 2.70 (1.22–4.44)% | 74.0 (44.8–160.0) |
+| | **GBDT (LightGBM)** | 0.0105 | 20.00 | 814 | 10 | 10 | 10 | 6.62 (10.18–22.37)% | 2.45 (3.75–8.38)% | 81.4 (94.3–218.1) |
+| | **Random Forest** | 0.0131 | 20.00 | 814 | 9 | 9 | 9 | 5.96 (2.70–9.68)% | 2.21 (0.96–3.69)% | 90.4 (53.9–205.6) |
+| | **Clinical Transformer (Baseline)** | 0.0088 | 20.00 | 814 | 7 | 7 | 7 | 4.64 (1.51–8.16)% | 1.72 (0.52–3.03)% | 116.3 (66.8–389.6) |
 
 ---
 
-*Note: Because the surveillance protocol evaluates ICU hours 19 to 30 (11 elapsed hours), a 12-hour refractory policy ensures that each stay emits at most one alert episode ($N_{\text{episodes}, i} \le 1$). Emitted alert episodes therefore correspond exactly to distinct alerted patients. True positive episodes correspond to uniquely detected septic patients alerting within their pre-onset horizon ($[T_{\text{S3}}-6\text{h}, T_{\text{S3}}]$). Workload $\text{NNE}_{\text{patient}} = N_{\text{emitted episodes}} / N_{\text{detected patients}}$, and False Episodes per True Patient $= \text{NNE} - 1$.*
+*Note on Operational Mechanics and Alert Timing Verification: Because active surveillance evaluates ICU hours 19 to 30 (11 elapsed hours), a 12-hour refractory silence window strictly enforces $N_{\text{episodes}, i} \le 1$ for all patients during the surveillance interval. Thus, emitted alert episodes correspond exactly to distinct alerted patients, and episode-level PPV is identical to patient-level precision. Workload $\text{NNE}_{\text{patient}} = N_{\text{emitted episodes}} / N_{\text{true positive episodes}}$.*
+
+*Timing verification at the first emitted alert $t_{\text{alert}}$ confirmed that 100% of true-positive sepsis-horizon detections ($0 < T_{\text{S3}} - t_{\text{alert}} \le 6\text{h}$) strictly preceded systemic antimicrobial administration ($t_{\text{alert}} \le T_{\text{treatment}}$) and maintained at least a 2-hour clinical response buffer ($t_{\text{alert}} + 2\text{h} \le T_{\text{treatment}}$).*
 
 At an emitted workload of 10 episodes per 100 surveillance patient-days:
 - The 12-hour refractory policy bounds bedside reviews to exactly 407 unique patient evaluations across 4,070.8 patient-days.
-- However, episode-level PPV remains severely depressed between **0.98% and 1.72%**.
-- Across the entire test cohort of 408 septic patients, the ensemble uniquely detects only **6 patients** ($\text{Sensitivity} = 1.5\%$), requiring clinicians to review **67.8 independent alert episodes** for every single uniquely detected septic patient ($\text{NNE}_{\text{patient}} = 67.8$; 66.8 false alarm episodes per true patient).
-- For deep sequence models, $\text{NNE}_{\text{patient}}$ exceeds 80 episodes per true detection.
+- However, episode-level PPV remains between **0.98% and 1.72%**.
+- Across the entire test cohort of 408 septic patients, the top-performing BiMamba SSM uniquely detects **7 patients** ($\text{Sensitivity} = 1.72\%$, 95% CI: 0.53%–3.11%), requiring clinicians to review **58.1 independent alert episodes** for every single uniquely detected septic patient ($\text{NNE}_{\text{patient}} = 58.1$, 95% CI: 31.9–182.6).
+- For the Champion Ensemble, 6 patients are detected ($\text{Sensitivity} = 1.47\%$), requiring **67.8 alert episode evaluations per detected patient** ($\text{NNE}_{\text{patient}} = 67.8$, 95% CI: 37.5–207.0).
 
 ---
 
 ### 3.4 Two-Axis Subgroup Matrix & Timestamp Uncertainty Bounds (Table 4)
-Table 4 presents the two-axis cross-tabulation of Sepsis Onset Timing against Treatment Timing, contrasting the interval-censored date proxy in MIMIC-III with confirmed hourly administration in MIMIC-IV.
+Table 4 presents the two-axis cross-tabulation of Sepsis Onset Timing against Treatment Timing, strictly implementing the executable opportunity definition:
+$$\mathcal{A}_i = \{ t \in \mathcal{T}_i : 0 < T_{\text{S3}, i} - t \le H \}, \quad O_i(\delta) = \mathbf{1} \{ \exists t \in \mathcal{A}_i : t + \delta \le T_{\text{treatment}, i} \}$$
 
 ---
 
 ### Table 4: Two-Axis Subgroup & Timestamp Uncertainty Matrix
-| Database Release & Cohort | Sepsis Onset Category | Total Incident Episodes | Treatment at or before Opportunity Deadline ($\le 22\text{h}$) | Treatment after Opportunity Deadline ($> 22\text{h}$) | Indeterminate (Interval Crosses Deadline) | Clinical & Measurement Specification |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **MIMIC-III v1.4** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 2,641 | 1,581 (59.9%) | 8 (0.3%) | 1,052 (39.8%) | Prescription start date proxy evaluated with $[00:00, 24:00)$ interval bounds. Deadline reflects $b=18\text{h}$ lookback $+ \delta=4\text{h}$ lead buffer. |
-| *(Date Proxy, N=3,581)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 940 | 748 (79.6%) | 9 (1.0%) | 183 (19.5%) | |
-| | **All Incident Episodes** | **3,581** | **2,329 (65.0%)** | **17 (0.5%)** | **1,235 (34.5%)** | |
-| **MIMIC-IV v3.1** | Early Incident ($0 < T_{\text{S3}} \le 24\text{h}$) | 1,236 | 1,235 (99.9%) | 1 (0.1%) | 0 (0.0%) | Confirmed hourly administration timestamps from electronic medication administration records (`emar`). |
-| *(Hourly eMAR, N=1,596)* | Late Incident ($T_{\text{S3}} > 24\text{h}$) | 360 | 360 (100.0%) | 0 (0.0%) | 0 (0.0%) | |
-| | **All Incident Episodes** | **1,596** | **1,595 (99.9%)** | **1 (0.1%)** | **0 (0.0%)** | |
+| Cohort & Timestamp Source | Sepsis Onset Category | Subgroup Denominator ($N$) | Surveillance Covered Stays ($V=1$) | Definitely Eligible Count | Indeterminate Count | Definitely Ineligible Count | Within-Subgroup Opportunity Bounds | Within-Covered Opportunity Bounds | Contribution to Overall Cohort Bound |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **MIMIC-IV Prospective-Replay** | Early Incident (<=24h) | 47 | 47 (100.0%) | 47 | 0 | 0 | [100.0%, 100.0%] | [100.0%, 100.0%] | 47 / 408 (11.5%) |
+| *(Hourly Confirmed eMAR)* | Intermediate Incident (24–48h) | 156 | 104 (66.7%) | 103 | 0 | 53 | [66.0%, 66.0%] | [99.0%, 99.0%] | 103 / 408 (25.2%) |
+| | Late Incident (>48h) | 205 | 0 (0.0%) | 0 | 0 | 205 | [0.0%, 0.0%] | N/A (No covered stays) | 0 / 408 (0.0%) |
+| | **All Incident Sepsis-3 Cases** | **408** | **151 (37.0%)** | **150** | **0** | **258** | **[36.8%, 36.8%]** | **[99.3%, 99.3%]** | **150 / 408 (36.8%)** |
+| **MIMIC-III Broad Incident Sepsis** | Early Incident (<=24h) | 2,641 | 102 (3.9%) | 0 | 74 | 2,567 | [0.0%, 2.8%] | [0.0%, 72.5%] | [0, 74] / 3,581 ([0.00%, 2.07%]) |
+| *(Prescription Date Proxy)* | Intermediate Incident (24–48h) | 361 | 235 (65.1%) | 1 | 36 | 324 | [0.3%, 10.2%] | [0.4%, 15.7%] | [1, 37] / 3,581 ([0.03%, 1.03%]) |
+| | Late Incident (>48h) | 579 | 0 (0.0%) | 0 | 0 | 579 | [0.0%, 0.0%] | N/A (No covered stays) | [0, 0] / 3,581 ([0.00%, 0.00%]) |
+| | **All Incident Sepsis-3 Cases** | **3,581** | **337 (9.4%)** | **1** | **110** | **3,470** | **[0.03%, 3.10%]** | **[0.30%, 32.94%]** | **[1, 111] / 3,581 ([0.03%, 3.10%])** |
 
 ---
 
-In MIMIC-III, 34.5% of incident cases (1,235 / 3,581) have prescription start dates that cross the 22-hour opportunity threshold, demonstrating substantial measurement uncertainty that precludes fine-grained hourly claims. In contrast, MIMIC-IV administration records demonstrate that 99.9% of patients receiving systemic IV antibiotics in the ICU have treatment initiated within the first 22 hours of admission, establishing that the overwhelming majority of sepsis early-warning opportunities occur prior to or upon ICU admission rather than days into critical care monitoring.
+*Note on Measurement Interpretation: In MIMIC-III, prescription start dates lack sub-day timestamps, creating an interval $[a_i, b_i) = [\text{STARTDATE 00:00:00}, \text{STARTDATE + 1 day 00:00:00})$. This produces 110 indeterminate cases across the cohort where treatment may or may not have preceded eligible prediction windows, bounding true clinical opportunity between 0.03% (worst-case $\mathcal{O}_{\min}$) and 3.10% (best-case $\mathcal{O}_{\max}$). Bounds on opportunity counts do not automatically translate to bounds on AUROC without explicit assumptions regarding intra-day treatment timing distributions. In contrast, MIMIC-IV electronic medication administration records (eMAR) provide verified hourly administration records, showing that 150 of 151 covered patients (99.3%) and 36.8% of the overall sepsis cohort have definitive pre-treatment prediction opportunities.*
 
 ---
 

@@ -1,25 +1,25 @@
-Target Emitted Budget (episodes/100 pt-days),Model Architecture,Operating Threshold,Achieved Emitted Burden (episodes/100 pt-days),Emitted Alert Episodes (Stays),Unique Septic Patients Detected,Episode PPV (%),Coverage-Conditioned Sens P(D|V=1),Whole-Population Sens P(D|S=1),Workload NNE (Episodes / Patient),False Episodes per Detected Patient (NNE - 1)
-5,Proposed Champion (Ensemble),0.0145,5.01,204,6 / 408,2.94%,4.0%,1.5%,34.0,33.0
-5,BiMamba SSM (Proposed),0.0187,5.01,204,4 / 408,1.96%,2.6%,1.0%,51.0,50.0
-5,Mask-Aware Clinical Transformer,0.0120,5.01,204,0 / 408,0.00%,0.0%,0.0%,Undef (0 TP),Undef
-5,Random Forest,0.0177,5.01,204,3 / 408,1.47%,2.0%,0.7%,68.0,67.0
-5,Tabular GBDT (XGBoost),0.0122,5.01,204,4 / 408,1.96%,2.6%,1.0%,51.0,50.0
-5,Tabular GBDT (LightGBM),0.0117,5.01,204,6 / 408,2.94%,4.0%,1.5%,34.0,33.0
-5,Logistic Regression (L2),0.0103,5.01,204,2 / 408,0.98%,1.3%,0.5%,102.0,101.0
-5,Clinical Transformer (Baseline Unmasked),0.0101,5.01,204,2 / 408,0.98%,1.3%,0.5%,102.0,101.0
-10,Proposed Champion (Ensemble),0.0131,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
-10,BiMamba SSM (Proposed),0.0165,10.00,407,7 / 408,1.72%,4.6%,1.7%,58.1,57.1
-10,Mask-Aware Clinical Transformer,0.0110,10.00,407,5 / 408,1.23%,3.3%,1.2%,81.4,80.4
-10,Random Forest,0.0158,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
-10,Tabular GBDT (XGBoost),0.0114,10.00,407,6 / 408,1.47%,4.0%,1.5%,67.8,66.8
-10,Tabular GBDT (LightGBM),0.0110,10.00,407,7 / 408,1.72%,4.6%,1.7%,58.1,57.1
-10,Logistic Regression (L2),0.0095,10.00,407,4 / 408,0.98%,2.6%,1.0%,101.8,100.8
-10,Clinical Transformer (Baseline Unmasked),0.0094,10.00,407,5 / 408,1.23%,3.3%,1.2%,81.4,80.4
-20,Proposed Champion (Ensemble),0.0115,20.00,814,8 / 408,0.98%,5.3%,2.0%,101.8,100.8
-20,BiMamba SSM (Proposed),0.0142,20.00,814,10 / 408,1.23%,6.6%,2.5%,81.4,80.4
-20,Mask-Aware Clinical Transformer,0.0099,20.00,814,14 / 408,1.72%,9.3%,3.4%,58.1,57.1
-20,Random Forest,0.0131,20.00,814,9 / 408,1.11%,6.0%,2.2%,90.4,89.4
-20,Tabular GBDT (XGBoost),0.0105,20.00,814,15 / 408,1.84%,9.9%,3.7%,54.3,53.3
-20,Tabular GBDT (LightGBM),0.0105,20.00,814,10 / 408,1.23%,6.6%,2.5%,81.4,80.4
-20,Logistic Regression (L2),0.0088,20.00,814,11 / 408,1.35%,7.3%,2.7%,74.0,73.0
-20,Clinical Transformer (Baseline Unmasked),0.0088,20.00,814,7 / 408,0.86%,4.6%,1.7%,116.3,115.3
+Prespecified Alert Budget,Model Architecture,Operating Threshold (tau),Emitted Alert Episodes,Emitted Rate (/100 pt-days),Episode PPV % [95% CI],True Positive Sepsis Detections,Pretreatment Detections (delta=0h),Pretreatment Detections (delta=2h),Detection Sensitivity in Covered Sepsis % [95% CI],Overall Sepsis Detection Yield % [95% CI],NNE per Detected Patient [95% CI]
+5.0 episodes / 100 pt-days,BiMamba SSM (Proposed),0.0187,204,5.01,1.96 (0.46–4.04)%,4,4,4,2.65 (0.61–5.59)%,0.98 (0.23–2.06)%,51.0 (24.7–208.0)
+5.0 episodes / 100 pt-days,Proposed Champion (Ensemble),0.0145,204,5.01,2.94 (0.93–5.66)%,6,6,6,3.97 (1.31–7.65)%,1.47 (0.49–2.86)%,34.0 (17.7–107.0)
+5.0 episodes / 100 pt-days,Mask-Aware Clinical Transformer,0.0120,204,5.01,0.00 (0.00–0.00)%,0,0,0,0.00 (0.00–0.00)%,0.00 (0.00–0.00)%,nan (N/A)
+5.0 episodes / 100 pt-days,Random Forest,0.0177,204,5.01,1.47 (0.00–3.30)%,3,3,3,1.99 (0.00–4.49)%,0.74 (0.00–1.70)%,68.0 (30.2–218.0)
+5.0 episodes / 100 pt-days,Tabular GBDT (XGBoost),0.0122,204,5.01,1.96 (0.47–4.17)%,4,4,4,2.65 (0.63–5.63)%,0.98 (0.23–2.09)%,51.0 (24.0–208.0)
+5.0 episodes / 100 pt-days,Tabular GBDT (LightGBM),0.0117,204,5.01,2.94 (0.94–5.24)%,6,6,6,3.97 (1.28–7.50)%,1.47 (0.48–2.68)%,34.0 (19.1–106.0)
+5.0 episodes / 100 pt-days,Logistic Regression (L2),0.0103,204,5.01,0.98 (0.00–2.51)%,2,2,2,1.32 (0.00–3.43)%,0.49 (0.00–1.25)%,102.0 (39.2–224.0)
+5.0 episodes / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0101,204,5.01,0.98 (0.00–2.46)%,2,2,2,1.32 (0.00–3.50)%,0.49 (0.00–1.27)%,102.0 (39.5–222.0)
+10.0 episodes / 100 pt-days,BiMamba SSM (Proposed),0.0165,407,10.00,1.72 (0.55–3.13)%,7,7,7,4.64 (1.55–8.33)%,1.72 (0.53–3.11)%,58.1 (31.9–182.6)
+10.0 episodes / 100 pt-days,Proposed Champion (Ensemble),0.0131,407,10.00,1.47 (0.48–2.66)%,6,6,6,3.97 (1.30–7.27)%,1.47 (0.48–2.68)%,67.8 (37.5–207.0)
+10.0 episodes / 100 pt-days,Mask-Aware Clinical Transformer,0.0110,407,10.00,1.23 (0.25–2.35)%,5,5,5,3.31 (0.71–6.54)%,1.23 (0.26–2.38)%,81.4 (42.6–390.2)
+10.0 episodes / 100 pt-days,Random Forest,0.0158,407,10.00,1.47 (0.47–2.74)%,6,6,6,3.97 (1.27–7.34)%,1.47 (0.48–2.74)%,67.8 (36.5–206.8)
+10.0 episodes / 100 pt-days,Tabular GBDT (XGBoost),0.0114,407,10.00,1.47 (0.49–2.75)%,6,6,6,3.97 (1.31–7.65)%,1.47 (0.49–2.86)%,67.8 (36.4–205.5)
+10.0 episodes / 100 pt-days,Tabular GBDT (LightGBM),0.0110,407,10.00,1.72 (0.53–3.03)%,7,7,7,4.64 (1.61–8.33)%,1.72 (0.54–3.04)%,58.1 (33.0–187.0)
+10.0 episodes / 100 pt-days,Logistic Regression (L2),0.0095,407,10.00,0.98 (0.23–2.03)%,4,4,4,2.65 (0.59–5.51)%,0.98 (0.23–2.07)%,101.8 (48.9–416.5)
+10.0 episodes / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0094,407,10.00,1.23 (0.25–2.41)%,5,5,5,3.31 (0.69–6.49)%,1.23 (0.25–2.43)%,81.4 (41.5–389.1)
+20.0 episodes / 100 pt-days,BiMamba SSM (Proposed),0.0142,814,20.00,1.23 (0.50–2.03)%,10,10,10,6.62 (2.98–10.84)%,2.45 (1.04–4.10)%,81.4 (49.3–198.3)
+20.0 episodes / 100 pt-days,Proposed Champion (Ensemble),0.0115,814,20.00,0.98 (0.37–1.72)%,8,8,8,5.30 (2.04–9.04)%,1.96 (0.74–3.43)%,101.8 (58.1–272.7)
+20.0 episodes / 100 pt-days,Mask-Aware Clinical Transformer,0.0099,814,20.00,1.72 (0.85–2.64)%,14,14,14,9.27 (4.79–14.07)%,3.43 (1.71–5.28)%,58.1 (37.9–117.6)
+20.0 episodes / 100 pt-days,Random Forest,0.0131,814,20.00,1.11 (0.48–1.86)%,9,9,9,5.96 (2.70–9.68)%,2.21 (0.96–3.69)%,90.4 (53.9–205.6)
+20.0 episodes / 100 pt-days,Tabular GBDT (XGBoost),0.0105,814,20.00,1.84 (0.99–2.77)%,15,15,15,9.93 (5.51–15.00)%,3.68 (1.97–5.58)%,54.3 (36.0–101.1)
+20.0 episodes / 100 pt-days,Tabular GBDT (LightGBM),0.0105,814,20.00,1.23 (0.46–1.06)%,10,10,10,6.62 (10.18–22.37)%,2.45 (3.75–8.38)%,81.4 (94.3–218.1)
+20.0 episodes / 100 pt-days,Logistic Regression (L2),0.0088,814,20.00,1.35 (0.62–2.23)%,11,11,11,7.28 (3.43–11.81)%,2.70 (1.22–4.44)%,74.0 (44.8–160.0)
+20.0 episodes / 100 pt-days,Clinical Transformer (Baseline Unmasked),0.0088,814,20.00,0.86 (0.26–1.50)%,7,7,7,4.64 (1.51–8.16)%,1.72 (0.52–3.03)%,116.3 (66.8–389.6)
