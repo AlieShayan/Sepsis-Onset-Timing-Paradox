@@ -36,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-\noindent\textbf{Objective:} To evaluate how surveillance protocol coverage, treatment precedence, and emitted-alert constraints govern machine learning early warning for sepsis in an intensive care unit (ICU) cohort.
+\noindent\textbf{Objectives:} To evaluate how surveillance protocol coverage, treatment precedence, and emitted-alert constraints govern machine learning early warning for sepsis in an intensive care unit (ICU) cohort.
 
 \vspace{0.3em}
 \noindent\textbf{Materials and Methods:} We retrospectively evaluated eight predictive architectures in 8,254 MIMIC-IV adult first ICU stays lasting at least 30 hours under a prespecified second-day surveillance protocol (hours 19--30; 97,700 hourly windows; prevalence $\pi = 0.694\%$). MIMIC-III provided a separate prescription-date sensitivity analysis. We formalized an operational cascade (surveillance coverage, pretreatment opportunity, and alert-budget detection), evaluated pre-treatment risk sets excluding post-antimicrobial windows ($\mathcal{R}_0$ and $\mathcal{R}_2$), and estimated burden-matched operating frontiers under a 12-hour alert suppression rule.
@@ -84,12 +84,12 @@ To distinguish these evaluation components, we conducted an operational evaluati
 \section{Materials and Methods}
 
 \subsection{Study Design and Cohort Definition}
-We conducted a retrospective evaluation with sequential prediction replay using the MIMIC-IV critical care database (v2.2, primary evaluation) and the MIMIC-III database (v1.4, prescription-proxy sensitivity analysis) from BIDMC~\cite{johnson2023mimiciv,johnson2016mimiciii}. The study cohort was defined as adult patients ($\ge 18$ years) admitted to an intensive care unit with a length of stay $\text{LOS} \ge 30\text{h}$. To avoid within-patient clustering across multiple admissions, only the chronological first ICU stay per patient was retained. Complete cohort derivation schemas, exclusion criteria, train/validation/test partitions, feature dictionaries, missing-data rules, model architectures, and executable Sepsis-3 definitions are detailed in the Supplementary Methods Package.
+We conducted a retrospective evaluation with sequential prediction replay using the MIMIC-IV critical care database (v2.2, primary evaluation) and the MIMIC-III database (v1.4, prescription-proxy sensitivity analysis) from BIDMC~\cite{johnson2023mimiciv,johnson2016mimiciii}. Analyses used the versioned MIMIC-IV v2.2 and MIMIC-III v1.4 releases, with extraction queries and dataset identifiers recorded in the release manifest. The study cohort was defined as adult patients ($\ge 18$ years) admitted to an intensive care unit with a total ICU length of stay $\text{LOS} \ge 30\text{h}$. To avoid within-patient clustering across multiple admissions, only the chronological first ICU stay per patient was retained. Complete cohort derivation schemas, exclusion criteria, train/validation/test partitions, feature dictionaries, missing-data rules, model architectures, and executable Sepsis-3 definitions are detailed in the Supplementary Methods Package.
 
-Surveillance was evaluated under a prespecified second-day ICU surveillance protocol: predictions were generated at 12 scheduled hourly decision bins $[t-1, t]$ for $t \in \{19, 20, \dots, 30\}$ hours post-admission. The test partition comprised 8,254 unique patient ICU stays (97,700 evaluated windows, 4,070.8 patient-days of surveillance volume). Stays were censored at Sepsis-3 onset ($N=110$ stays, 623 windows) or upon routine observation cessation under the prespecified feature-generation schedule ($N=180$ stays, 725 windows). Reporting was organized in accordance with TRIPOD+AI and STROBE recommendations~\cite{collins2024tripod,vonelm2007strobe}.
+Surveillance was evaluated under a prespecified second-day ICU surveillance protocol: predictions were generated at 12 scheduled hourly decision bins $[t-1, t]$ for $t \in \{19, 20, \dots, 30\}$ hours post-admission. The test partition comprised 8,254 unique patient ICU stays (97,700 evaluated windows, 4,070.8 patient-days of surveillance volume). Stays were censored at Sepsis-3 onset ($N=110$ stays, 623 windows) or upon routine observation cessation / ICU discharge under the prespecified feature-generation schedule ($N=180$ stays, 725 windows). Reporting was organized in accordance with TRIPOD+AI and STROBE recommendations~\cite{collins2024tripod,vonelm2007strobe}.
 
 \subsection{Outcome Definition and Operational Clocks}
-Sepsis was defined according to consensus Sepsis-3 criteria~\cite{singer2016sepsis,seymour2016assessment}: acute increase in Sequential Organ Failure Assessment (SOFA) score $\ge 2$ within a clinical window $[-48\text{h}, +24\text{h}]$ of suspected infection (defined as blood culture specimen acquisition paired with systemic antimicrobial administration).
+Sepsis was defined according to consensus Sepsis-3 criteria~\cite{singer2016sepsis,seymour2016assessment}: an acute increase in Sequential Organ Failure Assessment (SOFA) score $\ge 2$ points over baseline ($\text{SOFA}_{\text{base}}$, evaluated over the 24-hour lookback $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]$) within a clinical evaluation window $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$ relative to suspected infection (Seymour et al.~\cite{seymour2016assessment}; defined as blood culture specimen acquisition paired with systemic antimicrobial administration).
 
 For each patient $i$, we tracked four distinct temporal clocks (Figure~\ref{fig:clocks}):
 \begin{itemize}
@@ -102,7 +102,7 @@ For each patient $i$, we tracked four distinct temporal clocks (Figure~\ref{fig:
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf}
-    \caption{\textbf{Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text{S3}} - T_{\text{treatment}} = +24.2\text{h}$ (median), the actionable decision window $\mathcal{A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing MIMIC-III (with calendar-day interval-censored prescription bounds) and MIMIC-IV (hourly confirmed eMAR administration records).}
+    \caption{\textbf{Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text{S3}} - T_{\text{treatment}} = +24.2\text{h}$ (median), the actionable decision window $\mathcal{A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing MIMIC-III (with calendar-day interval-censored prescription bounds) and MIMIC-IV (hourly confirmed eMAR administration records). \textit{Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, antimicrobials, Sepsis-3 onset) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between MIMIC-III and MIMIC-IV cohorts in Panel B.}
     \label{fig:clocks}
 \end{figure*}
 
@@ -123,7 +123,7 @@ To evaluate true pre-treatment detection without feature distortion from prior a
 \begin{equation}
 \mathcal{R}_\delta = \bigl\{ (i, t) \in \mathcal{R} : t + \delta \le T_{\text{treatment}, i} \bigr\}
 \end{equation}
-where $T_{\text{treatment}, i} = \infty$ for stays with verified absence of antimicrobial therapy during hospitalization. In MIMIC-IV, absence of antimicrobial therapy is confirmed via exhaustive electronic Medication Administration Records (eMAR) across all charted systemic antimicrobials; stays without charted administrations are classified as untreated. In MIMIC-III, prescriptions without administration timestamps are evaluated using interval bounds $[00:00, 24:00)$. Windows occurring after treatment initiation ($t + \delta > T_{\text{treatment}, i}$) were excluded from both cases and controls. We evaluated $\mathcal{R}_0$ ($\delta=0\text{h}$, censoring windows ending after treatment) and $\mathcal{R}_2$ ($\delta=2\text{h}$, requiring a 2-hour pre-treatment actionability buffer).
+where $T_{\text{treatment}, i} = \infty$ for stays with no documented qualifying antimicrobial administration in the electronic medication administration record (eMAR). Specifically, in MIMIC-IV, stays without charted administrations across the eMAR systemic antimicrobial dictionary are classified as having no documented administration during ICU stay; potential outpatient, pre-ICU emergency department, or unrecorded administrations are acknowledged as unobserved in retrospective EHR tables. In MIMIC-III, prescriptions without administration timestamps are evaluated using interval bounds $[00:00, 24:00)$. Windows occurring after treatment initiation ($t + \delta > T_{\text{treatment}, i}$) were excluded from both cases and controls. We evaluated $\mathcal{R}_0$ ($\delta=0\text{h}$, censoring windows ending after treatment) and $\mathcal{R}_2$ ($\delta=2\text{h}$, requiring a 2-hour pre-treatment actionability buffer).
 
 \subsection{Alert-Budget Operating Frontiers and Refractory Policy}
 To quantify simulated emitted-alert burden, we evaluated fixed alert budgets $q \in \{5.0, 10.0, 20.0\}$ emitted alert episodes per 100 surveillance patient-days. Under a 12-hour suppression rule, each stay emits at most one alert episode within the evaluated 12-hour interval ($N_{\text{episodes}, i} \le 1$).
@@ -213,7 +213,7 @@ Table~\ref{tab:table2} presents discrimination across Canonical Sepsis-3, Pretre
 \end{table*}
 
 \subsection{Observed Burden--Detection Trade-Off Under This Protocol}
-Table~\ref{tab:table3} and Figure~\ref{fig:frontiers} demonstrate the real operational constraint: under realistic alert budgets, clinical detection yield is severely bounded.
+Table~\ref{tab:table3} and Figure~\ref{fig:frontiers} demonstrate the observed trade-off under the prespecified alert-budget scenarios: bedside detection yield is constrained by alert-rate limits.
 
 At an emitted workload of 10 alert episodes per 100 patient-days (407 emitted episodes across 4,070.8 patient-days):
 \begin{itemize}
@@ -352,7 +352,7 @@ This research received no external grant or commercial funding.
 AS conceived the study, developed the analytical framework, implemented the pipelines, performed the experiments, and drafted the manuscript. SA provided academic supervision, contributed to methodological design, critically revised the manuscript, and approved the final draft.
 
 \section*{AI Assistance Disclosure}
-During the preparation of this manuscript, the authors used large language model assistance (Google DeepMind) for editorial polishing, LaTeX drafting, and citation verification. The authors reviewed, validated, and edited all outputs, take full responsibility for the content, integrity, and scientific conclusions of this publication, and confirm that all analytical results and pipelines were independently developed and executed on the specified datasets.
+During the preparation of this manuscript, the authors utilized large language model and AI assistance (including Perplexity AI and Anthropic/Google AI interfaces) for adversarial peer-review pre-submission auditing, statistical consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations. The authors reviewed, validated, and edited all text and artifacts, and take full responsibility for the integrity, methodology, and conclusions of this work.
 
 \section*{Code and Data Availability}
 All preprocessing pipelines, model configurations, and release manifests are publicly available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox} (Git commit \texttt{b0932ca}, manifest \texttt{1.0.0-freeze}). De-identified patient data are available from PhysioNet under the MIMIC-IV Data Use Agreement.
@@ -376,8 +376,8 @@ All preprocessing pipelines, model configurations, and release manifests are pub
 \bibitem{paine2016systematic} Paine CW, Goel VV, Ely E, et al. Systematic review of physiologic monitor alarm characteristics and pragmatic interventions to reduce alarm frequency. \textit{J Hosp Med}. 2016;11(2):136--144. DOI: 10.1002/jhm.2520.
 \bibitem{gu2023mamba} Gu A, Dao T. Mamba: linear-time sequence modeling with selective state spaces. \textit{arXiv preprint}. 2023;arXiv:2312.00752. DOI: 10.48550/arXiv.2312.00752.
 \bibitem{gu2022efficiently} Gu A, Goel K, Ré C. Efficiently modeling long sequences with structured state spaces. In: \textit{International Conference on Learning Representations (ICLR)}; 2022.
-\bibitem{johnson2023mimiciv} Johnson AEW, Bulgarelli L, Shen L, et al. MIMIC-IV, a freely accessible electronic health record dataset. \textit{Sci Data}. 2023;10(1):1. DOI: 10.1038/s41597-022-01899-x.
-\bibitem{johnson2016mimiciii} Johnson AE, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database. \textit{Sci Data}. 2016;3:160035. DOI: 10.1038/sdata.2016.35.
+\bibitem{johnson2023mimiciv} Johnson A, Bulgarelli L, Pollard T, et al. MIMIC-IV, version 2.2. \textit{PhysioNet}; 2023. DOI: 10.13026/6mm1-ek67.
+\bibitem{johnson2016mimiciii} Johnson A, Pollard T, Mark R. MIMIC-III Clinical Database, version 1.4. \textit{PhysioNet}; 2016. DOI: 10.13026/C2XW26.
 \bibitem{collins2024tripod} Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. \textit{BMJ}. 2024;385:e078378. DOI: 10.1136/bmj-2023-078378.
 \bibitem{vonelm2007strobe} von Elm E, Altman DG, Egger M, et al. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. \textit{Lancet}. 2007;370(9596):1453--1457. DOI: 10.1016/S0140-6736(07)61602-X.
 \end{thebibliography}
