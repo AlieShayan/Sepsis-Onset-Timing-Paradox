@@ -10,6 +10,85 @@ $^1$ Department of Computer Science and Engineering & IT, School of Electrical a
 
 ---
 
+# Section S1: Supplementary Methods Package — Model Development, Cohort Derivation, and Algorithmic Specifications
+
+### S1.1 Cohort Construction and Exclusion Criteria
+The base study cohorts were derived from the Beth Israel Deaconess Medical Center (BIDMC) critical care repositories: MIMIC-IV (v2.2, primary prospective-replay test cohort) and MIMIC-III (v1.4, developmental and date-proxy sensitivity cohorts) under PhysioNet Credentialed Data Use Agreement.
+
+1. **Eligibility Criteria:** Adult patients ($\ge 18$ years of age at ICU admission) admitted to intensive care units with a total ICU length of stay $\text{LOS} \ge 30\text{ hours}$.
+2. **First Admission Restriction:** To prevent within-patient correlation across multiple hospitalizations, only the chronological first ICU stay per unique patient was included.
+3. **Prevalent Sepsis Exclusion:** Patients satisfying consensus Sepsis-3 criteria at or prior to ICU admission ($T_{\text{S3}} \le 0\text{h}$) or developing onset prior to the surveillance protocol start ($T_{\text{S3}} < 19\text{h}$) were excluded from post-arrival early-warning surveillance. These cases represent community-acquired or immediate-arrival sepsis already under active management upon ICU entry.
+4. **Surveillance Protocol:** Predictions were evaluated sequentially across 12 scheduled hourly decision bins $[t-1, t]$ for $t \in \{19, 20, \dots, 30\}$ hours post-admission.
+5. **Observation Cessation & Censoring:** Stays were right-censored upon consensus Sepsis-3 onset ($N=110$ stays, 623 windows) or upon routine observation cessation / monitoring discharge prior to hour 30 ($N=180$ control stays, 725 windows).
+
+### S1.2 Train, Validation, and Test Partitioning
+To guarantee zero future information leakage and test model transportability across electronic health record transitions:
+1. **MIMIC-III Developmental Split (Temporal Epochs):**
+   - Partitioning was executed at the unique patient level (`SUBJECT_ID` / `ICUSTAY_ID`) chronologically partitioned by ICU admission year:
+     - **Training Era (2001–2008, CareVue):** 20,973 admissions (3,897 sepsis, 17,076 non-sepsis).
+     - **Validation / Tuning Era (2009–2010, CareVue):** 6,060 admissions (1,137 sepsis, 4,923 non-sepsis).
+     - **Prospective Internal Test Era (2011–2012, MetaVision):** 3,800 admissions (688 sepsis, 3,112 non-sepsis).
+2. **MIMIC-IV External Prospective-Replay Test Partition:**
+   - 8,254 adult first ICU stays (408 incident Sepsis-3 cases, 7,846 controls) evaluated across 97,700 surveillance windows.
+   - All model weights, calibration parameters, and preprocessing scalers were strictly frozen prior to evaluating this partition.
+
+### S1.3 Feature Dictionary, Availability Rules, and Missing-Data Imputation
+Surveillance features comprise 21 continuous physiological and laboratory time series:
+- **Vital Signs (7 variables, sampled hourly):** Heart Rate, Systolic Blood Pressure, Diastolic Blood Pressure, Mean Arterial Pressure (MAP), Respiratory Rate, Peripheral Oxygen Saturation ($\text{SpO}_2$), Temperature.
+- **Laboratory Biomarkers (14 variables, sampled intermittently):** White Blood Cell Count (WBC), Platelet Count, Hemoglobin, Hematocrit, Serum Creatinine, Blood Urea Nitrogen (BUN), Serum Glucose, Serum Potassium, Serum Lactate, Base Excess, Arterial pH, Partial Thromboplastin Time (PTT), Aspartate Aminotransferase (AST), Fraction of Inspired Oxygen ($\text{FiO}_2$).
+
+**Temporal Latency and Availability Rules:**
+- All features were extracted using a strict causal right-open evaluation window $[t-18\text{h}, t)$: only observations timestamped strictly prior to decision timestamp $t$ were accessible.
+- Laboratory measurements were aligned by charted result time to prevent lookahead bias from specimen accession delays.
+
+**Imputation and Forward-Filling Rules:**
+- Vital signs were carried forward for a maximum duration of 4 hours.
+- Laboratory markers were carried forward for a maximum duration of 24 hours.
+- Unobserved baseline segments prior to the first measurement were imputed with population training medians.
+- For the Mask-Aware Clinical Transformer, a parallel 21-dimensional binary observation mask vector $M_i(t) \in \{0, 1\}^{21}$ was concatenated with the input, where $M_{i, j}(t) = 1$ indicates a freshly measured value in bin $t$ and $0$ indicates an imputed or carried-forward value.
+
+### S1.4 Model Architectures, Hyperparameters, and Stacking Ensemble
+Eight predictive architectures spanning three modeling paradigms were evaluated:
+1. **Bidirectional Mamba State-Space Model (BiMamba SSM):**
+   - 4 bidirectional selective SSM layers with linear-time continuous-time state expansion ($d_{\text{state}} = 16$, $d_{\text{model}} = 64$).
+   - Lookback duration: 18 hours.
+   - Training: Adam optimizer ($lr = 5 \times 10^{-4}$), batch size 256, early stopping patience = 8 epochs monitoring validation AUPRC.
+   - Objective: Focal Loss with Maximum Mean Calibration Error (MMCE) regularization ($\gamma = 2.0, \lambda_{\text{mmce}} = 0.3, \text{bandwidth} = 0.4$).
+   - Calibration: Validation logit scaling (temperature scaling).
+2. **Mask-Aware Clinical Transformer:**
+   - 4 Transformer encoder layers, 4 attention heads, $d_{\text{model}} = 64$, feedforward dimension 128, dropout 0.1. Input channels include 21 normalized features plus 21 binary mask channels.
+3. **Clinical Transformer (Baseline Unmasked):**
+   - Identical architecture without the binary missingness mask channel concatenation.
+4. **Tabular Tree-Based Ensembles (GBDTs & Random Forest):**
+   - 105 engineered summary features extracted across the 18-hour lookback window (mean, min, max, linear slope, standard deviation, and last recorded value per variable).
+   - *LightGBM:* 200 estimators, max depth 5, learning rate 0.05, feature fraction 0.8.
+   - *XGBoost:* 200 estimators, max depth 5, learning rate 0.05, subsample 0.8.
+   - *Random Forest:* 300 decision trees, max depth 12, min samples per leaf 10.
+5. **Linear Baseline:**
+   - *Logistic Regression (L2):* Ridge-regularized logistic regression ($C = 1.0$) with standardized features.
+6. **Multi-Model Stacking Ensemble:**
+   - Meta-learner: L2-regularized logistic regression trained on out-of-fold validation log-odds predictions from all 7 base architectures.
+
+### S1.5 Executable Sepsis-3 Phenotype Implementation
+Sepsis-3 consensus criteria were implemented programmatically according to international guidelines:
+1. **Culture Specimen Collection:** Earliest blood culture sampling timestamp $T_{\text{culture}}$.
+2. **Antimicrobial Initiation:** First systemic intravenous antimicrobial administration timestamp $T_{\text{treatment}}$.
+3. **Suspected Infection Window:** Satisfied when culture and antimicrobial co-occur within $[-24\text{h}, +72\text{h}]$, defining suspected infection time:
+   $$T_{\text{susp}} = \min(T_{\text{culture}}, T_{\text{treatment}})$$
+4. **Baseline SOFA Determination:** The minimum total SOFA score recorded in the pre-infection interval $[-48\text{h}, T_{\text{susp}}]$.
+5. **Acute Organ Dysfunction & Onset:** Earliest timestamp $T_{\text{S3}}$ in the clinical window $[-24\text{h}, +24\text{h}]$ around $T_{\text{susp}}$ exhibiting an acute increase of $\ge 2$ points:
+   $$\Delta\text{SOFA}(t) = \text{SOFA}(t) - \text{SOFA}_{\text{baseline}} \ge 2$$
+
+### S1.6 Patient-Clustered Paired Bootstrap and Boundary Tie-Breaking
+1. **Clustered Bootstrap Resampling:** Resampling was performed at the unique ICU stay level (`ICUSTAY_ID`, $B = 1,000$ iterations) to preserve within-patient temporal dependencies.
+2. **Preservation of Multiplicity:** Duplicate selections of the same patient within a resample were indexed via an integer `copy_idx` ($0, 1, \dots$), maintaining identical exposure and alert multiplicity.
+3. **Dynamic Exposure Recomputation (Procedure B):** In each resample $b$, surveillance exposure was computed as $E_b = \frac{1}{24}\sum_{i \in b} h_i$, and the alert quota was dynamically recalculated as $K_b = \operatorname{round}(q \cdot E_b / 100)$.
+4. **Deterministic Float64 Tie-Breaking Rule:** Patients were prioritized using the lexicographical key:
+   $$\mathcal{B} = \bigl( -\max_{t} s_i(t), \;\text{ICUSTAY\_ID}, \;\text{copy\_idx} \bigr)$$
+5. **Exact Reciprocal NNE Intervals:** For each resample, NNE was calculated as $\text{Alerts} / \text{Detections}$. Percentile confidence intervals were computed via exact reciprocal transformation of unrounded PPV percentiles ($\text{NNE}_{\text{low}} = 100 / \text{PPV}_{\text{upper}}$, $\text{NNE}_{\text{high}} = 100 / \text{PPV}_{\text{low}}$), setting $\text{NNE}_{\text{high}} = +\infty$ when $\text{PPV}_{\text{low}} = 0$.
+
+---
+
 ## Table S1: Complete Cohort Inclusion, Exclusion, and Progression Ledger
 
 | Progression Stage / Cohort Partition | ICU Stays ($N$) | Evaluated Decision Windows | Surveillance Volume | Proportion / Window Prevalence | Clinical Definition & Measurement Convention |

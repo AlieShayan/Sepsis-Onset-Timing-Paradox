@@ -6,13 +6,15 @@
 \citation{evans2021surviving,kumar2006duration}
 \citation{moor2021early}
 \citation{moor2021early,wang2025methodological}
-\citation{wong2021external,weissman2025sepsis}
+\citation{reyna2020early}
+\citation{wong2021external,adams2022prospective}
+\citation{weissman2024sepsis}
 \citation{wong2021external}
 \citation{adams2022prospective,henry2022factors}
 \citation{adams2022prospective}
 \citation{drew2014insights}
 \citation{ancker2017effects,paine2016systematic}
-\citation{weissman2025sepsis}
+\citation{kamran2024evaluation}
 \citation{kamran2024evaluation}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background and Significance}{1}{subsection.1.1}\protected@file@percent }
@@ -20,22 +22,20 @@
 \citation{johnson2023mimiciv,johnson2016mimiciii}
 \citation{collins2024tripod,vonelm2007strobe}
 \citation{singer2016sepsis,seymour2016assessment}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Materials and Methods}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Study Design and Cohort Definition}{2}{subsection.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Outcome Definition and Operational Clocks}{2}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Risk Sets, Anticipation Horizons, and Pretreatment Eligibility}{2}{subsection.2.3}\protected@file@percent }
 \citation{gu2023mamba,gu2022efficiently}
-\citation{dutta2026performance}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text  {S3}} - T_{\text  {treatment}} = +24.2\text  {h}$ (median), the actionable decision window $\mathcal  {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing MIMIC-III (with calendar-day interval-censored prescription bounds) and MIMIC-IV (hourly confirmed eMAR administration records).}}{3}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:clocks}{{1}{3}{\textbf {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text {S3}} - T_{\text {treatment}} = +24.2\text {h}$ (median), the actionable decision window $\mathcal {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing MIMIC-III (with calendar-day interval-censored prescription bounds) and MIMIC-IV (hourly confirmed eMAR administration records)}{figure.caption.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Alert-Budget Operating Frontiers and Refractory Policy}{3}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Predictive Models and Statistical Inference}{3}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{3}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{3}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Pretreatment Discrimination Benchmark}{3}{subsection.3.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability.}}{4}{table.caption.2}\protected@file@percent }
-\newlabel{tab:table1}{{1}{4}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability}{table.caption.2}{}}
+\citation{dutta2026performance}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Pretreatment Discrimination Benchmark}{4}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Observed Burden--Detection Trade-Off Under This Protocol}{4}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Two-Axis Subgroup and Timestamp Uncertainty Matrix}{4}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cumulative Population Coverage Decomposition}{4}{subsection.3.5}\protected@file@percent }
@@ -43,38 +43,41 @@
 \citation{ancker2017effects}
 \citation{ancker2017effects,paine2016systematic}
 \citation{henry2022factors}
+\citation{paine2016systematic}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability.}}{5}{table.caption.2}\protected@file@percent }
+\newlabel{tab:table1}{{1}{5}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability}{table.caption.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {Benchmark Discrimination Across Pretreatment Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples.}}{5}{table.caption.3}\protected@file@percent }
 \newlabel{tab:table2}{{2}{5}{\textbf {Benchmark Discrimination Across Pretreatment Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples}{table.caption.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}.}}{5}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:frontiers}{{2}{5}{\textbf {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}}{figure.caption.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection.}}{5}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:decomp}{{3}{5}{\textbf {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection}{figure.caption.7}{}}
-\citation{paine2016systematic}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{6}{table.caption.5}\protected@file@percent }
-\newlabel{tab:table3}{{3}{6}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage.}}{6}{table.caption.6}\protected@file@percent }
-\newlabel{tab:table4}{{4}{6}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Limitations}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{6}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Limitations}{5}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{5}{section.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}.}}{6}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:frontiers}{{2}{6}{\textbf {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}}{figure.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection.}}{6}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:decomp}{{3}{6}{\textbf {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection}{figure.caption.7}{}}
 \bibcite{singer2016sepsis}{1}
 \bibcite{seymour2016assessment}{2}
 \bibcite{evans2021surviving}{3}
 \bibcite{kumar2006duration}{4}
 \bibcite{moor2021early}{5}
 \bibcite{wang2025methodological}{6}
-\bibcite{wong2021external}{7}
-\bibcite{adams2022prospective}{8}
-\bibcite{henry2022factors}{9}
-\bibcite{weissman2025sepsis}{10}
-\bibcite{kamran2024evaluation}{11}
-\bibcite{dutta2026performance}{12}
-\bibcite{drew2014insights}{13}
-\bibcite{ancker2017effects}{14}
-\bibcite{paine2016systematic}{15}
-\bibcite{gu2023mamba}{16}
-\bibcite{gu2022efficiently}{17}
-\bibcite{johnson2023mimiciv}{18}
-\bibcite{johnson2016mimiciii}{19}
-\bibcite{collins2024tripod}{20}
-\bibcite{vonelm2007strobe}{21}
+\bibcite{reyna2020early}{7}
+\bibcite{wong2021external}{8}
+\bibcite{adams2022prospective}{9}
+\bibcite{henry2022factors}{10}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{7}{table.caption.5}\protected@file@percent }
+\newlabel{tab:table3}{{3}{7}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage.}}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:table4}{{4}{7}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage}{table.caption.6}{}}
+\bibcite{weissman2024sepsis}{11}
+\bibcite{kamran2024evaluation}{12}
+\bibcite{dutta2026performance}{13}
+\bibcite{drew2014insights}{14}
+\bibcite{ancker2017effects}{15}
+\bibcite{paine2016systematic}{16}
+\bibcite{gu2023mamba}{17}
+\bibcite{gu2022efficiently}{18}
+\bibcite{johnson2023mimiciv}{19}
+\bibcite{johnson2016mimiciii}{20}
+\bibcite{collins2024tripod}{21}
+\bibcite{vonelm2007strobe}{22}
 \gdef \@abspage@last{8}

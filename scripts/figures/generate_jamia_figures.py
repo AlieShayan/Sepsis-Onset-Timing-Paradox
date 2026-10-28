@@ -38,19 +38,19 @@ plt.rcParams.update({
 
 
 def generate_figure1_clocks_and_waterfall():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6), gridspec_kw={"width_ratios": [1.15, 1]})
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.2), gridspec_kw={"width_ratios": [1.18, 1]})
 
     # --- Panel A: Operational Clocks & Actionable Pretreatment Decision Window ---
     ax1.set_title("A. Operational Clocks & Actionable Decision Boundary", fontweight="bold", pad=12)
     ax1.set_xlim(-0.5, 10.5)
-    ax1.set_ylim(-0.5, 6.5)
+    ax1.set_ylim(-0.8, 6.5)
     ax1.axis("off")
 
     # Draw ICU timeline bar
     ax1.add_patch(patches.Rectangle((0, 4.5), 10, 0.4, color="#E2E8F0", zorder=1))
     ax1.text(0, 5.1, "ICU Admission\n($T_{\\mathrm{admit}}$)", ha="center", fontsize=9.5, fontweight="bold")
     ax1.text(2.5, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=18\\mathrm{h}$ context)", ha="center", fontsize=8.5, color="#1E293B")
-    ax1.text(5.5, 5.1, "Antibiotics ($T_{\\mathrm{treatment}}$)\n[First Systemic IV]", ha="center", fontsize=9, color="#2563EB", fontweight="bold")
+    ax1.text(5.5, 5.1, "Antimicrobials ($T_{\\mathrm{treatment}}$)\n[First Confirmed Dose]", ha="center", fontsize=9, color="#2563EB", fontweight="bold")
     ax1.text(8.5, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Culture + Abx + $\\Delta$SOFA$\\geq$2]", ha="center", fontsize=9, color="#DC2626", fontweight="bold")
 
     # Markers on timeline
@@ -67,23 +67,26 @@ def generate_figure1_clocks_and_waterfall():
              ha="center", fontsize=8.5, color="#334155", fontweight="bold")
 
     # Lookback horizon H=6h before Sepsis-3
-    ax1.add_patch(patches.Rectangle((6.0, 2.7), 2.5, 0.5, color="#FED7AA", alpha=0.8, zorder=1))
-    ax1.text(7.25, 2.95, "Canonical Lookback $[T_{\\mathrm{S3}}-6\\mathrm{h}, T_{\\mathrm{S3}}]$", ha="center", va="center", fontsize=8.5, color="#C2410C", fontweight="bold")
+    ax1.add_patch(patches.Rectangle((6.0, 2.7), 2.5, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
+    ax1.text(7.25, 2.95, "Anticipation Horizon $Y_i(t; H)=\\mathbf{1}\\{t < T_{\\mathrm{S3}} \\leq t+6\\mathrm{h}\\}$", ha="center", va="center", fontsize=8.0, color="#C2410C", fontweight="bold")
 
-    # Actionable Decision Window A_i (t <= T_treatment)
-    ax1.add_patch(patches.Rectangle((2.5, 1.6), 3.0, 0.5, color="#BBF7D0", alpha=0.9, zorder=1))
-    ax1.text(4.0, 1.85, "Actionable Window $\\mathcal{A}_i = [19\\mathrm{h}, T_{\\mathrm{treatment}}]$", ha="center", va="center", fontsize=8.5, color="#15803D", fontweight="bold")
+    # Actionable Decision Window A_i (intersection of lookback and pretreatment)
+    ax1.add_patch(patches.Rectangle((2.5, 1.6), 3.0, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
+    ax1.text(4.0, 1.85, "Pretreatment Decision Window $\\mathcal{A}_i(\\delta) = \\{t \\in \\mathcal{T}_i : 0 < T_{\\mathrm{S3},i}-t \\leq H, t+\\delta \\leq T_{\\mathrm{treatment},i}\\}$", ha="center", va="center", fontsize=7.5, color="#15803D", fontweight="bold")
 
-    # Antimicrobial Contamination Zone
-    ax1.add_patch(patches.Rectangle((5.5, 0.5), 3.0, 0.5, color="#FECACA", alpha=0.8, zorder=1))
-    ax1.text(7.0, 0.75, "Treatment Contamination Zone ($t > T_{\\mathrm{treatment}}$)", ha="center", va="center", fontsize=8.5, color="#B91C1C", fontweight="bold")
+    # Post-treatment observation period
+    ax1.add_patch(patches.Rectangle((5.5, 0.5), 3.0, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
+    ax1.text(7.0, 0.75, "Post-treatment observation period ($t > T_{\\mathrm{treatment}}$)\n[Retained in $\\mathcal{R}$; censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.5, color="#334155")
 
-    # Boundary conditions notes
-    ax1.text(0.0, -0.3, "Mathematical Formulation:\n"
-                        "$\\bullet$ Canonical Risk Set: $\\mathcal{R}_{\\mathrm{canonical}} = \\{t : 0 < T_{\\mathrm{S3}} - t \\leq 6\\mathrm{h}\\}$\n"
-                        "$\\bullet$ Pretreatment Risk Set: $\\mathcal{R}_0 = \\{t \\in \\mathcal{R}_{\\mathrm{canonical}} : t \\leq T_{\\mathrm{treatment}}\\}$\n"
-                        "$\\bullet$ Actionable Buffer ($\\delta=2\\mathrm{h}$): $\\mathcal{R}_2 = \\{t \\in \\mathcal{R}_{\\mathrm{canonical}} : t + 2\\mathrm{h} \\leq T_{\\mathrm{treatment}}\\}$",
-             fontsize=8.5, color="#1E293B", family="monospace")
+    # Mathematical formulation box adhering to Section 2.3
+    formula_text = (
+        "Mathematical Formalization (§2.3):\n"
+        "• Evaluated Risk Set:  $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C}, t \\in \\mathcal{T}_i, t < T_{\\mathrm{S3}, i}\\}$ (97,700 windows across 8,254 stays)\n"
+        "• Anticipation Label:  $Y_i(t; H) = \\mathbf{1}\\{t < T_{\\mathrm{S3}, i} \\leq t + H\\}$ ($H = 6\\mathrm{h}$; 678 pos / 97,022 neg, $\\pi = 0.694\\%$)\n"
+        "• Pretreatment Sets:   $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq T_{\\mathrm{treatment}, i}\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows)"
+    )
+    ax1.text(0.0, -0.65, formula_text, fontsize=8.2, color="#0F172A", family="monospace",
+             bbox=dict(boxstyle="round,pad=0.4", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1))
 
     # --- Panel B: Opportunity Waterfall with Interval Bounds ---
     ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=12)
@@ -123,6 +126,17 @@ def generate_figure1_clocks_and_waterfall():
     out_pdf = FIG_DIR / "Figure1_Clocks_and_Opportunity_Waterfall.pdf"
     plt.savefig(out_png)
     plt.savefig(out_pdf)
+    plt.close()
+
+    # Also sync to manuscript latex figures dir
+    latex_fig_dir = PROJECT_ROOT / "manuscript" / "latex" / "figures"
+    if latex_fig_dir.exists():
+        import shutil
+        shutil.copy(out_pdf, latex_fig_dir / "Figure1_Clocks_and_Opportunity_Waterfall.pdf")
+        shutil.copy(out_png, latex_fig_dir / "Figure1_Clocks_and_Opportunity_Waterfall.png")
+        logger.info("Synchronized Figure 1 to %s", latex_fig_dir)
+
+    logger.info("Saved Figure 1 to %s and %s", out_png, out_pdf)
     plt.close()
     logger.info("Saved Figure 1 to %s and %s", out_png, out_pdf)
 
