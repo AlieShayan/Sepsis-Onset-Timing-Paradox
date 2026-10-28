@@ -80,9 +80,9 @@ def main():
     # Scheduled: 8,254 stays * 12 hours = 99,048 windows
     scheduled_windows = total_stays * 12
     missing_windows = scheduled_windows - total_windows # 1,348
-    # 623 from post-onset sepsis censoring, 725 from ICU discharge / monitoring termination
+    # 623 from post-onset sepsis censoring, 725 from observation cessation / monitoring termination
     post_onset_censored = 623
-    discharge_censored = 725
+    monitoring_cessation_censored = 725
 
     rows = [
         {
@@ -94,7 +94,7 @@ def main():
             "Clinical Definition & Measurement Convention": (
                 "Adult first ICU admissions (approx. 2017–2019) with ICU stay >= 30h. Evaluated at up to 12 scheduled "
                 f"hourly decision bins [t-1, t] at t in {{19..30}}. 1,348 windows right-censored ({post_onset_censored} "
-                f"post-sepsis onset, {discharge_censored} ICU discharge)."
+                f"post-sepsis onset, {monitoring_cessation_censored} observation/monitoring cessation)."
             ),
         },
         {
@@ -105,7 +105,7 @@ def main():
             "Proportion / Window Prevalence": f"{control_stays/total_stays*100:.2f}% of stays",
             "Clinical Definition & Measurement Convention": (
                 "Patients without consensus Sepsis-3 during hospitalization. All windows serve as outcome-negative "
-                f"surveillance (180 stays censored prior to hour 30 due to ICU discharge, accounting for {discharge_censored} windows)."
+                f"surveillance (180 stays censored prior to hour 30 due to observation data cessation / monitoring termination, accounting for {monitoring_cessation_censored} windows)."
             ),
         },
         {
