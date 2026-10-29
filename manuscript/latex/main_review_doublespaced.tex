@@ -41,16 +41,16 @@
 \noindent\textbf{Objectives:} To evaluate how surveillance coverage, treatment precedence, and alert constraints govern machine learning early warning for sepsis in intensive care unit (ICU) surveillance.
 
 \vspace{0.3em}
-\noindent\textbf{Materials and Methods:} We retrospectively evaluated eight predictive architectures across 8,254 adult first ICU stays from MIMIC-III MetaVision (2008--2012; 97,700 hourly windows; prevalence 0.694\%) under a prespecified second-day surveillance protocol (hours 19--30). CareVue provided development data, and historical prescriptions provided sensitivity bounds. We formalized an operational cascade ($S \to V \to O \to D$), evaluated pre-treatment proxy risk sets ($\mathcal{R}_0$ and $\mathcal{R}_2$) excluding windows ending after documented antimicrobial orders, and estimated burden-matched frontiers under a 12-hour alert suppression rule.
+\noindent\textbf{Materials and Methods:} We retrospectively evaluated eight predictive architectures across 8,254 adult first ICU stays from MIMIC-III MetaVision (2008--2012; 97,700 hourly windows; prevalence 0.694\%) under a prespecified second-day surveillance protocol (hours 19--30). CareVue provided development data, and historical prescriptions provided sensitivity bounds. We formalized an operational cascade ($S \to V \to O \to D$), evaluated pre-suspicion risk sets ($\mathcal{R}_0$ and $\mathcal{R}_2$), and estimated burden-matched frontiers under 12-hour alert suppression.
 
 \vspace{0.3em}
-\noindent\textbf{Results:} Among 408 consensus Sepsis-3 stays, 257 (63.0\%) developed onset after hour 36, precluding evaluation under the second-day schedule ($V=0$). For 150 of 151 covered stays (99.3\%), decision windows preceded documented antimicrobial orders. Discrimination remained stable on pretreatment risk sets (BiMamba SSM: AUROC 0.6433 on $\mathcal{R}_0$ vs. 0.6326 canonical). Under an alert budget of 10 episodes per 100 patient-days, episode PPV ranged from 0.98\% to 1.72\% (NNE: 58.1--101.8 simulated evaluations per detection), with whole-cohort timely yield bounded between 0.98\% and 1.72\%.
+\noindent\textbf{Results:} Among 408 consensus Sepsis-3 stays, 257 (63.0\%) developed onset after hour 36 ($V=0$). Opportunity depended strongly on the selected anchor: 150 of 151 covered stays (99.3\%) preceded the episode-associated suspicion anchor ($T_{\mathrm{susp}}$), but earliest hospital prescription bounds were substantially lower and uncertain ([0.0\%, 31.1\%], 0 definite). Discrimination remained stable on pre-suspicion risk sets (BiMamba SSM: AUROC 0.6433 on $\mathcal{R}_0$ vs. 0.6326 canonical). Under an alert budget of 10 episodes/100 patient-days, PPV was 0.98\%--1.72\% (NNE: 58.1--101.8), with timely yield 0.98\%--1.72\%.
 
 \vspace{0.3em}
-\noindent\textbf{Discussion:} Retrospective discrimination alone does not capture operational early warning. Low observed yield accompanied restricted surveillance coverage, modest discrimination, and alert constraints; pretreatment restriction altered discrimination minimally.
+\noindent\textbf{Discussion:} Retrospective discrimination alone does not capture operational early warning. Low yield accompanied restricted coverage, modest discrimination, and alert limits; pre-suspicion restriction altered discrimination minimally, while pre-exposure opportunity was constrained.
 
 \vspace{0.3em}
-\noindent\textbf{Conclusion:} Sepsis early-warning evaluations must report protocol coverage, verify treatment precedence, and benchmark performance against explicit clinical alert budgets.
+\noindent\textbf{Conclusion:} Sepsis early-warning evaluations must report protocol coverage, verify multi-clock treatment precedence, and benchmark against explicit alert budgets.
 
 \vspace{0.3em}
 \noindent\textbf{Keywords:} Sepsis Early Warning, Surveillance Truncation, Treatment Precedence, Alert Budget Frontier, State-Space Models.
@@ -102,16 +102,16 @@ To resolve temporal precision and event ambiguity without conflating orders, int
     \item $T_{\text{S3}, i}$: Retrospective consensus Sepsis-3 onset timestamp.
 \end{itemize}
 
-When blood culture precedes antimicrobial prescription ($T_{\mathrm{culture,pair}} < T_{\mathrm{abx,pair}}$), $T_{\mathrm{susp}} = T_{\mathrm{culture,pair}} \ne T_{\mathrm{abx,pair}}$. In the executable algorithm, SOFA scores are computed in discrete 1-hour intervals relative to admission ($t \in \mathbb{Z}$), flooring lookback start to integer hours: $\text{baseline\_start\_h}_i = \lfloor(T_{\mathrm{susp}, i} - 24\text{h} - T_{\text{admit}, i})/1\text{h}\rfloor$. When acute $\Delta\text{SOFA} \ge 2$ first occurs at this boundary bin (67.2\% of stays, $N=274/408$), onset is assigned to bin start, $T_{\text{S3}, i} = T_{\text{admit}, i} + \text{baseline\_start\_h}_i \times 1\text{h}$, yielding an operational search-window lead:
+When blood culture precedes antimicrobial prescription ($T_{\mathrm{culture,pair}} < T_{\mathrm{abx,pair}}$), $T_{\mathrm{susp}} = T_{\mathrm{culture,pair}} \ne T_{\mathrm{abx,pair}}$. Let $h = 1\text{ hour}$ and define the dimensionless lookback coordinate $x_i = (T_{\mathrm{susp}, i} - 24h - T_{\text{admit}, i})/h$. The search window evaluates discrete hourly bins starting at $\text{baseline\_start\_h}_i = \lfloor x_i \rfloor$ and ending at $\text{window\_end\_h}_i = \lfloor(T_{\mathrm{susp}, i} + 12h - T_{\text{admit}, i})/h\rfloor$. Because the upper boundary bin is floored, evaluated hours never exceed $T_{\mathrm{susp}} + 12h$, strictly guaranteeing $T_{\mathrm{susp}, i} - T_{\text{S3}, i} \ge -12.0h$ (empirical minimum: $-11.2h$). For episodes where acute $\Delta\text{SOFA} \ge 2$ is first observed at the earliest search bin ($N=274/408$, 67.2\%), onset is assigned as $T_{\text{S3}, i} = T_{\text{admit}, i} + h\lfloor x_i \rfloor$, yielding the operational lead gap:
 \begin{equation}
-T_{\mathrm{susp}, i} - T_{\text{S3}, i} = 24.0\text{h} + \operatorname{frac}\left(\frac{T_{\mathrm{susp}, i} - 24\text{h} - T_{\text{admit}, i}}{1\text{h}}\right)
+G_i = T_{\mathrm{susp}, i} - T_{\text{S3}, i} = 24h + h\,\operatorname{frac}(x_i)
 \end{equation}
-Because $0 \le \operatorname{frac}(\cdot) < 1\text{h}$, this hourly binning yields an analytical bound of $-12.0\text{h} \le T_{\mathrm{susp}, i} - T_{\text{S3}, i} < 25.0\text{h}$, explaining why the empirical cohort distribution exhibits a median of $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$). This lead is a mathematical consequence of discrete hourly binning at the lookback boundary, not clinical delay.
+Because $0 \le \operatorname{frac}(x_i) < 1$ (dimensionless), first-bin-assigned episodes satisfy $24h \le G_i < 25h$, with an analytical supremum of $25h$ (the reported $24.99h$ is the observed empirical maximum). In 274 of 408 episodes, the assigned onset coincided with the first evaluated search bin. Consequently, onset timing and derived warning intervals were sensitive to the search-window boundary and bin-assignment convention and should not be interpreted as directly observed biological onset.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf}
-    \caption{\textbf{Operational Clocks, Pre-Proxy Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, depicting the operational search-window lead $T_{\mathrm{susp}} - T_{\text{S3}} = 24.0\text{h} + \operatorname{frac}(x) = +24.2\text{h}$ (median; max $25.0\text{h}$) resulting from discrete 1-hour bin flooring relative to admission ($x = (T_{\mathrm{susp}} - 24\text{h} - T_{\text{admit}})/1\text{h}$), the pre-proxy decision set $\mathcal{A}_i(\delta) = \{t \in \mathcal{T}_i : 0 < T_{\text{S3},i}-t \le 6\text{h}, t+\delta \le T_{\mathrm{Rx,start},i}\}$, and the post-proxy censored period. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (interval-censored bounds) and MIMIC-III MetaVision (primary benchmark), highlighting eligibility under declared midnight assignment. \textit{Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, Sepsis-3 onset, suspicion/prescription start date) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between broad historical MIMIC-III and MetaVision cohorts in Panel B.}
+    \caption{\textbf{Operational Clocks, Pre-Suspicion Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, depicting the search-window lead $G_i = 24h + h\,\operatorname{frac}(x_i) < 25h$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text{h}$; empirical max $24.99\text{h}$), the pre-suspicion decision set $\mathcal{A}_i(\delta) = \{t \in \mathcal{T}_i : 0 < T_{\text{S3},i}-t \le 6\text{h}, t+\delta \le T_{\mathrm{susp},i}\}$, and the post-anchor censored period. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm{Rx,start}}$) and MIMIC-III MetaVision (primary benchmark $T_{\mathrm{susp}}$), highlighting eligibility under declared midnight assignment. \textit{Alt-text:} Two-panel diagram displaying timeline clocks and mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.}
     \label{fig:clocks}
 \end{figure}
 
@@ -128,11 +128,11 @@ Y_i(t; H) = \mathbf{1} \bigl\{ t < T_{\text{S3}, i} \le t + H \bigr\}
 \end{equation}
 In the canonical unconstrained risk set ($\mathcal{R}_{\text{canonical}} = \mathcal{R}$), this definition yields exactly 97,700 evaluated hourly windows, comprising 678 horizon-positive observations ($Y=1$) and 97,022 negative observations ($Y=0$, prevalence $\pi = 0.694\%$).
 
-To evaluate pre-treatment detection relative to documented provider orders restricted relative to the recorded prescription-start proxy, we defined the pre-treatment proxy risk sets $\mathcal{R}_\delta$ for clinical buffer $\delta \ge 0$:
+For each analysis, we define pre-intervention risk sets relative to a single specified reference clock $C_i$:
 \begin{equation}
-\mathcal{R}_\delta = \bigl\{ (i, t) \in \mathcal{R} : t + \delta \le T_{\mathrm{Rx,start}, i} \bigr\}
+\mathcal{R}_\delta^{(C)} = \bigl\{ (i, t) \in \mathcal{R} : t + \delta \le C_i \bigr\}
 \end{equation}
-where $T_{\mathrm{Rx,start}, i} = \infty$ for stays with no documented qualifying antimicrobial order in hospitalization records (5,476 stays, 69.8\% of controls). We evaluate these sets under declared point assignment (coarsened to midnight 00:00:00) alongside explicit calendar-day interval bounds $[a_i, b_i)$. Windows occurring at or after treatment orders ($t + \delta > T_{\mathrm{Rx,start}, i}$) were excluded from both cases and controls. We evaluated $\mathcal{R}_0$ ($\delta=0\text{h}$, censoring windows ending after documented orders) and $\mathcal{R}_2$ ($\delta=2\text{h}$, requiring a 2-hour pre-order actionability buffer). A conditional analysis holding consensus $T_{\text{S3}}$ fixed evaluates precedence relative to the operational prescription proxy; it does not establish robustness to date-level uncertainty in the reference phenotype itself.
+In the primary benchmark, $C_i$ is the operational infection-suspicion anchor clock: for incident sepsis stays ($S_i=1$), $C_i = T_{\mathrm{susp}, i} = \min(T_{\mathrm{culture,pair}, i}, T_{\mathrm{abx,pair}, i})$ (determined by $T_{\mathrm{abx,pair}}$ in 399 stays and blood culture charttime in 9 stays). For non-sepsis control stays ($S_i=0$, including suspected infections without acute organ failure and uninfected stays), $C_i = T_{\mathrm{Rx,start}, i}$ if systemic antimicrobials were ordered during hospitalization, and $C_i = \infty$ (uncensored) otherwise. Exactly 2,287 control stays had $T_{\mathrm{Rx,start}} \le 19\text{h}$, censoring all their windows. We evaluated $\mathcal{R}_0$ ($\delta=0\text{h}$; 70,192 windows across 5,967 stays) and $\mathcal{R}_2$ ($\delta=2\text{h}$; 70,129 windows across 5,967 stays). In pre-exposure sensitivity analyses, we evaluate $C_i = T_{\mathrm{Rx,start}, i}$ across all stays under declared midnight point assignment and calendar-day intervals $[a_i, b_i)$. Holding consensus $T_{\text{S3}}$ fixed evaluates precedence relative to operational EHR anchors; it does not establish robustness to date-level uncertainty in the reference phenotype itself.
 
 \subsection{Alert-Budget Operating Frontiers and Refractory Policy}
 To quantify simulated emitted-alert burden, we evaluated fixed alert budgets $q \in \{5.0, 10.0, 20.0\}$ emitted alert episodes per 100 surveillance patient-days. Under a 12-hour suppression rule, each stay emits at most one alert episode within the evaluated 12-hour interval ($N_{\text{episodes}, i} \le 1$).
@@ -182,39 +182,39 @@ Table~\ref{tab:table1} traces all 8,254 ICU admissions through surveillance elig
 \quad 3a. Late-Onset Sepsis (Onset $>36\text{h}$) & 257 & 3,084 neg. windows & 128.5 pt-days & 63.0\% of septic & Onset $>36\text{h}$; lookback $[T_{\text{S3}}-6, T_{\text{S3}}]$ does not intersect [19, 30] ($V=0$) \\
 \quad 3b. Surveillance-Covered ($V=1$) & 151 & 1,189 (678 pos, 511 neg) & 49.5 pt-days & 37.0\% of septic & Onset in [20h, 36h]; lookback intersects surveillance window ($V=1$) \\
 4. Canonical Sepsis-3 Risk Set ($H=6\text{h}$) & 8,254 & 97,700 (678 pos / 97,022 neg) & 4,070.8 pt-days & 0.694\% & Full unconstrained risk set ($t \in \mathcal{T}_i, \; t < T_{\text{S3}, i}$) \\
-5. Pretreatment Risk Set $\mathcal{R}_0$ ($\delta=0\text{h}$) & 5,967 & 70,192 (674 pos / 69,518 neg) & 2,924.7 pt-days & 0.960\% & Censoring post-treatment windows ($t \le T_{\text{treatment}}$); 150/151 covered eligible \\
-6. Pretreatment Risk Set $\mathcal{R}_2$ ($\delta=2\text{h}$) & 5,967 & 70,129 (663 pos / 69,466 neg) & 2,922.0 pt-days & 0.945\% & 2-hour clinical buffer ($t + 2\text{h} \le T_{\text{treatment}}$); 149/151 covered eligible \\
+5. Pre-Suspicion Risk Set $\mathcal{R}_0$ ($\delta=0\text{h}$) & 5,967 & 70,192 (674 pos / 69,518 neg) & 2,924.7 pt-days & 0.960\% & Censoring post-anchor windows ($t \le C_i$); 150/151 covered eligible \\
+6. Pre-Suspicion Risk Set $\mathcal{R}_2$ ($\delta=2\text{h}$) & 5,967 & 70,129 (663 pos / 69,466 neg) & 2,922.0 pt-days & 0.945\% & 2-hour clinical buffer ($t + 2\text{h} \le C_i$); 149/151 covered eligible \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Pretreatment Discrimination Benchmark}
+\subsection{Pre-Suspicion-Anchor Discrimination Benchmark}
 Table~\ref{tab:table2} presents discrimination across Canonical Sepsis-3, Pretreatment Sepsis ($\mathcal{R}_0$), and Pretreatment with 2h Buffer ($\mathcal{R}_2$). Model discrimination remained stable or slightly higher in pre-treatment risk sets (BiMamba SSM: AUROC 0.6326 canonical vs. 0.6433 on $\mathcal{R}_0$, paired $\Delta\text{AUROC} = +0.0107$, 95\% CI: +0.0060 to +0.0175; Stacking Ensemble: 0.6284 vs. 0.6351, paired $\Delta\text{AUROC} = +0.0067$). The increase in AUPRC (BiMamba: 1.209\% to 1.656\%) reflects higher baseline positive prevalence in the restricted set (0.694\% vs. 0.960\%). These results are directionally consistent with the antibiotic-order sensitivity findings of Dutta et al. (2026)~\cite{dutta2026performance}, though differences in population selection, predictive models, and clinical-action timestamps preclude treating this as a direct replication.
 
 \begin{table}[t]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{6pt}
-\caption{\textbf{Benchmark Discrimination Across Pretreatment Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples.}
+\fontsize{7.5pt}{9.0pt}\selectfont
+\setlength{\tabcolsep}{4.5pt}
+\caption{\textbf{Benchmark Discrimination Across Pre-Suspicion-Anchor Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs from $B=1,000$ patient-clustered bootstrap resamples. Evaluated on risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ defined relative to infection-suspicion clock $T_{\mathrm{susp}}$ (cases) and earliest prescription $T_{\mathrm{Rx,start}}$ (controls).}
 \label{tab:table2}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l c c c c@{}}
 \toprule
-\textbf{Model Architecture / Metric} & \textbf{Canonical Sepsis-3 ($H=6\text{h}$)} & \textbf{Pretreatment $\mathcal{R}_0$ ($\delta=0\text{h}$)} & \textbf{Pretreatment $\mathcal{R}_2$ ($\delta=2\text{h}$)} & \textbf{Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canon}$)} \\
+\textbf{Model Architecture / Metric} & \textbf{Canonical Sepsis-3 ($H=6\text{h}$)} & \textbf{Pre-Suspicion $\mathcal{R}_0$ ($\delta=0\text{h}$)} & \textbf{Pre-Suspicion $\mathcal{R}_2$ ($\delta=2\text{h}$)} & \textbf{Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canon}$)} \\
 \midrule
 \textbf{BiMamba SSM (Proposed)} & 0.6326 (0.5872--0.6733) & \textbf{0.6433} (0.5998--0.6835) & \textbf{0.6447} (0.6002--0.6860) & \textbf{+0.0107} (+0.0060 to +0.0175) \\
-\quad \textit{AUPRC} & \textit{1.209\% (0.892--1.769)} & \textbf{\textit{1.656\%}} \textit{(1.235--2.329)} & \textbf{\textit{1.647\%}} \textit{(1.220--2.331)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{1.209\% (0.892--1.769)} & \textbf{\textit{1.656\%}} \textit{(1.235--2.329)} & \textbf{\textit{1.647\%}} \textit{(1.220--2.331)} & --- \\[0.1em]
 \textbf{Multi-Model Stacking Ensemble} & 0.6284 (0.5829--0.6699) & 0.6351 (0.5897--0.6771) & 0.6370 (0.5913--0.6799) & +0.0067 (+0.0021 to +0.0137) \\
-\quad \textit{AUPRC} & \textit{1.206\% (0.882--1.748)} & \textit{1.621\% (1.207--2.263)} & \textit{1.613\% (1.198--2.255)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{1.206\% (0.882--1.748)} & \textit{1.621\% (1.207--2.263)} & \textit{1.613\% (1.198--2.255)} & --- \\[0.1em]
 \textbf{Random Forest} & 0.6108 (0.5643--0.6535) & 0.6143 (0.5684--0.6575) & 0.6173 (0.5712--0.6612) & +0.0034 (-0.0008 to +0.0101) \\
-\quad \textit{AUPRC} & \textit{1.080\% (0.821--1.434)} & \textit{1.470\% (1.138--1.920)} & \textit{1.461\% (1.120--1.916)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{1.080\% (0.821--1.434)} & \textit{1.470\% (1.138--1.920)} & \textit{1.461\% (1.120--1.916)} & --- \\[0.1em]
 \textbf{Mask-Aware Clinical Transformer} & 0.5942 (0.5467--0.6410) & 0.5961 (0.5490--0.6422) & 0.5954 (0.5480--0.6426) & +0.0020 (-0.0024 to +0.0083) \\
-\quad \textit{AUPRC} & \textit{1.013\% (0.766--1.303)} & \textit{1.382\% (1.048--1.760)} & \textit{1.365\% (1.032--1.752)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{1.013\% (0.766--1.303)} & \textit{1.382\% (1.048--1.760)} & \textit{1.365\% (1.032--1.752)} & --- \\[0.1em]
 \textbf{Tabular GBDT (XGBoost)} & 0.5670 (0.5208--0.6102) & 0.5643 (0.5186--0.6082) & 0.5652 (0.5192--0.6099) & -0.0027 (-0.0070 to +0.0038) \\
-\quad \textit{AUPRC} & \textit{0.977\% (0.739--1.357)} & \textit{1.320\% (1.008--1.817)} & \textit{1.313\% (0.998--1.811)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{0.977\% (0.739--1.357)} & \textit{1.320\% (1.008--1.817)} & \textit{1.313\% (0.998--1.811)} & --- \\[0.1em]
 \textbf{Tabular GBDT (LightGBM)} & 0.5613 (0.5161--0.6026) & 0.5587 (0.5139--0.6010) & 0.5598 (0.5145--0.6033) & -0.0026 (-0.0070 to +0.0038) \\
-\quad \textit{AUPRC} & \textit{0.893\% (0.694--1.195)} & \textit{1.222\% (0.957--1.629)} & \textit{1.214\% (0.949--1.630)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{0.893\% (0.694--1.195)} & \textit{1.222\% (0.957--1.629)} & \textit{1.214\% (0.949--1.630)} & --- \\[0.1em]
 \textbf{Logistic Regression (L2)} & 0.5593 (0.5097--0.6048) & 0.5654 (0.5157--0.6107) & 0.5657 (0.5150--0.6127) & +0.0061 (+0.0023 to +0.0116) \\
-\quad \textit{AUPRC} & \textit{0.939\% (0.716--1.218)} & \textit{1.337\% (1.012--1.740)} & \textit{1.325\% (1.002--1.731)} & --- \\[0.3em]
+\quad \textit{AUPRC} & \textit{0.939\% (0.716--1.218)} & \textit{1.337\% (1.012--1.740)} & \textit{1.325\% (1.002--1.731)} & --- \\[0.1em]
 \textbf{Clinical Transformer (Baseline)} & 0.5239 (0.4808--0.5653) & 0.5296 (0.4851--0.5712) & 0.5286 (0.4834--0.5705) & +0.0057 (+0.0019 to +0.0110) \\
 \quad \textit{AUPRC} & \textit{0.808\% (0.609--1.381)} & \textit{1.147\% (0.857--1.904)} & \textit{1.131\% (0.845--1.894)} & --- \\
 \bottomrule
@@ -242,8 +242,8 @@ At an emitted workload of 10 alert episodes per 100 patient-days (407 emitted ep
 
 \begin{table}[t]
 \centering
-\fontsize{6.3pt}{7.6pt}\selectfont
-\setlength{\tabcolsep}{1.8pt}
+\fontsize{5.8pt}{6.9pt}\selectfont
+\setlength{\tabcolsep}{1.5pt}
 \caption{\textbf{Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}
 \label{tab:table3}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccccc@{}}
@@ -287,36 +287,36 @@ $^*$At zero observed detections, the empirical percentile-bootstrap interval was
 \subsection{Two-Axis Subgroup and Timestamp Uncertainty Matrix}
 Table~\ref{tab:table4} presents the cross-tabulation of Sepsis Onset Timing against Treatment Proxy Timing. Because MIMIC-III prescription start dates (\texttt{prescriptions.startdate}) lack time of day, order initiation is evaluated both under declared point assignment (midnight $a_i$) and under calendar-day intervals $[a_i, b_i) = [\text{midnight}, \text{next midnight})$.
 
-Under the primary prospective-replay benchmark evaluating pre-proxy decision opportunity relative to the Sepsis-3 episode infection suspicion proxy date ($T_{\mathrm{susp}} / T_{\mathrm{abx,pair}}$), 150 of 151 covered patients (99.3\% within-covered; 36.8\% of total incident sepsis) had pre-proxy decision bins under declared midnight point assignment $a_i$. Because $a_i \le T_{\mathrm{Rx}, i}$ for all $T_{\mathrm{Rx}, i} \in [a_i, b_i)$, these same 150 stays are definitely eligible throughout the calendar-day interval ($O_i^{\mathrm{def}} = 150$), with only 1 indeterminate stay ($O_i^{\mathrm{indet}} = 1$), bounding episode-level opportunity between 36.8\% and 37.0\% ($[150, 151]/408$; $[99.3\%, 100.0\%]$ within-covered). All patient-level indicators strictly satisfy the monotonicity relation $O_i^{\mathrm{def}} \le O_i^{\mathrm{point}} \le O_i^{\mathrm{poss}}$ and identity $O_i^{\mathrm{poss}} = O_i^{\mathrm{def}} + O_i^{\mathrm{indet}}$.
+Opportunity depended strongly on the selected clinical-process anchor. Under the primary benchmark evaluating decision opportunity relative to the infection-suspicion anchor ($T_{\mathrm{susp}}$), 150 of 151 covered patients (99.3\% within-covered; 36.8\% of total incident sepsis) had decision bins preceding $T_{\mathrm{susp}}$ under declared midnight point assignment $a_i$. Because $a_i \le T_{\mathrm{susp}, i}$ across $[a_i, b_i)$, these 150 stays are definitely eligible throughout the calendar-day interval ($O_i^{\mathrm{def}} = 150$), with only 1 indeterminate stay ($O_i^{\mathrm{indet}} = 1$), bounding opportunity between 36.8\% and 37.0\% ($[150, 151]/408$; $[99.3\%, 100.0\%]$ within-covered). All indicators strictly satisfy $O_i^{\mathrm{def}} \le O_i^{\mathrm{point}} \le O_i^{\mathrm{poss}}$ and $O_i^{\mathrm{poss}} = O_i^{\mathrm{def}} + O_i^{\mathrm{indet}}$.
 
-In a sensitivity evaluation relative to the earliest documented hospital prescription date ($T_{\mathrm{Rx,start}}$), where 2,287 stays had antibiotic orders on or before admission, evaluating relative to $T_{\mathrm{Rx,start}}$ yields $O_i^{\mathrm{def}} = 0$ definitely eligible stays and 47 indeterminate stays ($O_i^{\mathrm{indet}} = 47$), establishing bounds $[0.0\%, 11.5\%]$ ($[0, 47]/408$; $[0.0\%, 31.1\%]$ within-covered). In the broad historical MIMIC-III cohort ($N=3,581$), calendar-day intervals generate 1 definitely eligible stay, 110 indeterminate stays, and bounds $[0.03\%, 3.10\%]$ ($[1, 111]/3,581$) conditional on assigned consensus Sepsis-3 onset times.
+In contrast, opportunity was substantially lower and uncertain relative to the earliest hospital prescription-start proxy ($T_{\mathrm{Rx,start}}$): exactly 0 covered stays had definite opportunity under midnight point-assignment ($O_i^{\mathrm{def}} = 0$), with 47 indeterminate stays ($O_i^{\mathrm{indet}} = 47$), establishing bounds $[0.0\%, 11.5\%]$ ($[0, 47]/408$; $[0.0\%, 31.1\%]$ within-covered). In broad historical MIMIC-III ($N=3,581$), intervals generate 1 definitely eligible stay, 110 indeterminate stays, and bounds $[0.03\%, 3.10\%]$. The 150/151 result under $T_{\mathrm{susp}}$ does not establish that patients were unexposed to antimicrobials or that models predicted prior to first administration. Equally, zero definite opportunity under $T_{\mathrm{Rx,start}}$ reflects date coarsening, not verified bedside exposure.
 
 \begin{table}[t]
 \centering
-\fontsize{5.8pt}{7.2pt}\selectfont
-\setlength{\tabcolsep}{1.5pt}
+\fontsize{5.3pt}{6.3pt}\selectfont
+\setlength{\tabcolsep}{0.5pt}
 \caption{\textbf{Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage.}
 \label{tab:table4}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcccccccc@{}}
+\resizebox{\textwidth}{!}{\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcccccccc@{}}
 \toprule
 \textbf{Cohort \& Timestamp Source} & \textbf{Sepsis Onset Category} & \textbf{Total ($N$)} & \textbf{Covered ($V=1$)} & \textbf{Def. Elig ($O^{\mathrm{def}}$)} & \textbf{Point ($O^{\mathrm{point}}$)} & \textbf{Indet ($O^{\mathrm{indet}}$)} & \textbf{Poss ($O^{\mathrm{poss}}$)} & \textbf{Subgroup Bounds} & \textbf{Contribution to Cohort} \\
 \midrule
 \textbf{MetaVision Prospective-Replay} & Early Incident ($\le 24\text{h}$) & 47 & 47 (100.0\%) & 47 & 47 & 0 & 47 & [100.0\%, 100.0\%] & [47, 47] / 408 (11.5\%) \\
-\textit{(Primary Benchmark: $T_{\mathrm{susp}} / T_{\mathrm{abx,pair}}$)} & Intermediate (24--48h) & 156 & 104 (66.7\%) & 103 & 103 & 1 & 104 & [66.0\%, 66.7\%] & [103, 104] / 408 (25.2--25.5\%) \\
+\textit{(Primary Benchmark: Suspicion Anchor $T_{\mathrm{susp}}$)} & Intermediate (24--48h) & 156 & 104 (66.7\%) & 103 & 103 & 1 & 104 & [66.0\%, 66.7\%] & [103, 104] / 408 (25.2--25.5\%) \\
  & Late Incident ($>48\text{h}$) & 205 & 0 (0.0\%) & 0 & 0 & 0 & 0 & [0.0\%, 0.0\%] & 0 / 408 (0.0\%) \\
  & \textbf{All Incident Sepsis-3} & \textbf{408} & \textbf{151 (37.0\%)} & \textbf{150} & \textbf{150} & \textbf{1} & \textbf{151} & \textbf{[36.8\%, 37.0\%]} & \textbf{[150, 151] / 408 (36.8--37.0\%)} \\
 \midrule
 \textbf{MetaVision Sensitivity: Earliest Rx} & Early Incident ($\le 24\text{h}$) & 47 & 47 (100.0\%) & 0 & 0 & 38 & 38 & [0.0\%, 80.9\%] & [0, 38] / 408 (0.0--9.3\%) \\
-\textit{(Pre-Exposure Sensitivity: $T_{\mathrm{Rx,start}}$)} & Intermediate (24--48h) & 156 & 104 (66.7\%) & 0 & 0 & 9 & 9 & [0.0\%, 5.8\%] & [0, 9] / 408 (0.0--2.2\%) \\
+\textit{(Pre-Exposure Sensitivity: Earliest Rx $T_{\mathrm{Rx,start}}$)} & Intermediate (24--48h) & 156 & 104 (66.7\%) & 0 & 0 & 9 & 9 & [0.0\%, 5.8\%] & [0, 9] / 408 (0.0--2.2\%) \\
  & Late Incident ($>48\text{h}$) & 205 & 0 (0.0\%) & 0 & 0 & 0 & 0 & [0.0\%, 0.0\%] & 0 / 408 (0.0\%) \\
  & \textbf{All Incident Sepsis-3} & \textbf{408} & \textbf{151 (37.0\%)} & \textbf{0} & \textbf{0} & \textbf{47} & \textbf{47} & \textbf{[0.0\%, 11.5\%]} & \textbf{[0, 47] / 408 (0.0--11.5\%)} \\
 \midrule
 \textbf{Broad Historical MIMIC-III} & Early Incident ($\le 24\text{h}$) & 2,641 & 102 (3.9\%) & 0 & 0 & 74 & 74 & [0.00\%, 2.80\%] & [0, 74] / 3,581 (0.00--2.07\%) \\
-\textit{(Date-Level Proxy: $T_{\mathrm{Rx,start}}$)} & Intermediate (24--48h) & 361 & 235 (65.1\%) & 1 & 1 & 36 & 37 & [0.28\%, 10.25\%] & [1, 37] / 3,581 (0.03--1.03\%) \\
+\textit{(Date-Level Proxy: Earliest Rx $T_{\mathrm{Rx,start}}$)} & Intermediate (24--48h) & 361 & 235 (65.1\%) & 1 & 1 & 36 & 37 & [0.28\%, 10.25\%] & [1, 37] / 3,581 (0.03--1.03\%) \\
  & Late Incident ($>48\text{h}$) & 579 & 0 (0.0\%) & 0 & 0 & 0 & 0 & [0.00\%, 0.00\%] & [0, 0] / 3,581 (0.00\%) \\
  & \textbf{All Incident Sepsis-3} & \textbf{3,581} & \textbf{337 (9.4\%)} & \textbf{1} & \textbf{1} & \textbf{110} & \textbf{111} & \textbf{[0.03\%, 3.10\%]} & \textbf{[1, 111] / 3,581 (0.03--3.10\%)} \\
 \bottomrule
-\end{tabular*}
+\end{tabular*}}
 \end{table}
 
 \subsection{Cumulative Population Coverage Decomposition}
@@ -332,7 +332,7 @@ Figure~\ref{fig:decomp} illustrates the cumulative population coverage decomposi
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\columnwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
+    \includegraphics[width=0.88\textwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
     \caption{\textbf{Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection.}
     \label{fig:decomp}
 \end{figure}
@@ -340,7 +340,7 @@ Figure~\ref{fig:decomp} illustrates the cumulative population coverage decomposi
 \section{Discussion}
 This investigation characterizes the operational trade-offs governing machine learning early warning for sepsis in ICU surveillance:
 \begin{enumerate}
-    \item \textbf{Pre-treatment Discrimination Is Preserved:} In directional consistency with Dutta et al.~\cite{dutta2026performance}, model discrimination (AUROC) changed little when evaluating pre-treatment sepsis detection on risk sets excluding post-treatment windows ($\mathcal{R}_0$ and $\mathcal{R}_2$).
+    \item \textbf{Pre-Suspicion Discrimination Is Preserved:} In directional consistency with Dutta et al.~\cite{dutta2026performance}, discrimination changed little when evaluating sepsis detection on risk sets excluding post-suspicion windows ($\mathcal{R}_0$ and $\mathcal{R}_2$). Opportunity depended strongly on the selected anchor: eligibility was high relative to $T_{\mathrm{susp}}$, but lower and uncertain relative to $T_{\mathrm{Rx,start}}$.
     \item \textbf{Detection Yield Is Constrained by Workload and Prevalence:} AUROC values near 0.64 are modest. At 10 emitted episodes per 100 evaluation-bin patient-days, PPV ranged from 0.98\% to 1.72\%, corresponding to 58.1--101.8 simulated evaluations per detected patient ($\text{NNE}$); observed sensitivity was below 2\%.
     \item \textbf{Surveillance Protocol Coverage Explains Unreached Cases:} Under the evaluated second-day protocol, 63.0\% of incident cases develop onset after the monitoring window terminates, preventing multi-hour warning.
 \end{enumerate}
@@ -358,7 +358,7 @@ The analysis estimates operating characteristics in a selected long-stay ICU coh
 Temporal precision also constrains interpretation: MIMIC-III prescription dates cannot be treated as directly observed administration times~\cite{cohen2024subtle,johnson2016mimiciii}. Our order-proxy analyses therefore require explicit uncertainty bounds and cannot establish hour-resolved clinical treatment delay. Observed treatment precedence does not establish that infection was unrecognized or that earlier antimicrobial administration would have been appropriate. The study did not measure clinician response, review duration, treatment changes, alarm fatigue, or patient outcomes; NNE therefore represents a simulated evaluation count rather than measured clinical workload. Alarm-reduction interventions may suppress both nonactionable and clinically important signals; our short evaluation interval cannot establish the safety or optimal duration of a refractory policy during sustained surveillance~\cite{paine2016systematic}. Finally, our cohorts originate from a single medical center (BIDMC) across EHR system transitions (CareVue to MetaVision); multi-center validation across diverse health systems remains essential.
 
 \section{Conclusion}
-In this restricted, long-stay ICU cohort, observed detection yield depended on surveillance coverage, baseline discrimination, and the policy used to constrain emitted alerts. Most horizon-positive observations remained pretreatment eligible, and model rankings varied across workload levels. Deployable sepsis early-warning informatics requires benchmarking under explicitly specified emitted-alert policies and retrospectively burden-matched operating points, deduplicating refractory alert workload, and enforcing multi-clock reporting.
+In this restricted, long-stay ICU cohort, observed detection yield depended on surveillance coverage, baseline discrimination, and the policy used to constrain emitted alerts. Most horizon-positive observations remained pre-suspicion eligible, while pre-exposure opportunity was constrained, and model rankings varied across workload levels. Deployable sepsis early-warning informatics requires benchmarking under explicitly specified emitted-alert policies and retrospectively burden-matched operating points, deduplicating refractory alert workload, and enforcing multi-clock reporting.
 
 \section*{Ethics Approval and Consent to Participate}
 This study was conducted using de-identified data from the MIMIC-III (v1.4) database, collected at Beth Israel Deaconess Medical Center (BIDMC). Data collection was approved by the Institutional Review Boards of BIDMC and the Massachusetts Institute of Technology (MIT). The data were de-identified in accordance with Health Insurance Portability and Accountability Act (HIPAA) Safe Harbor standards; informed consent was waived by the reviewing IRBs. Access was granted under PhysioNet Credentialed Data Use Agreement.
@@ -378,6 +378,9 @@ During the preparation of this manuscript, the authors utilized large language m
 \section*{Code and Data Availability}
 All preprocessing pipelines, model configurations, and release manifests are publicly available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox} (analytical freeze commit \texttt{b0932ca}, release manifest \texttt{1.0.0-freeze}; submission packaging commits \texttt{1292103}, \texttt{38aac8b}, and \texttt{990a5fd}). De-identified patient data are available from PhysioNet under the MIMIC-III Data Use Agreement.
 
+\fontsize{8.5pt}{10.2pt}\selectfont
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
 \begin{singlespace}
 \setlength{\itemsep}{2pt}
 \begin{thebibliography}{22}

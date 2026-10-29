@@ -64,8 +64,8 @@ def generate_figure1_clocks_and_waterfall():
         "", xy=(5.2, 4.3), xytext=(8.7, 4.3),
         arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
     )
-    ax1.text(6.95, 3.75, "Operational Search-Window Lead\n$T_{\\mathrm{susp}} - T_{\\mathrm{S3}} = 24.0\\mathrm{h} + \\mathrm{frac}(x) = +24.2\\mathrm{h}$ (median; max $25.0\\mathrm{h}$)\n[Hourly bin floor $x = (T_{\\mathrm{susp}} - 24\\mathrm{h} - T_{\\mathrm{admit}})/1\\mathrm{h}$]",
-             ha="center", fontsize=7.8, color="#334155", fontweight="bold")
+    ax1.text(6.95, 3.75, "Operational Search-Window Lead Gap ($G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i}$)\nFor first-bin-assigned episodes (67.2%): $G_i = 24h + h\\,\\mathrm{frac}(x_i) < 25h$\n(Cohort median: +24.2h; IQR: 22.8--24.6h; empirical max: 24.99h)",
+             ha="center", fontsize=7.6, color="#334155", fontweight="bold")
 
     # Lookback horizon H=6h before Sepsis-3
     ax1.add_patch(patches.Rectangle((3.6, 2.7), 1.6, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
@@ -84,7 +84,7 @@ def generate_figure1_clocks_and_waterfall():
         "Mathematical Formalization (§2.3):\n"
         "• Evaluated Risk Set:  $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C}, t \\in \\mathcal{T}_i, t < T_{\\mathrm{S3}, i}\\}$ (97,700 windows across 8,254 stays)\n"
         "• Anticipation Label:  $Y_i(t; H) = \\mathbf{1}\\{t < T_{\\mathrm{S3}, i} \\leq t + H\\}$ ($H = 6\\mathrm{h}$; 678 pos / 97,022 neg, $\\pi = 0.694\\%$)\n"
-        "• Pre-Proxy Sets:      $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq T_{\\mathrm{Rx,start}, i}\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows)"
+        "• Pre-Suspicion Sets:  $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq C_i\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows; $C_i = T_{\\mathrm{susp}}$ for cases)"
     )
     ax1.text(0.0, -0.65, formula_text, fontsize=8.2, color="#0F172A", family="monospace",
              bbox=dict(boxstyle="round,pad=0.4", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1))
@@ -105,8 +105,8 @@ def generate_figure1_clocks_and_waterfall():
     y = np.arange(len(categories))
     height = 0.35
 
-    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Interval-Censored Bounds)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
-    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Point-Assigned Rx Proxy)", color="#1E40AF", edgecolor="#0F172A")
+    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Earliest Rx: $T_{\\mathrm{Rx,start}}$)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
+    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Primary Benchmark: $T_{\\mathrm{susp}}$)", color="#1E40AF", edgecolor="#0F172A")
 
     ax2.set_xlabel("Proportion of Incident Sepsis Episodes (%)")
     ax2.set_yticks(y)
