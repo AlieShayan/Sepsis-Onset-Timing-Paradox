@@ -52,20 +52,20 @@ def generate_figure1_clocks_and_waterfall():
     ax1.text(2.0, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=20\\mathrm{h}$ context)", ha="center", fontsize=8.0, color="#1E293B")
     ax1.text(3.5, 5.1, "Surveillance End\n($t=30\\mathrm{h}$)", ha="center", fontsize=8.0, color="#1E293B")
     ax1.text(5.2, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Acute $\\Delta$SOFA$\\geq$2; med 28.0h]", ha="center", fontsize=8.5, color="#DC2626", fontweight="bold")
-    ax1.text(8.7, 5.1, "Antimicrobials ($T_{\\mathrm{treatment}}$)\n[First Doc. Event; med 50.7h]", ha="center", fontsize=8.5, color="#2563EB", fontweight="bold")
+    ax1.text(8.7, 5.1, "Suspicion / Rx Proxy ($T_{\\mathrm{susp}}$)\n[Prescription Start Date; med 50.7h]", ha="center", fontsize=8.5, color="#2563EB", fontweight="bold")
 
     # Markers on timeline
     ax1.plot([0, 2.0, 3.5], [4.7, 4.7, 4.7], "o", color="#0F172A", markersize=7, zorder=2)
     ax1.plot(5.2, 4.7, "o", color="#DC2626", markersize=9, zorder=3)
     ax1.plot(8.7, 4.7, "o", color="#2563EB", markersize=9, zorder=3)
 
-    # Clinical Treatment Latency Gap G = T_treatment - T_S3 = +24.2h (or T_S3 - T_treatment = -24.2h)
+    # Operational Search-Window Lead Gap G = T_susp - T_S3 = +24.2h (or T_S3 - T_susp = -24.2h)
     ax1.annotate(
         "", xy=(5.2, 4.3), xytext=(8.7, 4.3),
         arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
     )
-    ax1.text(6.95, 3.75, "Clinical Treatment Latency Gap\n$G = T_{\\mathrm{treatment}} - T_{\\mathrm{S3}} = +24.2\\mathrm{h}$ (median)\n($T_{\\mathrm{S3}} - T_{\\mathrm{treatment}} = -24.2\\mathrm{h}$)",
-             ha="center", fontsize=8.2, color="#334155", fontweight="bold")
+    ax1.text(6.95, 3.75, "Operational Search-Window Lead\n$G = T_{\\mathrm{susp}} - T_{\\mathrm{S3}} = +24.2\\mathrm{h}$ (median)\n[Phenotype Lookback Bound; $T_{\\mathrm{S3}} - T_{\\mathrm{susp}} = -24.2\\mathrm{h}$]",
+             ha="center", fontsize=8.0, color="#334155", fontweight="bold")
 
     # Lookback horizon H=6h before Sepsis-3
     ax1.add_patch(patches.Rectangle((3.6, 2.7), 1.6, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
@@ -73,18 +73,18 @@ def generate_figure1_clocks_and_waterfall():
 
     # Actionable Decision Window A_i (intersection of lookback and pretreatment)
     ax1.add_patch(patches.Rectangle((2.0, 1.6), 1.5, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
-    ax1.text(2.75, 1.85, "Pretreatment Surveillance Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in [19, 30] : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{treatment},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
+    ax1.text(2.75, 1.85, "Pre-Proxy Surveillance Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in [19, 30] : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{Rx,start},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
 
     # Post-treatment observation period
     ax1.add_patch(patches.Rectangle((8.7, 0.5), 1.3, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
-    ax1.text(9.35, 0.75, "Post-treatment period ($t > T_{\\mathrm{treatment}}$)\n[Censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.2, color="#334155")
+    ax1.text(9.35, 0.75, "Post-proxy period ($t > T_{\\mathrm{Rx,start}}$)\n[Censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.2, color="#334155")
 
     # Mathematical formulation box adhering to Section 2.3
     formula_text = (
         "Mathematical Formalization (§2.3):\n"
         "• Evaluated Risk Set:  $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C}, t \\in \\mathcal{T}_i, t < T_{\\mathrm{S3}, i}\\}$ (97,700 windows across 8,254 stays)\n"
         "• Anticipation Label:  $Y_i(t; H) = \\mathbf{1}\\{t < T_{\\mathrm{S3}, i} \\leq t + H\\}$ ($H = 6\\mathrm{h}$; 678 pos / 97,022 neg, $\\pi = 0.694\\%$)\n"
-        "• Pretreatment Sets:   $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq T_{\\mathrm{treatment}, i}\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows)"
+        "• Pre-Proxy Sets:      $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq T_{\\mathrm{Rx,start}, i}\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows)"
     )
     ax1.text(0.0, -0.65, formula_text, fontsize=8.2, color="#0F172A", family="monospace",
              bbox=dict(boxstyle="round,pad=0.4", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1))
@@ -105,8 +105,8 @@ def generate_figure1_clocks_and_waterfall():
     y = np.arange(len(categories))
     height = 0.35
 
-    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Prescription-Date Proxy)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
-    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Documented Antimicrobial Events)", color="#1E40AF", edgecolor="#0F172A")
+    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Interval-Censored Bounds)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
+    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Point-Assigned Rx Proxy)", color="#1E40AF", edgecolor="#0F172A")
 
     ax2.set_xlabel("Proportion of Incident Sepsis Episodes (%)")
     ax2.set_yticks(y)

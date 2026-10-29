@@ -16,7 +16,7 @@ $^1$ Department of Computer Science and Engineering & IT, School of Electrical a
 The study cohort was derived from the Beth Israel Deaconess Medical Center (BIDMC) critical care repository: MIMIC-III (v1.4) under PhysioNet Credentialed Data Use Agreement. To evaluate transportability across electronic health record software systems and prevent temporal leakage, the cohort was partitioned chronologically across clinical software eras:
 - **Development Cohort (Training & Tuning):** CareVue clinical information system era (2001–2008).
 - **Evaluation Cohort (Primary Prospective-Replay Benchmark):** Successor MetaVision clinical information system era (2008–2012).
-- **Prescription-Proxy Sensitivity Cohort:** Historical broad MIMIC-III cohort (2001–2012) utilizing date-level prescription orders to quantify opportunity bounds when exact bedside administration charting is unavailable.
+- **Prescription-Proxy Sensitivity Cohort:** Historical broad MIMIC-III cohort (2001–2012) evaluated under calendar-day prescription intervals to quantify interval-censored opportunity bounds.
 
 1. **Eligibility Criteria:** Adult patients ($\ge 18$ years of age at ICU admission) admitted to intensive care units with a total ICU length of stay $\text{LOS} \ge 30\text{ hours}$ (calculated as $T_{\text{out}} - T_{\text{in}} \ge 30\text{h}$).
 2. **First Admission Restriction:** To prevent within-patient correlation across multiple hospitalizations, only the chronological first ICU stay per unique patient was included.
@@ -73,7 +73,7 @@ To clarify the precise relationship between the 9,732 MetaVision candidate stays
 
 #### 3. Relation to Broad MIMIC-III Sensitivity Cohort ($N=3,581$):
 - The broad MIMIC-III sensitivity cohort comprises all 3,581 incident sepsis cases identified across the full 27,448-stay MIMIC-III cohort (CareVue training: 1,350; CareVue tuning: 337; MetaVision test: 1,886; transition era: 8).
-- This broad cohort was evaluated in Section 3.4 and Table S4 under calendar-day prescription intervals (`prescriptions.startdate`) to quantify the impact of date-level coarseness across historical EHR repositories lacking high-frequency bedside administration records.
+- This broad cohort was evaluated in Section 3.4 and Table S4 under calendar-day prescription intervals (`prescriptions.startdate`) to quantify the impact of date-level coarseness across historical EHR repositories.
 
 ### S1.3 Feature Dictionary, Availability Rules, and Preprocessing Protocol
 Surveillance features comprise 21 continuous clinical time series grouped into three clinically grounded categories:
@@ -113,7 +113,7 @@ Surveillance features comprise 21 continuous clinical time series grouped into t
 - Vital signs and oxygenation variables were carried forward for a maximum duration of 4 hours.
 - Laboratory measurements were carried forward for a maximum duration of 24 hours within the 20-hour window. Data prior to the lookback boundary $[t-20\text{h}]$ were not retrieved.
 - Unobserved segments prior to the initial measurement were imputed using training-set medians.
-- *Measurement vs. Result Availability:* Because laboratory result-availability timestamps were not directly available in the source table used (`LABEVENTS` in MIMIC-III v1.4 contains collection `CHARTTIME` but lacks a distinct verification timestamp), the sequential replay applied a prespecified one-hour lag to recorded laboratory times ($T_{\text{available}} = T_{\text{chart}} + 1.0\text{h}$). This operational assumption reflects typical rapid-turnaround stat ICU laboratory processing but may not reproduce actual clinical post-to-chart availability.
+- *Measurement vs. Result Availability:* Because laboratory result-availability timestamps were not directly available in the source table used (`LABEVENTS` in MIMIC-III v1.4 contains collection `CHARTTIME` but lacks a distinct verification timestamp), the sequential replay applied a prespecified one-hour lag to recorded laboratory times ($T_{\text{available}} = T_{\text{chart}} + 1.0\text{h}$). This 1.0-hour lag represents an analytical scenario to evaluate decision latency under simulated reporting delay, rather than verified clinical availability for all laboratory analytes.
 
 ### S1.4 Model Architectures, Feature Representation Audit, and Training Protocols
 
@@ -179,47 +179,75 @@ Post-hoc probability calibration was fitted to improve agreement between predict
 8. **Multi-Model Stacking Ensemble:**
    - L2-regularized logistic regression meta-learner ($C = 1.0$) trained on 5-fold out-of-fold cross-validated validation log-odds predictions from all 7 base architectures. Input: $(N, 7)$.
 
-### S1.5 Executable Sepsis-3 Phenotype Implementation (Operational Adaptation of Seymour et al., JAMA 2016)
-The Sepsis-3 clinical consensus phenotype was implemented programmatically as a study-specific operational adaptation of Seymour et al. (JAMA 2016), tailored for ICU surveillance and electronic health record constraints:
+### S1.5 Executable Sepsis-3 Phenotype Implementation and Multi-Clock Temporal Formalization
+The Sepsis-3 clinical consensus phenotype was implemented programmatically as a study-specific operational adaptation of Seymour et al. (JAMA 2016), tailored for retrospective ICU electronic health record surveillance under declared temporal resolution constraints:
 
-1. **Four Design Adaptations from Seymour et al. (2016):**
-   - *Culture Site Specificity:* While Seymour et al. included body fluid cultures from multiple anatomical sites (urine, sputum, cerebrospinal fluid, wounds), this study restricted qualifying cultures strictly to blood culture specimen collections (`microbiologyevents` where `spec_type_desc` indicates blood culture), reducing ambiguity from asymptomatic bacteriuria or superficial colonization.
-   - *Antimicrobial Route Restriction:* Only new systemic antimicrobials (intravenous, intramuscular, or enteral routes with documented systemic bioavailability) were included; topical ointments, ophthalmic solutions, catheter flushes, and IV additives (`DRUG_TYPE == "ADDITIVE"`) were strictly excluded. Both $T_{\text{treatment}}$ (treatment-precedence clock) and $T_{\text{abx}}$ (suspected infection clock) enforce this systemic route definition.
-   - *Hospital-Wide Prescription Records:* Both the primary MetaVision evaluation cohort and the CareVue development cohort derive antimicrobial timing from BIDMC hospital-wide electronic prescribing records (`prescriptions`), capturing physician orders and charted start dates across the entire hospitalization (including pre-ICU emergency department orders).
-   - *Evaluation Windows & Clinical Treatment Latency:* Organ dysfunction was evaluated across $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$ relative to suspected infection, with baseline SOFA defined over $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]$. Across the evaluated cohort, acute organ dysfunction onset ($T_{\text{S3}}$, earliest hour of $\Delta\text{SOFA} \ge 2$) occurred a median of 24.2 hours prior to recorded clinical suspicion and antimicrobial intervention ($T_{\text{treatment}}$, median 50.7h post-admission in covered stays vs. 28.0h for $T_{\text{S3}}$), placing organ failure at the start of the 24-hour pre-suspicion evaluation window ($T_{\text{treatment}} - T_{\text{S3}} = +24.2\text{h}$, or $T_{\text{S3}} - T_{\text{treatment}} = -24.2\text{h}$).
+1. **Formal Five-Clock Temporal Decoupling:**
+   To resolve temporal precision and event ambiguity without conflating orders, intended start dates, and physical administrations, we explicitly distinguish five operational timestamps:
+   - $T_{\mathrm{Rx,start}, i}$: Earliest documented systemic antimicrobial prescription start date (`prescriptions.startdate`, calendar-date precision, coarsened to midnight 00:00:00).
+   - $T_{\mathrm{abx,pair}, i}$: The specific systemic antimicrobial prescription start date participating in the qualifying infection suspicion pair.
+   - $T_{\mathrm{culture,pair}, i}$: Blood culture specimen collection timestamp (`microbiologyevents.charttime`, minute-level precision).
+   - $T_{\mathrm{susp}, i}$: Operational infection-suspicion anchor, defined per Seymour et al. (2016) as $\min(T_{\mathrm{abx,pair}, i}, T_{\mathrm{culture,pair}, i})$.
+   - $T_{\mathrm{S3}, i}$: Assigned consensus Sepsis-3 organ-dysfunction onset timestamp, evaluated at hourly resolution as the earliest integer hour where $\Delta\text{SOFA}(t) = \text{SOFA}(t) - \text{SOFA}_{\text{base}} \ge 2$ within the 36-hour evaluation window $[T_{\mathrm{susp}, i} - 24\text{h}, T_{\mathrm{susp}, i} + 12\text{h}]$.
 
-2. **Dataset-Specific Source Tables, Fields, and Medication-Event Status Rules:**
-   - **Primary Evaluation Cohort (MetaVision Era, 2008–2012):**
-     - *Antimicrobials:* Provider orders extracted from `prescriptions`, filtering for systemic routes and excluding additives. Stays without charted systemic antimicrobial orders during hospitalization are treated as having no documented in-hospital treatment ($T_{\text{treatment}} = \infty$).
-     - *Cultures:* Extracted from `microbiologyevents` using `chartdate` and `charttime`, filtering on blood culture specimen descriptions (`spec_type_desc`).
-   - **Historical Broad Sensitivity Cohort (MIMIC-III, 2001–2012):**
-     - *Antimicrobials:* Provider orders extracted from `prescriptions.startdate` and `enddate`. Because start dates lack sub-day precision, administration is evaluated using calendar-day interval bounds $[00:00, 24:00)$ relative to admission.
-     - *Cultures:* Extracted from `microbiologyevents.charttime` (or `chartdate` when time was unrecorded).
+2. **Decoupling Treatment and Suspicion Clocks:**
+   - When blood culture collection precedes the antimicrobial order ($T_{\mathrm{culture,pair}} < T_{\mathrm{abx,pair}}$), the suspicion anchor is established by culture ($T_{\mathrm{susp}} = T_{\mathrm{culture,pair}} \ne T_{\mathrm{abx,pair}}$). Consequently, the suspicion anchor and the antimicrobial order proxy are not identical ($T_{\mathrm{treatment}} \ne T_{\mathrm{susp}}$).
+   - **Interpretation of the Search-Window Lead ($G = T_{\mathrm{susp}} - T_{\mathrm{S3}} = +24.2\text{h}$ median):**
+     Assigned organ-dysfunction onset often preceded the infection-suspicion proxy. Across the 151 covered sepsis stays, the median difference between the suspicion anchor and assigned onset was $+24.2\text{ hours}$ ($T_{\mathrm{S3}} - T_{\mathrm{susp}} = -24.2\text{h}$; IQR: $22.0\text{h}$ to $24.6\text{h}$). This observed relationship is conditional on the phenotype's search window and the temporal precision of its component records. It is partly constrained by construction: an infection-suspicion proxy defines an evaluation window $[T_{\mathrm{susp}} - 24\text{h}, T_{\mathrm{susp}} + 12\text{h}]$, the algorithm searches backward within that window, and the earliest qualifying SOFA change is assigned as onset. A gap near the 24-hour window boundary is therefore a structural consequence of the retrospective backward lookback, not clinical evidence that clinicians delayed therapy for that duration.
+
+3. **Complete 24-Class Antimicrobial Dictionary and Normalization Rules:**
+   Qualifying systemic antimicrobials were identified across 24 pharmacological classes from BIDMC hospital formulary records in `prescriptions`:
+   1. *Natural & Aminopenicillins:* Ampicillin, amoxicillin, penicillin G, penicillin V.
+   2. *Antipseudomonal & Extended-Spectrum Penicillins:* Piperacillin, ticarcillin, mezlocillin.
+   3. *Penicillinase-Resistant Penicillins:* Nafcillin, oxacillin, dicloxacillin.
+   4. *Beta-Lactamase Inhibitor Combinations:* Piperacillin-tazobactam, ampicillin-sulbactam, amoxicillin-clavulanate.
+   5. *First-Generation Cephalosporins:* Cefazolin, cephalexin, cefadroxil.
+   6. *Second-Generation Cephalosporins:* Cefuroxime, cefoxitin, cefotetan, cefaclor, cefprozil.
+   7. *Third-Generation Cephalosporins:* Ceftriaxone, ceftazidime, cefotaxime, cefpodoxime, cefdinir.
+   8. *Fourth-Generation Cephalosporins:* Cefepime.
+   9. *Fifth-Generation / Advanced Cephalosporins:* Ceftaroline fosamil.
+   10. *Carbapenems:* Meropenem, imipenem-cilastatin, ertapenem, doripenem.
+   11. *Monobactams:* Aztreonam.
+   12. *Fluoroquinolones:* Ciprofloxacin, levofloxacin, moxifloxacin.
+   13. *Aminoglycosides:* Gentamicin, tobramycin, amikacin, streptomycin.
+   14. *Glycopeptides:* Vancomycin.
+   15. *Lipopeptides & Lipoglycopeptides:* Daptomycin.
+   16. *Oxazolidinones:* Linezolid.
+   17. *Macrolides & Ketolides:* Azithromycin, clarithromycin, erythromycin.
+   18. *Tetracyclines & Glycylcyclines:* Doxycycline, minocycline, tigecycline.
+   19. *Sulfonamides & Trimethoprim:* Sulfamethoxazole-trimethoprim (co-trimoxazole).
+   20. *Nitroimidazoles:* Metronidazole.
+   21. *Lincosamides:* Clindamycin.
+   22. *Polymyxins:* Colistin (colistimethate sodium), polymyxin B.
+   23. *Rifamycins:* Rifampin.
+   24. *Other Systemic Antibacterials, Antifungals, & Antivirals:* Nitrofurantoin, fosfomycin, fluconazole, voriconazole, posaconazole, amphotericin B, micafungin, caspofungin, anidulafungin, acyclovir, ganciclovir.
+
+   *Route Normalization & Exclusions:* Enforced systemic routes: `IV`, `IVPB`, `IV BOLUS`, `IV DRIP`, `IV INFUSION`, `INTRAVENOUS`, `PO`, `PO/NG`, `NG`, `GT`, `OGT`, `ORAL`, `NASOGASTRIC`, `GASTROSTOMY TUBE`. Strictly excluded: topical formulations (creams, ointments), ophthalmic/otic drops, catheter flushes, bladder irrigations, inhalations, and intravenous additives (`DRUG_TYPE == "ADDITIVE"`).
 
 #### Table S1C: Medication Clock Specification, Qualifying Formulations, and Ascertainment Ledger
 
 | Specification Dimension | Operational Rule / Parameter | Source Table & Column | Population Count / Coverage |
 | :--- | :--- | :--- | :---: |
-| **Primary Clock Definition** | Earliest documented qualifying systemic antimicrobial order or clinical suspicion event ($T_{\text{treatment}} = T_{\text{susp}}$) | `prescriptions.startdate`, `microbiologyevents.charttime` | Evaluated across all 8,254 test stays |
-| **Documented In-Hospital Treatment** | Stays with documented qualifying systemic antimicrobial orders during hospital stay | `prescriptions` (filtered) | **2,778 / 8,254 (33.7%)** |
+| **Primary Clock Definition** | Prescription-start date proxy ($T_{\mathrm{Rx,start}}$) paired with blood culture collection ($T_{\mathrm{culture,pair}}$) defining infection suspicion $T_{\mathrm{susp}}$ | `prescriptions.startdate`, `microbiologyevents.charttime` | Evaluated across all 8,254 test stays |
+| **Documented In-Hospital Orders** | Stays with documented qualifying systemic antimicrobial orders during hospital stay | `prescriptions` (systemic routes) | **2,778 / 8,254 (33.7%)** |
 | &emsp;*Sepsis Stays ($S=1$)* | Consensus Sepsis-3 cases with confirmed antibiotic order paired with blood culture | `prescriptions` + `microbiologyevents` | **408 / 408 (100.0%)** |
-| &emsp;*Control Stays ($S=0$)* | Non-sepsis controls receiving systemic antimicrobials for non-septic indications | `prescriptions` (filtered) | **2,370 / 7,846 (30.2%)** |
-| **Undocumented In-Hospital Treatment** | Stays with no qualifying systemic antimicrobial orders during stay ($T_{\text{treatment}} = \infty$) | `prescriptions` | **5,476 / 7,846 (69.8%)** |
-| **Qualifying Antimicrobial Classes** | Penicillins, Cephalosporins, Carbapenems, Fluoroquinolones, Glycopeptides, Aminoglycosides, Macrolides, Nitroimidazoles, Oxazolidinones, Antifungals | `prescriptions.drug` | 24 major antimicrobial agent classes |
+| &emsp;*Control Stays ($S=0$)* | Non-sepsis controls with documented systemic antimicrobial orders for non-septic indications | `prescriptions` (systemic routes) | **2,370 / 7,846 (30.2%)** |
+| **Undocumented In-Hospital Orders** | No qualifying prescription record was identified in the extracted hospitalization data. This does not verify absence of treatment ($T_{\mathrm{Rx,start}} = \infty$). | `prescriptions` | **5,476 / 7,846 (69.8%)** |
+| **Qualifying Antimicrobial Classes** | 24 major antimicrobial agent classes enumerated in Section S1.5 (penicillins through systemic antivirals) | `prescriptions.drug` | 24 enumerated agent classes |
 | **Qualifying Administration Routes** | Systemic routes only: IV, IVPB, IV Bolus, IV Drip, IV Infusion, Intravenous, PO, PO/NG, NG, GT, OGT, Oral, Nasogastric, Gastrostomy Tube | `prescriptions.route` | All systemic enteral and parenteral routes |
-| **Excluded Routes & Formulations** | Topical creams, ophthalmic/otic solutions, bladder irrigations, inhalations, and additives (`DRUG_TYPE == "ADDITIVE"`) | `prescriptions.route`, `prescriptions.drug_type` | Strictly excluded from treatment clock |
-| **Pre-Surveillance Treatment ($T_{\text{tr}} \le 19\text{h}$)** | Stays receiving antimicrobials prior to hour 19; censored from pre-treatment risk set $\mathcal{R}_0$ | `T_TREATMENT_H_ICU <= 19.0` | 2,317 stays (2,308 controls, 9 sepsis) |
-| **Retained Pretreatment Stays ($\mathcal{R}_0$)** | Stays retaining active surveillance decision windows prior to documented treatment | $t \le T_{\text{treatment}}$ | **5,967 stays** (150/151 covered sepsis) |
-| **Ascertainment Boundaries** | Pre-hospital EMS administrations and outpatient prescriptions are unobserved in retrospective EHR tables. Absence of a documented order reflects absence of hospital treatment, not verified absolute absence of prior medication. | Inpatient EHR tables (`HADM_ID`) | Hospitalization observation boundary |
-3. **Directional Suspicion Pairing Rules ($T_{\text{susp}}$):**
+| **Excluded Routes & Formulations** | Topical creams, ophthalmic/otic solutions, bladder irrigations, inhalations, and additives (`DRUG_TYPE == "ADDITIVE"`) | `prescriptions.route`, `prescriptions.drug_type` | Strictly excluded from proxy clock |
+| **Pre-Surveillance Orders ($T_{\mathrm{Rx,start}} \le 19\text{h}$)** | Stays receiving antimicrobial orders prior to hour 19; censored from pre-treatment risk set $\mathcal{R}_0$. Exactly 2,287 stays had $T_{\mathrm{Rx,start}} < 19.0\text{h}$; 0 stays had $T_{\mathrm{Rx,start}} == 19.0\text{h}$. | `T_TREATMENT_H_ICU <= 19.0` | 2,287 stays (2,278 controls, 9 sepsis) |
+| **Retained Pretreatment Stays ($\mathcal{R}_0$)** | Stays retaining active surveillance decision windows at or before documented treatment ($w_{\mathrm{end}} \le T_{\mathrm{Rx,start}}$) | $t \le T_{\mathrm{Rx,start}}$ | **5,967 stays** ($8,254 - 2,287 = 5,967$; 150/151 covered sepsis) |
+| **Ascertainment Boundaries** | Pre-hospital EMS administrations and outpatient prescriptions are unobserved in retrospective EHR tables. No qualifying prescription record was identified in the extracted hospitalization data. This does not verify absence of treatment. | Inpatient EHR tables (`HADM_ID`) | Hospitalization observation boundary |
+4. **Directional Suspicion Pairing Rules ($T_{\text{susp}}$):**
    - *Antimicrobial precedes Blood Culture:* Blood culture must follow within $\le 24\text{ hours}$ ($0 \le t_{\text{culture}} - t_{\text{abx}} \le 24\text{h}$); $T_{\text{susp}} = t_{\text{abx}}$.
-   - *Blood Culture precedes Antimicrobial:* Antimicrobial administration must follow within $\le 72\text{ hours}$ ($0 < t_{\text{abx}} - t_{\text{culture}} \le 72\text{h}$); $T_{\text{susp}} = t_{\text{culture}}$.
+   - *Blood Culture precedes Antimicrobial:* Antimicrobial order must follow within $\le 72\text{ hours}$ ($0 < t_{\text{abx}} - t_{\text{culture}} \le 72\text{h}$); $T_{\text{susp}} = t_{\text{culture}}$.
    - *Multiple Candidate Pairs & Complete Episode Selection:* All candidate culture–antibiotic pairs within the hospital admission (`HADM_ID`) were evaluated. If an earlier suspected-infection pair did not produce acute organ dysfunction ($\Delta\text{SOFA} \ge 2$), subsequent candidate pairs within the admission were evaluated. The earliest qualifying pair that satisfies $\Delta\text{SOFA} \ge 2$ within $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$ confirms consensus Sepsis-3, and $T_{\text{S3}}$ is established at the earliest hour of confirmed organ dysfunction.
-4. **Baseline SOFA ($\text{SOFA}_{\text{base}}$):**
+5. **Baseline SOFA ($\text{SOFA}_{\text{base}}$):**
    - Evaluated strictly over the 24-hour interval preceding suspicion: $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]$.
    - $\text{SOFA}_{\text{base}} = \min\{\text{SOFA}(t) : t \in [T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]\}$.
    - If no physiological or laboratory data were recorded in this interval, baseline SOFA was imputed as 0 (normal organ function prior to acute deterioration, adhering to Seymour et al. Table S2).
-5. **Organ-Dysfunction Evaluation Window & Sepsis-3 Onset ($T_{\text{S3}}$):**
+6. **Organ-Dysfunction Evaluation Window & Sepsis-3 Onset ($T_{\text{S3}}$):**
    - Evaluated across the 36-hour clinical evaluation window $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$.
    - Acute organ dysfunction is confirmed at the earliest integer hour $t$ satisfying:
      $$\Delta\text{SOFA}(t) = \text{SOFA}(t) - \text{SOFA}_{\text{base}} \ge 2$$
@@ -351,7 +379,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 | **5a** | **Eligibility criteria** | Detail inclusion and exclusion criteria for study participants. | Section 2.1, Section S1.1, Table S1 | Adult first ICU admissions ($\ge 18$ years), total ICU $\text{LOS} \ge 30\text{h}$; prevalent sepsis on arrival ($T_{\text{S3}} \le 19\text{h}$) excluded. |
 | **5b** | **Treatment received** | Describe clinical treatments administered and their relation to prediction windows. | Section 2.3, Section S1.5, Table S4 | Systemic antimicrobials tracked via hospital-wide prescription orders (`prescriptions`); pre-treatment risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ censor post-treatment observations. |
 | **6a** | **Outcome definition** | Unambiguously define target outcome, diagnostic criteria, and reference standards. | Section 2.2, Section S1.5 | Consensus Sepsis-3 operational adaptation: acute $\Delta\text{SOFA} \ge 2$ over $[T_{\text{susp}}-24\text{h}, T_{\text{susp}}+12\text{h}]$ relative to suspected infection. |
-| **6b** | **Outcome timing** | Specify exact timing and operational clock assigned to outcome onset. | Section 2.2, Section S1.5, Figure 1 | Earliest hour of SOFA increase $T_{\text{S3}}$; contrasted with clinical treatment time $T_{\text{treatment}}$ (clinical treatment latency gap $G = T_{\text{treatment}} - T_{\text{S3}} = +24.2\text{h}$ median; $T_{\text{S3}} - T_{\text{treatment}} = -24.2\text{h}$). |
+| **6b** | **Outcome timing** | Specify exact timing and operational clock assigned to outcome onset. | Section 2.2, Section S1.5, Figure 1 | Earliest hour of SOFA increase $T_{\text{S3}}$; contrasted with infection suspicion anchor $T_{\mathrm{susp}}$ (operational search-window lead $G = T_{\mathrm{susp}} - T_{\text{S3}} = +24.2\text{h}$ median; $T_{\text{S3}} - T_{\mathrm{susp}} = -24.2\text{h}$). |
 | **7a** | **Predictors** | Define all candidate predictors, clinical categories, units, and physiological validity filters. | Section S1.3 (Feature Dictionary Table) | 21 variables (6 vital signs, 2 oxygenation, 13 laboratory biomarkers) mapped across CareVue and MetaVision itemids. |
 | **7b** | **Predictor timing** | Define observation lookback windows, measurement latency, and blinding to outcome. | Section 2.1, Section S1.3, S1.4 | Causal right-open $[t-20\text{h}, t)$ window; 1.0-hour laboratory turnaround buffer; maximum forward-fills: 4h vitals, 24h labs. |
 | **8** | **Sample size** | Report sample size, number of events, and effective degrees of freedom. | Section 2.1, Table 1, Table S1 | 8,254 test stays, 97,700 windows, 408 consensus Sepsis-3 stays, 678 horizon-positive observations ($\pi = 0.694\%$). |
