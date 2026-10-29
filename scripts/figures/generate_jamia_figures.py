@@ -48,35 +48,36 @@ def generate_figure1_clocks_and_waterfall():
 
     # Draw ICU timeline bar
     ax1.add_patch(patches.Rectangle((0, 4.5), 10, 0.4, color="#E2E8F0", zorder=1))
-    ax1.text(0, 5.1, "ICU Admission\n($T_{\\mathrm{admit}}$)", ha="center", fontsize=9.5, fontweight="bold")
-    ax1.text(2.5, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=20\\mathrm{h}$ context)", ha="center", fontsize=8.5, color="#1E293B")
-    ax1.text(5.5, 5.1, "Antimicrobials ($T_{\\mathrm{treatment}}$)\n[First Confirmed Dose]", ha="center", fontsize=9, color="#2563EB", fontweight="bold")
-    ax1.text(8.5, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Culture + Abx + $\\Delta$SOFA$\\geq$2]", ha="center", fontsize=9, color="#DC2626", fontweight="bold")
+    ax1.text(0, 5.1, "ICU Admission\n($T_{\\mathrm{admit}}$)", ha="center", fontsize=9.0, fontweight="bold")
+    ax1.text(2.0, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=20\\mathrm{h}$ context)", ha="center", fontsize=8.0, color="#1E293B")
+    ax1.text(3.5, 5.1, "Surveillance End\n($t=30\\mathrm{h}$)", ha="center", fontsize=8.0, color="#1E293B")
+    ax1.text(5.2, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Acute $\\Delta$SOFA$\\geq$2; med 28.0h]", ha="center", fontsize=8.5, color="#DC2626", fontweight="bold")
+    ax1.text(8.7, 5.1, "Antimicrobials ($T_{\\mathrm{treatment}}$)\n[First Doc. Event; med 50.7h]", ha="center", fontsize=8.5, color="#2563EB", fontweight="bold")
 
     # Markers on timeline
-    ax1.plot([0, 2.5, 5.5, 8.5], [4.7, 4.7, 4.7, 4.7], "o", color="#0F172A", markersize=8, zorder=2)
-    ax1.plot(5.5, 4.7, "o", color="#2563EB", markersize=9, zorder=3)
-    ax1.plot(8.5, 4.7, "o", color="#DC2626", markersize=9, zorder=3)
+    ax1.plot([0, 2.0, 3.5], [4.7, 4.7, 4.7], "o", color="#0F172A", markersize=7, zorder=2)
+    ax1.plot(5.2, 4.7, "o", color="#DC2626", markersize=9, zorder=3)
+    ax1.plot(8.7, 4.7, "o", color="#2563EB", markersize=9, zorder=3)
 
-    # Diagnostic lead gap G = T_S3 - T_treatment = +24.2h
+    # Clinical Treatment Latency Gap G = T_treatment - T_S3 = +24.2h (or T_S3 - T_treatment = -24.2h)
     ax1.annotate(
-        "", xy=(5.5, 4.3), xytext=(8.5, 4.3),
+        "", xy=(5.2, 4.3), xytext=(8.7, 4.3),
         arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
     )
-    ax1.text(7.0, 3.85, "Diagnostic Lead Gap\n$G = T_{\\mathrm{S3}} - T_{\\mathrm{treatment}} = +24.2\\mathrm{h}$ (median)",
-             ha="center", fontsize=8.5, color="#334155", fontweight="bold")
+    ax1.text(6.95, 3.75, "Clinical Treatment Latency Gap\n$G = T_{\\mathrm{treatment}} - T_{\\mathrm{S3}} = +24.2\\mathrm{h}$ (median)\n($T_{\\mathrm{S3}} - T_{\\mathrm{treatment}} = -24.2\\mathrm{h}$)",
+             ha="center", fontsize=8.2, color="#334155", fontweight="bold")
 
     # Lookback horizon H=6h before Sepsis-3
-    ax1.add_patch(patches.Rectangle((6.0, 2.7), 2.5, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
-    ax1.text(7.25, 2.95, "Anticipation Horizon $Y_i(t; H)=\\mathbf{1}\\{t < T_{\\mathrm{S3}} \\leq t+6\\mathrm{h}\\}$", ha="center", va="center", fontsize=8.0, color="#C2410C", fontweight="bold")
+    ax1.add_patch(patches.Rectangle((3.6, 2.7), 1.6, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
+    ax1.text(4.4, 2.95, "Anticipation Horizon $Y_i(t; 6\\mathrm{h})=\\mathbf{1}\\{t < T_{\\mathrm{S3}} \\leq t+6\\mathrm{h}\\}$", ha="center", va="center", fontsize=7.8, color="#C2410C", fontweight="bold")
 
     # Actionable Decision Window A_i (intersection of lookback and pretreatment)
-    ax1.add_patch(patches.Rectangle((2.5, 1.6), 3.0, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
-    ax1.text(4.0, 1.85, "Pretreatment Decision Window $\\mathcal{A}_i(\\delta) = \\{t \\in \\mathcal{T}_i : 0 < T_{\\mathrm{S3},i}-t \\leq H, t+\\delta \\leq T_{\\mathrm{treatment},i}\\}$", ha="center", va="center", fontsize=7.5, color="#15803D", fontweight="bold")
+    ax1.add_patch(patches.Rectangle((2.0, 1.6), 1.5, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
+    ax1.text(2.75, 1.85, "Pretreatment Surveillance Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in [19, 30] : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{treatment},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
 
     # Post-treatment observation period
-    ax1.add_patch(patches.Rectangle((5.5, 0.5), 3.0, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
-    ax1.text(7.0, 0.75, "Post-treatment observation period ($t > T_{\\mathrm{treatment}}$)\n[Retained in $\\mathcal{R}$; censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.5, color="#334155")
+    ax1.add_patch(patches.Rectangle((8.7, 0.5), 1.3, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
+    ax1.text(9.35, 0.75, "Post-treatment period ($t > T_{\\mathrm{treatment}}$)\n[Censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.2, color="#334155")
 
     # Mathematical formulation box adhering to Section 2.3
     formula_text = (
@@ -104,8 +105,8 @@ def generate_figure1_clocks_and_waterfall():
     y = np.arange(len(categories))
     height = 0.35
 
-    rects1 = ax2.barh(y + height/2, m3_vals, height, label="MIMIC-III (Date Proxy with Interval Bounds)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
-    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-IV (Hourly Confirmed eMAR)", color="#1E40AF", edgecolor="#0F172A")
+    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Prescription-Date Proxy)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
+    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Documented Antimicrobial Events)", color="#1E40AF", edgecolor="#0F172A")
 
     ax2.set_xlabel("Proportion of Incident Sepsis Episodes (%)")
     ax2.set_yticks(y)
@@ -136,8 +137,6 @@ def generate_figure1_clocks_and_waterfall():
         shutil.copy(out_png, latex_fig_dir / "Figure1_Clocks_and_Opportunity_Waterfall.png")
         logger.info("Synchronized Figure 1 to %s", latex_fig_dir)
 
-    logger.info("Saved Figure 1 to %s and %s", out_png, out_pdf)
-    plt.close()
     logger.info("Saved Figure 1 to %s and %s", out_png, out_pdf)
 
 

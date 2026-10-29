@@ -14,10 +14,10 @@
 \citation{adams2022prospective}
 \citation{drew2014insights}
 \citation{ancker2017effects,paine2016systematic}
+\citation{kamran2024evaluation}
+\citation{kamran2024evaluation}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background and Significance}{1}{subsection.1.1}\protected@file@percent }
-\citation{kamran2024evaluation}
-\citation{kamran2024evaluation}
 \citation{johnson2016mimiciii}
 \citation{johnson2016mimiciii}
 \citation{collins2024tripod,vonelm2007strobe}
@@ -27,9 +27,9 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Outcome Definition and Operational Clocks}{2}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Risk Sets, Anticipation Horizons, and Pretreatment Eligibility}{2}{subsection.2.3}\protected@file@percent }
 \citation{gu2023mamba,gu2022efficiently}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text  {S3}} - T_{\text  {treatment}} = +24.2\text  {h}$ (median), the actionable decision window $\mathcal  {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing broad historical MIMIC-III (with calendar-day interval-censored prescription bounds) and MetaVision prospective-replay (hourly confirmed bedside administration records). \textit  {Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, antimicrobials, Sepsis-3 onset) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between broad historical MIMIC-III and MetaVision cohorts in Panel B.}}{3}{figure.caption.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the treatment latency gap $G = T_{\text  {treatment}} - T_{\text  {S3}} = +24.2\text  {h}$ (median across covered stays; $T_{\text  {S3}} - T_{\text  {treatment}} = -24.2\text  {h}$), the actionable decision window $\mathcal  {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing broad historical MIMIC-III (with calendar-day interval-censored prescription bounds) and MetaVision prospective-replay (documented hospital antimicrobial orders: \texttt  {prescriptions}). \textit  {Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, Sepsis-3 onset, antimicrobials) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between broad historical MIMIC-III and MetaVision cohorts in Panel B.}}{3}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:clocks}{{1}{3}{\textbf {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the diagnostic lead gap $G = T_{\text {S3}} - T_{\text {treatment}} = +24.2\text {h}$ (median), the actionable decision window $\mathcal {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing broad historical MIMIC-III (with calendar-day interval-censored prescription bounds) and MetaVision prospective-replay (hourly confirmed bedside administration records). \textit {Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, antimicrobials, Sepsis-3 onset) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between broad historical MIMIC-III and MetaVision cohorts in Panel B}{figure.caption.1}{}}
+\newlabel{fig:clocks}{{1}{3}{\textbf {Operational Clocks, Pretreatment Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, showing the treatment latency gap $G = T_{\text {treatment}} - T_{\text {S3}} = +24.2\text {h}$ (median across covered stays; $T_{\text {S3}} - T_{\text {treatment}} = -24.2\text {h}$), the actionable decision window $\mathcal {A}_i$, and the post-treatment observation period. Panel B displays population opportunity attrition comparing broad historical MIMIC-III (with calendar-day interval-censored prescription bounds) and MetaVision prospective-replay (documented hospital antimicrobial orders: \texttt {prescriptions}). \textit {Alt-text:} Two-panel diagram displaying timeline clocks (ICU admission, surveillance start, Sepsis-3 onset, antimicrobials) with mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity between broad historical MIMIC-III and MetaVision cohorts in Panel B}{figure.caption.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Alert-Budget Operating Frontiers and Refractory Policy}{3}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Predictive Models and Statistical Inference}{3}{subsection.2.5}\protected@file@percent }
 \citation{dutta2026performance}
@@ -42,27 +42,27 @@
 \citation{ancker2017effects}
 \citation{ancker2017effects,paine2016systematic}
 \citation{henry2022factors}
+\citation{paine2016systematic}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability.}}{5}{table.caption.2}\protected@file@percent }
 \newlabel{tab:table1}{{1}{5}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability}{table.caption.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {Benchmark Discrimination Across Pretreatment Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples.}}{5}{table.caption.3}\protected@file@percent }
 \newlabel{tab:table2}{{2}{5}{\textbf {Benchmark Discrimination Across Pretreatment Tasks (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples}{table.caption.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{5}{section.4}\protected@file@percent }
-\citation{paine2016systematic}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Limitations}{5}{subsection.4.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}.}}{6}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:frontiers}{{2}{6}{\textbf {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref {tab:table3}}{figure.caption.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection.}}{6}{figure.caption.7}\protected@file@percent }
 \newlabel{fig:decomp}{{3}{6}{\textbf {Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Limitations}{6}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{6}{section.5}\protected@file@percent }
 \bibcite{singer2016sepsis}{1}
 \bibcite{seymour2016assessment}{2}
 \bibcite{evans2021surviving}{3}
 \bibcite{kumar2006duration}{4}
+\bibcite{moor2021early}{5}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{7}{table.caption.5}\protected@file@percent }
 \newlabel{tab:table3}{{3}{7}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage.}}{7}{table.caption.6}\protected@file@percent }
 \newlabel{tab:table4}{{4}{7}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed consensus Sepsis-3 timestamps and surveillance coverage}{table.caption.6}{}}
-\bibcite{moor2021early}{5}
 \bibcite{wang2025methodological}{6}
 \bibcite{reyna2020early}{7}
 \bibcite{wong2021external}{8}
