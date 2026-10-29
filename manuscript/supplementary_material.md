@@ -295,7 +295,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 
 *Held-out point estimates ($B=0$) and $B=1,000$ patient-clustered bootstrap percentile 95% confidence intervals.*
 
-| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUPRC % [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUROC [95% CI] | Pretreatment Sepsis ($\mathcal{R}_0$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUPRC % [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUROC [95% CI] | Pretreatment ($\mathcal{R}_2$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUPRC % [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0 - \text{Canonical}$)<br>[95% CI] |
+| Model Architecture | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUROC [95% CI] | Canonical Sepsis-3 ($H=6\text{h}$)<br>Prev: 0.694%<br>AUPRC % [95% CI] | Outcome-Stratified Hybrid Set ($\mathcal{R}_0^{\mathrm{hybrid}}$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUROC [95% CI] | Outcome-Stratified Hybrid Set ($\mathcal{R}_0^{\mathrm{hybrid}}$, $\delta=0\text{h}$)<br>Prev: 0.960%<br>AUPRC % [95% CI] | Outcome-Stratified Hybrid Set ($\mathcal{R}_2^{\mathrm{hybrid}}$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUROC [95% CI] | Outcome-Stratified Hybrid Set ($\mathcal{R}_2^{\mathrm{hybrid}}$, $\delta=2\text{h}$)<br>Prev: 0.945%<br>AUPRC % [95% CI] | Paired $\Delta\text{AUROC}$ ($\mathcal{R}_0^{\mathrm{hybrid}} - \text{Canonical}$)<br>[95% CI] |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **BiMamba SSM (Proposed)** | 0.6326 (0.5872–0.6733) | 1.209% (0.892%–1.769%) | 0.6433 (0.5998–0.6835) | 1.656% (1.235%–2.329%) | 0.6447 (0.6002–0.6860) | 1.647% (1.220%–2.331%) | +0.0107 (+0.0060 to +0.0175) |
 | **Multi-Model Stacking Ensemble** | 0.6284 (0.5829–0.6699) | 1.206% (0.882%–1.748%) | 0.6351 (0.5897–0.6771) | 1.621% (1.207%–2.263%) | 0.6370 (0.5913–0.6799) | 1.613% (1.198%–2.255%) | +0.0067 (+0.0021 to +0.0137) |
@@ -305,6 +305,8 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 | **Tabular GBDT (LightGBM)** | 0.5613 (0.5161–0.6026) | 0.893% (0.694%–1.195%) | 0.5587 (0.5139–0.6010) | 1.222% (0.957%–1.629%) | 0.5598 (0.5145–0.6033) | 1.214% (0.949%–1.630%) | -0.0026 (-0.0070 to +0.0038) |
 | **Logistic Regression (L2)** | 0.5593 (0.5097–0.6048) | 0.939% (0.716%–1.218%) | 0.5654 (0.5157–0.6107) | 1.337% (1.012%–1.740%) | 0.5657 (0.5150–0.6127) | 1.325% (1.002%–1.731%) | +0.0061 (+0.0023 to +0.0116) |
 | **Clinical Transformer (Baseline)** | 0.5239 (0.4808–0.5653) | 0.808% (0.609%–1.381%) | 0.5296 (0.4851–0.5712) | 1.147% (0.857%–1.904%) | 0.5286 (0.4834–0.5705) | 1.131% (0.845%–1.894%) | +0.0057 (+0.0019 to +0.0110) |
+
+*Note: Evaluated on hybrid risk sets $\mathcal{R}_0^{\mathrm{hybrid}}$ and $\mathcal{R}_2^{\mathrm{hybrid}}$ censoring cases at infection-suspicion anchor $T_{\mathrm{susp}}$ and controls at earliest prescription $T_{\mathrm{Rx,start}}$. Sepsis cases and controls were restricted using different clinical-process anchors; differences from canonical discrimination therefore reflect both evaluated observations and outcome-specific selection rather than uniform prospective eligibility. Under uniform point-assigned earliest prescription restriction ($C_i = T_{\mathrm{Rx,start}, i}$), discrimination is not estimable due to zero retained positive cases ($O_{\mathrm{Rx}}^{\mathrm{point}} = 0$).*
 
 ---
 
@@ -338,6 +340,8 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 | | **Random Forest** | 0.0131 | 814 | 20.00 | 1.11 (0.49–1.85)% | 9 | 9 | 9 | 5.96 (2.70–9.68)% | 2.21 (0.96–3.69)% | 90.4 (54.2–203.7) | 0.001 |
 | | **Multi-Model Stacking Ensemble** | 0.0115 | 814 | 20.00 | 0.98 (0.37–1.72)% | 8 | 8 | 8 | 5.30 (2.04–9.15)% | 1.96 (0.74–3.43)% | 101.8 (58.1–271.3) | 0.000 |
 | | **Clinical Transformer (Baseline)** | 0.0088 | 814 | 20.00 | 0.86 (0.25–1.48)% | 7 | 7 | 7 | 4.64 (1.51–8.18)% | 1.72 (0.52–3.04)% | 116.3 (67.8–407.0) | 0.001 |
+
+*Note: 100% of detected sepsis patients satisfied two-hour pre-suspicion timing buffers ($t_{\mathrm{first}, i} + 2\text{h} \le T_{\mathrm{susp}, i}$). Alert episodes were evaluated across the full canonical surveillance stream (4,070.8 patient-days, 97,700 windows); reference anchors $C_i$ were used retrospectively to adjudicate advance-warning timeliness, not to filter observation volume prior to alert generation.*
 
 ---
 
@@ -430,6 +434,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 - **Machine Learning & Statistical Libraries:** LightGBM `3.3.5`, XGBoost `1.7.6`, Scikit-learn `1.2.2`, SciPy `1.10.1`, Pandas `1.5.3`, NumPy `1.26.4`
 - **Visualization:** Matplotlib `3.7.1` / `3.10.1`, Seaborn `0.12.2`
 - **Analytical Freeze Commit:** `b0932ca` (Release Manifest `1.0.0-freeze`, archived at `reports/manifest/release_manifest.json`)
-- **Submission Packaging Commits:** `1292103` and `38aac8b` (repository HEAD)
+- **Evaluation Pipeline & Bootstrap Release Commit:** `1292103`
+- **Manuscript Reporting & Packaging Commit:** `4038fa2`
 - **Automated Invariance Verification Artifacts:** `reports/manifest/time_truncation_invariance_audit.json` and `time_truncation_invariance_audit.md` (PASS: no feature discrepancies detected across 50 stays, 12 decision hours, 547 unique patient-decision pairs, and 1,641 equality comparisons).
 - **Code & Model Availability:** Complete analysis scripts, preprocessing pipelines, and evaluation harnesses are archived at GitHub: `https://github.com/alireza/Sepsis-Onset-Timing-Paradox`.
