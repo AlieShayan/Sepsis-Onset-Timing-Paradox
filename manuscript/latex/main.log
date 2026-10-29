@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 12:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 13:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1114,9 +1114,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 358--359
 b . com / alireza /
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 358--359
+\OT1/ntxtt/m/n/10 Sepsis-[]Onset-[]Timing-[]Paradox$[] \OT1/ntxtlf/m/n/10 (+20)
+ (an-a-lyt-i-cal freeze
+ []
+
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 10.0pt on input line 361.
-
+[7]
 Underfull \hbox (badness 1789) in paragraph at lines 367--368
 \OT1/ntxtlf/m/n/10 (+20) dic-tion of sep-sis from clin-i-cal data: the Phy-
  []
@@ -1132,7 +1138,7 @@ Underfull \hbox (badness 1097) in paragraph at lines 367--368
 lf/m/n/10 (+20) . 2020;48(2):210--217. DOI:
  []
 
-[7]
+
 Underfull \hbox (badness 10000) in paragraph at lines 377--378
 []\OT1/ntxtlf/m/n/10 (+20) Gu A, Dao T. Mamba: linear-time se-
  []
@@ -1173,7 +1179,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (8 pages, 362013 bytes).
+Output written on main.pdf (8 pages, 362178 bytes).
 PDF statistics:
  702 PDF objects out of 1000 (max. 8388607)
  302 compressed objects within 4 object streams

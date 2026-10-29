@@ -1,0 +1,120 @@
+{
+  "audit_name": "Time-Truncation Invariance & Model Input Shape Audit",
+  "timestamp_utc": "2026-10-29T09:56:16.086217+00:00",
+  "analytical_freeze_commit": "b0932ca",
+  "manifest_version": "1.0.0-freeze",
+  "base_variables_count": 21,
+  "sequence_window_hours": 20,
+  "input_dimensions": {
+    "BiMamba_SSM": [
+      null,
+      20,
+      42
+    ],
+    "Mask_Aware_Transformer": [
+      null,
+      20,
+      42
+    ],
+    "Baseline_Unmasked_Transformer": [
+      null,
+      20,
+      21
+    ],
+    "Tabular_GBDT_LightGBM": [
+      null,
+      126
+    ],
+    "Tabular_GBDT_XGBoost": [
+      null,
+      126
+    ],
+    "Random_Forest": [
+      null,
+      126
+    ],
+    "Logistic_Regression_L2": [
+      null,
+      126
+    ],
+    "Multi_Model_Stacking_Ensemble": [
+      null,
+      7
+    ]
+  },
+  "tabular_summary_channels": [
+    "mean",
+    "minimum",
+    "maximum",
+    "last_value",
+    "last_minus_first_trend",
+    "linear_slope"
+  ],
+  "tested_patient_decision_pairs_count": 1548,
+  "tested_patient_decision_pairs_sample": [
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 1.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 2.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 2.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 2.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 2.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    }
+  ],
+  "max_feature_discrepancy_sequence_tensor": 0.0,
+  "max_feature_discrepancy_tabular_summary": 0.0,
+  "invariance_verification_status": "PASS",
+  "future_leakage_detected": false
+}

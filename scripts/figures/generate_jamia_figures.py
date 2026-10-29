@@ -49,7 +49,7 @@ def generate_figure1_clocks_and_waterfall():
     # Draw ICU timeline bar
     ax1.add_patch(patches.Rectangle((0, 4.5), 10, 0.4, color="#E2E8F0", zorder=1))
     ax1.text(0, 5.1, "ICU Admission\n($T_{\\mathrm{admit}}$)", ha="center", fontsize=9.5, fontweight="bold")
-    ax1.text(2.5, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=18\\mathrm{h}$ context)", ha="center", fontsize=8.5, color="#1E293B")
+    ax1.text(2.5, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=20\\mathrm{h}$ context)", ha="center", fontsize=8.5, color="#1E293B")
     ax1.text(5.5, 5.1, "Antimicrobials ($T_{\\mathrm{treatment}}$)\n[First Confirmed Dose]", ha="center", fontsize=9, color="#2563EB", fontweight="bold")
     ax1.text(8.5, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Culture + Abx + $\\Delta$SOFA$\\geq$2]", ha="center", fontsize=9, color="#DC2626", fontweight="bold")
 
