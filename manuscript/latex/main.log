@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 00:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 12:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -922,7 +922,7 @@ File: ts1ntxtlf.fd 2015/01/18 v1.0 fd file for TS1/ntxtlf
 )
 LaTeX Font Info:    Font shape `TS1/ntxtlf/m/n' will be
 (Font)              scaled to size 10.0pt on input line 96.
-<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=127, 1084.05pt x 448.
+<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=126, 1084.05pt x 448.
 07399pt>
 File: figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf Graphic file (type p
 df)
@@ -954,7 +954,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 7.0pt on input line 196.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/it' will be
 (Font)              scaled to size 7.0pt on input line 196.
-<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=379, 1011.78pt x 397
+<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=378, 1011.78pt x 397
 .485pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
 pdf)
@@ -1086,17 +1086,14 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 3.57501pt on input line 291.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 6.5pt on input line 292.
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=384, 722.7pt x 397.485pt>
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=383, 722.7pt x 397.485pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
  input line 317.
 (pdftex.def)             Requested size: 242.5389pt x 133.39635pt.
- [4] [5]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf> <./figures/Figure
-3_Three_Stage_Decomposition.pdf>]
+ [4] [5] [6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf> <./figure
+s/Figure3_Three_Stage_Decomposition.pdf>]
 LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
 (Font)              scaled to size 10.0pt on input line 358.
 
@@ -1176,10 +1173,10 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (8 pages, 361522 bytes).
+Output written on main.pdf (8 pages, 362013 bytes).
 PDF statistics:
- 703 PDF objects out of 1000 (max. 8388607)
- 303 compressed objects within 4 object streams
+ 702 PDF objects out of 1000 (max. 8388607)
+ 302 compressed objects within 4 object streams
  83 named destinations out of 1000 (max. 500000)
  152728 words of extra memory for PDF output out of 154059 (max. 10000000)
 

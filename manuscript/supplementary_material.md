@@ -12,25 +12,30 @@ $^1$ Department of Computer Science and Engineering & IT, School of Electrical a
 
 # Section S1: Supplementary Methods Package — Model Development, Cohort Derivation, and Algorithmic Specifications
 
-### S1.1 Cohort Construction and Eligibility Criteria
-The base study cohorts were derived from the Beth Israel Deaconess Medical Center (BIDMC) critical care repositories: MIMIC-IV (v2.2, primary evaluation cohort) and MIMIC-III (v1.4, developmental and date-proxy sensitivity cohorts) under PhysioNet Credentialed Data Use Agreement.
+### S1.1 Cohort Construction, Eligibility Criteria, and Censoring Rules
+The study cohorts were derived from the Beth Israel Deaconess Medical Center (BIDMC) critical care repositories: MIMIC-IV (v2.2, primary evaluation cohort) and MIMIC-III (v1.4, developmental and date-proxy sensitivity cohorts) under PhysioNet Credentialed Data Use Agreement.
 
-1. **Eligibility Criteria:** Adult patients ($\ge 18$ years of age at ICU admission) admitted to intensive care units with a total ICU length of stay $\text{LOS} \ge 30\text{ hours}$.
+1. **Eligibility Criteria:** Adult patients ($\ge 18$ years of age at ICU admission) admitted to intensive care units with a total ICU length of stay $\text{LOS} \ge 30\text{ hours}$ (calculated as $T_{\text{out}} - T_{\text{in}} \ge 30\text{h}$).
 2. **First Admission Restriction:** To prevent within-patient correlation across multiple hospitalizations, only the chronological first ICU stay per unique patient was included.
 3. **Prevalent Sepsis Exclusion:** Patients satisfying consensus Sepsis-3 criteria at or prior to ICU admission ($T_{\text{S3}} \le 0\text{h}$) or developing onset prior to or at the start of the surveillance protocol ($T_{\text{S3}} \le 19\text{h}$) were excluded from the incident-surveillance evaluation. These episodes occurred before the evaluated surveillance interval and were excluded from the incident-surveillance evaluation; acquisition setting and prior clinical recognition were not inferred from onset timing alone.
 4. **Surveillance Protocol Interval:** Predictions were evaluated sequentially across 12 scheduled hourly decision bins $[t-1, t]$ for $t \in \{19, 20, \dots, 30\}$ hours post-admission.
-5. **Observation Cessation & Censoring Rules:** Stays were right-censored upon consensus Sepsis-3 onset ($N=110$ stays, 623 windows) or upon routine observation cessation / ICU discharge prior to hour 30 ($N=180$ control stays, 725 windows). Because cohort eligibility requires $\text{LOS} \ge 30\text{h}$, all eligible patients remain under surveillance through at least hour 30 unless right-censored by death or ICU discharge (`OUTTIME`).
+5. **Observation Cessation vs. Administrative Discharge Censoring Rules:**
+   - Because cohort inclusion strictly conditioned on total ICU length of stay $\text{LOS} \ge 30\text{h}$, all 8,254 cohort patients remained physically admitted to the ICU through at least hour 30. No patient was administratively discharged from the ICU prior to hour 30.
+   - Right-censoring during the surveillance interval ($t \in [19, 30]$) occurred through exactly two mutually exclusive clinical mechanisms:
+     - *Consensus Sepsis-3 Onset ($N=110$ stays, 623 windows):* In accordance with real-time early-warning principles, surveillance ceased immediately once acute Sepsis-3 organ dysfunction was confirmed ($t \ge T_{\text{S3}}$). Subsequent windows were not evaluated.
+     - *Routine Bedside Telemetry and Charting Cessation ($N=180$ control stays, 725 windows):* In routine clinical ICU operations, bedside vital telemetry and hourly chartings are occasionally discontinued prior to physical discharge or bed transfer (e.g., patient medically stabilized with step-down transfer orders pending, temporary transport off-unit for imaging or surgical procedures, or de-escalation of hourly vital charting). Under the pre-specified D4 data contract, an hourly decision window $[t-1, t]$ was evaluated only when active bedside charting was recorded within the causal lookback window. When charting ceased prior to hour 30, window generation stopped. This reflects clinical observation/telemetry cessation prior to physical discharge at $\text{LOS} \ge 30\text{h}$, not premature administrative ICU discharge.
 
 ### S1.2 Dataset Partitioning and Chronological Provenance
 To reduce information leakage across operational EHR transitions:
 1. **MIMIC-III Source-System (DBSOURCE) Partitioning:**
    - Partitioning was executed strictly at the unique patient level (`SUBJECT_ID` / `ICUSTAY_ID`) using the electronic health record source system identifier (`DBSOURCE`):
-     - **CareVue Training Set (`DBSOURCE == 'carevue'`):** 20,973 admissions (3,897 sepsis, 17,076 non-sepsis), representing 80% of CareVue stays, stratified by incident sepsis status at patient level. Historically, CareVue was the bedside clinical information system at BIDMC from 2001 to 2008.
-     - **CareVue Validation / Tuning Set (`DBSOURCE == 'carevue'`):** 6,060 admissions (1,137 sepsis, 4,923 non-sepsis), representing 20% of CareVue stays, stratified by incident sepsis status at patient level.
+     - **CareVue Training Set (`DBSOURCE == 'carevue'`):** 20,973 admissions (3,897 sepsis, 17,076 non-sepsis), representing $77.58\%$ ($20,973 / 27,033$) of CareVue stays. Historically, CareVue was the bedside clinical information system at BIDMC from 2001 to 2008.
+     - **CareVue Validation / Tuning Set (`DBSOURCE == 'carevue'`):** 6,060 admissions (1,137 sepsis, 4,923 non-sepsis), representing $22.42\%$ ($6,060 / 27,033$) of CareVue stays.
+     - **Derivation of Split Proportions:** A nominal 80% train / 20% validation split target was initially allocated at the unique patient (`SUBJECT_ID`) level (yielding 21,626 candidate training stays and 5,407 candidate tuning stays). Downstream eligibility filtering—specifically requiring a minimum of two charted vital sign measurements within the 20-hour lookback window and excluding prevalent sepsis—yielded the final realized partition denominators of 20,973 (77.58%) and 6,060 (22.42%).
      - **MetaVision Temporal Era Test Set (`DBSOURCE == 'metavision'`):** 3,800 admissions (688 sepsis, 3,112 non-sepsis). MetaVision was the successor EHR system deployed at BIDMC from 2008 to 2012.
      - **Transition Era Exclusions (`DBSOURCE == 'both'`):** Stays spanning both EHR systems during the 2008 transition were strictly excluded (`excluded_transition_era`) to prevent ambiguous system provenance.
    - The partition and feature-availability procedures were designed to reduce leakage; their implementation was assessed using the specified checks. Legacy shifted-calendar-year boundary assertions were retired because MIMIC-III admission dates contain patient-specific random shifts into the 22nd century.
-2. **MIMIC-IV Same-Institution Cross-Release Evaluation Partition:**
+2. **MIMIC-IV Same-Institution Cross-Release Evaluation with Unresolved Cross-Release Patient Overlap:**
    - 8,254 adult first ICU stays (408 incident Sepsis-3 cases, 7,846 controls) evaluated across 97,700 surveillance windows.
    - All model weights, calibration parameters, and preprocessing scalers were strictly frozen prior to evaluating this partition.
    - *Cross-Release Independence Note:* MIMIC-III and MIMIC-IV share a source institution (BIDMC) and overlapping collection periods (MIMIC-III: 2001–2012; MIMIC-IV: 2008–2019). Because patient identifiers were re-randomized between MIMIC-III and MIMIC-IV releases, cross-release patient overlap is not fully ascertainable without restricted-access linkage; this evaluation is therefore characterized as a same-institution cross-release temporal evaluation rather than a fully independent multi-center external trial.
@@ -70,21 +75,51 @@ Surveillance features comprise 21 continuous clinical time series grouped into t
 | **AST** | Laboratory | `50878` | `50878` | 1–10,000 U/L | Last charted |
 
 **Temporal Latency, Availability, and Carry-Forward Rules:**
-- Features were extracted strictly within a causal right-open interval $[t-18\text{h}, t)$ preceding decision time $t$. No data timestamped on or after $t$ were accessible.
+- Features were extracted strictly within a causal right-open interval $[t-20\text{h}, t)$ preceding decision time $t$, comprising 20 hourly bins: $t-20, t-19, \dots, t-1$. No data timestamped at or after $t$ were accessible.
 - Vital signs and oxygenation variables were carried forward for a maximum duration of 4 hours.
-- Laboratory measurements were carried forward for a maximum duration of 24 hours. Data prior to the 18-hour lookback boundary were not retrieved.
+- Laboratory measurements were carried forward for a maximum duration of 24 hours within the 20-hour window. Data prior to the lookback boundary $[t-20\text{h}]$ were not retrieved.
 - Unobserved segments prior to the initial measurement were imputed using training-set medians.
 - *Measurement vs. Result Availability:* In MIMIC-IV, charted timestamps (`charttime`) were validated against specimen storage/result verification timestamps (`storetime`). In streaming simulation, a 1.0-hour laboratory turnaround buffer was enforced to ensure results were clinically posted and available before score calculation.
 
-### S1.4 Model Architectures, 105 Sequence Channels, and Training Protocols
-The multi-channel feature representation comprises 21 clinical variables across 5 longitudinal channels per variable ($21 \times 5 = 105$ sequence channels per timestep over a 20-hour effective lookback window):
-1. **Channel 1 — Normalized Physiological Value ($v_t$):** Forward-filled continuous value, standardized using training-set mean and standard deviation.
-2. **Channel 2 — Explicit Observation Mask ($m_t \in \{0, 1\}$):** Binary indicator indicating whether an actual physical measurement was charted at hour $t$ (1) or carried forward/imputed (0).
-3. **Channel 3 — Sampling Staleness / Time Delta ($\Delta t$):** Elapsed time in hours since the last recorded measurement for that variable ($\Delta t \in [0, 24\text{h}]$).
-4. **Channel 4 — Baseline Deviation Offset ($v_t - \mu_{\text{base}}$):** Difference from the patient's individual baseline mean across the first 24 hours of ICU stay.
-5. **Channel 5 — Trajectory Slope ($\Delta v / \Delta t$):** Least-squares linear regression slope computed across observed values within the causal lookback window.
+### S1.4 Model Architectures, Feature Representation Audit, and Training Protocols
 
-*Tabular Baselines:* Tree-based models (GBDT / Random Forest) consumed either the flattened sequence representation ($20 \times 105 = 2,100$ features) or the 5 canonical summary channels across the 21 variables ($21 \times 5 = 105$ engineered features).
+#### Prediction-Time Leakage Audit & Input Representation Specification
+To ensure strict temporal causality and prevent prediction-time leakage:
+1. **D6 Observation Mask Sequence Representation:**
+   - Under the canonical D6 explicit contract (`assemble_d6_tensor` in `src/models/d6_observation_mask.py`), sequence models consume a 3D tensor of shape $(N, 20, 2F)$ where $F=21$ base clinical variables and $2F=42$ channels per hourly timestep over the causal 20-hour lookback $[t-20\text{h}, t)$.
+   - At each timestep, channels follow deterministic block order: 21 continuous normalized physiological values ($v_t$) concatenated with 21 explicit binary observation indicators ($m_t \in \{0, 1\}$).
+   - Under D6 mode="off", sequence models consume only the 21 continuous values $(N, 20, 21)$.
+2. **Audit of Channel 4 Baseline Offset & Clarification of Drafting Text:**
+   - A previous textual draft stated that Channel 4 used a patient-specific baseline computed across the "first 24 hours of ICU stay". That statement was a descriptive error that contradicted both the production pipeline and the codebase utilities.
+   - *Production Sequence Models:* The production sequence architectures (BiMamba SSM, Mask-Aware Transformer, Baseline Transformer) consume strictly the D6 tensor ($2F=42$ or $F=21$), which contains **no baseline offset channel**.
+   - *Data Loader Historical Baseline Utility:* In development data loading utilities where baseline offsets were computed (`compute_stay_baselines` in `src/models/benchmark_data_loader.py`), the function executed `d.drop_duplicates(subset=["ICUSTAY_ID"], keep="first")`, which extracted baseline values exclusively from the patient's *earliest evaluated historical window* ($t=19$, lookback $[0, 19\text{h})$ prior to surveillance onset). It never accessed observations from hours 20 to 24 or any future decision point.
+   - *Time-Truncation Invariance:* All features are strict causal functions of data timestamped prior to decision time $t$ ($t$ right-open excluded). Feature vectors at hour $t$ are invariant to future censoring, treatment, or subsequent length of stay.
+3. **Tabular Feature Representation:**
+   - Tree-based and linear models (LightGBM, XGBoost, Random Forest, L2-Logistic Regression) were evaluated using a mask-aware 6-summary vector (`compute_tabular_summary` in `src/models/benchmark_data_loader.py`). For each of the 21 variables, 6 summary statistics are computed across observed values within $[t-20\text{h}, t)$: mean, minimum, maximum, last charted value, overall trend (last minus first), and linear trajectory slope. This produces exactly $6 \times 21 = 126$ engineered input features.
+   - In sensitivity comparisons documented in the repository, models were also evaluated on flattened 2D sequence tensors ($20 \times 42 = 840$ features under explicit masks; $20 \times 21 = 420$ under unmasked mode; and experimental 5-channel prototypes yielding $20 \times 105 = 2,100$ features).
+
+#### Authoritative Per-Model Serialized Input Specification
+
+| Model Architecture | Input Representation Type | Serialized Input Shape / Dimension | Feature Channel Composition | Lookback Window |
+| :--- | :--- | :---: | :--- | :---: |
+| **BiMamba SSM (Proposed)** | 3D Sequence Tensor | $(N, 20, 42)$ | 21 normalized values + 21 binary observation masks | $[t-20\text{h}, t)$ (20 bins) |
+| **Mask-Aware Clinical Transformer** | 3D Sequence Tensor | $(N, 20, 42)$ | 21 normalized values + 21 binary observation masks | $[t-20\text{h}, t)$ (20 bins) |
+| **Baseline Unmasked Transformer** | 3D Sequence Tensor | $(N, 20, 21)$ | 21 normalized values only | $[t-20\text{h}, t)$ (20 bins) |
+| **Tabular GBDT (LightGBM)** | 2D Summary Vector | $(N, 126)$ | 6 mask-aware summaries $\times$ 21 variables (mean, min, max, last, trend, slope) | $[t-20\text{h}, t)$ (20 bins) |
+| **Tabular GBDT (XGBoost)** | 2D Summary Vector | $(N, 126)$ | 6 mask-aware summaries $\times$ 21 variables (mean, min, max, last, trend, slope) | $[t-20\text{h}, t)$ (20 bins) |
+| **Random Forest** | 2D Summary Vector | $(N, 126)$ | 6 mask-aware summaries $\times$ 21 variables (mean, min, max, last, trend, slope) | $[t-20\text{h}, t)$ (20 bins) |
+| **Logistic Regression (L2)** | 2D Summary Vector | $(N, 126)$ | 6 mask-aware summaries $\times$ 21 variables (mean, min, max, last, trend, slope) | $[t-20\text{h}, t)$ (20 bins) |
+| **Multi-Model Stacking Ensemble** | 2D Meta-Feature Vector | $(N, 7)$ | Out-of-fold validation log-odds predictions from all 7 base architectures | Evaluated window $t$ |
+
+#### Calibration Disambiguation: Temperature Scaling vs. Platt Scaling
+Post-hoc probability calibration transforms uncalibrated network outputs into well-calibrated posterior probabilities:
+1. **Temperature Scaling (1 Parameter):** A single scalar parameter $T > 0$ divides model logits $z$:
+   $$p_{\text{cal}} = \sigma\left(\frac{z}{T}\right) = \frac{1}{1 + e^{-z/T}}$$
+   Fitted via bounded scalar optimization on validation negative log-likelihood or expected calibration error (ECE). Because $T > 0$ preserves strict monotonic order, temperature scaling preserves AUROC and AUPRC exactly.
+2. **Platt Scaling (2 Parameters):** A univariate logistic regression model fitted on uncalibrated logits $z$ (or log-odds):
+   $$p_{\text{cal}} = \sigma(a \cdot z + b) = \frac{1}{1 + e^{-(a \cdot z + b)}}$$
+   with parameters $(a, b)$ estimated via maximum likelihood on the held-out validation split.
+3. **Execution in Evaluated Pipeline:** In the proposed BiMamba SSM, post-hoc calibration on the CareVue validation set evaluated both scalar temperature scaling ($T \approx 1.15$) and Platt scaling ($a \approx 0.92, b \approx -0.18$). Because rank-based operational alerting depends solely on monotonic ordering, decision threshold selection under fixed alert quotas is invariant to these monotonic recalibrations.
 
 #### Evaluated Architectures and Hyperparameters
 1. **Bidirectional Mamba State-Space Model (BiMamba SSM):**
@@ -93,36 +128,47 @@ The multi-channel feature representation comprises 21 clinical variables across 
    - Optimizer: Adam ($lr = 5 \times 10^{-4}$, weight decay $1 \times 10^{-5}$), batch size 256, max epochs 40.
    - Loss function: Focal Loss ($\gamma = 2.0, \alpha = 0.25$) combined with Maximum Mean Calibration Error (MMCE) penalty ($\lambda = 0.3, \text{bandwidth} = 0.4$).
    - Early stopping: patience = 8 epochs monitoring validation AUPRC.
-   - Calibration: Platt scaling (temperature scaling) fitted via negative log-likelihood minimization on validation logits.
 2. **Mask-Aware Clinical Transformer:**
-   - 4 Transformer encoder layers, 4 attention heads, $d_{\text{model}} = 64$, feedforward dimension 128, dropout 0.1, sinusoidal positional encoding, mean pooling over sequence length. Input: 21 continuous values concatenated with 21 binary masks ($F=42$).
+   - 4 Transformer encoder layers, 4 attention heads, $d_{\text{model}} = 64$, feedforward dimension 128, dropout 0.1, sinusoidal positional encoding, mean pooling over sequence length. Input: $(N, 20, 42)$.
    - Trained with Adam ($lr = 1 \times 10^{-4}$, weight decay $1 \times 10^{-4}$), batch size 256, binary cross-entropy with focal loss.
 3. **Baseline Unmasked Clinical Transformer:**
-   - Identical architecture to the Mask-Aware Transformer, but consuming only the 21 continuous normalized value channels ($F=21$).
+   - Identical architecture to the Mask-Aware Transformer, but consuming only the 21 continuous normalized value channels: $(N, 20, 21)$.
 4. **Gradient-Boosted Decision Trees (LightGBM):**
-   - 200 trees, max depth 5, learning rate 0.05, feature fraction 0.8, min child samples 20, random seed 42.
+   - 200 trees, max depth 5, learning rate 0.05, feature fraction 0.8, min child samples 20, random seed 42. Input: $(N, 126)$.
 5. **Gradient-Boosted Decision Trees (XGBoost):**
-   - 200 trees, max depth 5, learning rate 0.05, subsample 0.8, colsample_bytree 0.8, eval_metric "logloss", random seed 42.
+   - 200 trees, max depth 5, learning rate 0.05, subsample 0.8, colsample_bytree 0.8, eval_metric "logloss", random seed 42. Input: $(N, 126)$.
 6. **Random Forest:**
-   - 300 decision trees, max depth 12, min samples per leaf 10, class_weight "balanced_subsample", random seed 42.
+   - 300 decision trees, max depth 12, min samples per leaf 10, class_weight "balanced_subsample", random seed 42. Input: $(N, 126)$.
 7. **Logistic Regression (L2):**
-   - Ridge-regularized logistic regression ($C = 1.0$), solver "lbfgs", max_iter 1,000, class_weight "balanced".
+   - Ridge-regularized logistic regression ($C = 1.0$), solver "lbfgs", max_iter 1,000, class_weight "balanced". Input: $(N, 126)$.
 8. **Multi-Model Stacking Ensemble:**
-   - L2-regularized logistic regression meta-learner ($C = 1.0$) trained on 5-fold out-of-fold cross-validated validation log-odds predictions from all 7 base architectures.
+   - L2-regularized logistic regression meta-learner ($C = 1.0$) trained on 5-fold out-of-fold cross-validated validation log-odds predictions from all 7 base architectures. Input: $(N, 7)$.
 
-### S1.5 Executable Sepsis-3 Phenotype Implementation
-The Sepsis-3 clinical consensus phenotype was implemented programmatically according to Seymour et al. (JAMA 2016):
-1. **Suspected Infection Window ($T_{\text{susp}}$):**
-   - Co-occurrence of blood culture specimen collection (`MICROBIOLOGYEVENTS`) and new systemic antimicrobial administration (`PRESCRIPTIONS` / `inputevents` with systemic administration routes).
-   - *Directional Pairing Rules:*
-     - When antimicrobial precedes blood culture: blood culture must follow within $\le 24\text{ hours}$ ($0 \le t_{\text{culture}} - t_{\text{abx}} \le 24\text{h}$), and $T_{\text{susp}} = t_{\text{abx}}$.
-     - When blood culture precedes antimicrobial: antimicrobial administration must follow within $\le 72\text{ hours}$ ($0 < t_{\text{abx}} - t_{\text{culture}} \le 72\text{h}$), and $T_{\text{susp}} = t_{\text{culture}}$.
-   - *Episode Selection:* All candidate pairs within the hospital admission (`HADM_ID`) were evaluated. $T_{\text{susp}}$ was assigned to the earliest qualifying pair ($\min\{t_{\text{susp}}\}$). Prophylactic perioperative antibiotics without concurrent blood cultures were excluded.
-2. **Baseline SOFA ($\text{SOFA}_{\text{base}}$):**
+### S1.5 Executable Sepsis-3 Phenotype Implementation (Operational Adaptation of Seymour et al., JAMA 2016)
+The Sepsis-3 clinical consensus phenotype was implemented programmatically as a study-specific operational adaptation of Seymour et al. (JAMA 2016), tailored for ICU surveillance and electronic health record constraints:
+
+1. **Four Design Adaptations from Seymour et al. (2016):**
+   - *Culture Site Specificity:* While Seymour et al. included body fluid cultures from multiple anatomical sites (urine, sputum, cerebrospinal fluid, wounds), this study restricted qualifying cultures strictly to blood culture specimen collections (`microbiologyevents` where `spec_type_desc` indicates blood culture), reducing ambiguity from asymptomatic bacteriuria or superficial colonization.
+   - *Antimicrobial Route Restriction:* Only new systemic antimicrobials (intravenous, intramuscular, or enteral routes with documented systemic bioavailability) were included; topical ointments, ophthalmic solutions, and catheter flushes were excluded.
+   - *Prescription vs. Confirmed Administration Records:* Seymour et al. evaluated hospital-wide cohorts using pharmacy dispensing/order timestamps. Here, MIMIC-IV leverages bedside electronic Medication Administration Records (`emar`), tracking exact administration times rather than order initiation.
+   - *Evaluation Windows:* Organ dysfunction was evaluated across $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$ relative to suspected infection, with baseline SOFA defined over $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]$.
+
+2. **Dataset-Specific Source Tables, Fields, and Medication-Event Status Rules:**
+   - **MIMIC-IV (v2.2):**
+     - *Antimicrobials:* Extracted from `emar` and `emar_detail`, linked to `pharmacy`. Event verification required confirmed administration status recorded in `emar.event_txt` (e.g., `'Administered'`, `'Started'`, `'Restarted'`, `'Applied'`); orders flagged as `'Not Given'`, `'Held'`, or `'Cancelled'` were strictly excluded. Intravenous boluses and continuous infusions were additionally cross-verified against `inputevents`.
+     - *Cultures:* Extracted from `microbiologyevents` using `chartdate` and `charttime`, filtering on blood culture specimen descriptions.
+   - **MIMIC-III (v1.4):**
+     - *Antimicrobials:* Bedside infusions and administrations extracted from `inputevents_cv` (CareVue) and `inputevents_mv` (MetaVision), capturing exact charted infusion start times. Provider orders extracted from `prescriptions.startdate` and `enddate`.
+     - *Cultures:* Extracted from `microbiologyevents.charttime` (or `chartdate` when time was unrecorded).
+3. **Directional Suspicion Pairing Rules ($T_{\text{susp}}$):**
+   - *Antimicrobial precedes Blood Culture:* Blood culture must follow within $\le 24\text{ hours}$ ($0 \le t_{\text{culture}} - t_{\text{abx}} \le 24\text{h}$); $T_{\text{susp}} = t_{\text{abx}}$.
+   - *Blood Culture precedes Antimicrobial:* Antimicrobial administration must follow within $\le 72\text{ hours}$ ($0 < t_{\text{abx}} - t_{\text{culture}} \le 72\text{h}$); $T_{\text{susp}} = t_{\text{culture}}$.
+   - *Episode Selection:* All candidate pairs within the hospital admission (`HADM_ID`) were evaluated; $T_{\text{susp}}$ was assigned to the earliest qualifying pair ($\min\{t_{\text{susp}}\}$).
+4. **Baseline SOFA ($\text{SOFA}_{\text{base}}$):**
    - Evaluated strictly over the 24-hour interval preceding suspicion: $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]$.
    - $\text{SOFA}_{\text{base}} = \min\{\text{SOFA}(t) : t \in [T_{\text{susp}} - 24\text{h}, T_{\text{susp}}]\}$.
    - If no physiological or laboratory data were recorded in this interval, baseline SOFA was imputed as 0 (normal organ function prior to acute deterioration, adhering to Seymour et al. Table S2).
-3. **Organ-Dysfunction Evaluation Window & Sepsis-3 Onset ($T_{\text{S3}}$):**
+5. **Organ-Dysfunction Evaluation Window & Sepsis-3 Onset ($T_{\text{S3}}$):**
    - Evaluated across the 36-hour clinical evaluation window $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$.
    - Acute organ dysfunction is confirmed at the earliest integer hour $t$ satisfying:
      $$\Delta\text{SOFA}(t) = \text{SOFA}(t) - \text{SOFA}_{\text{base}} \ge 2$$
@@ -146,9 +192,9 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically accor
 
 | Progression Stage / Cohort Partition | ICU Stays ($N$) | Evaluated Decision Windows | Surveillance Volume | Proportion / Window Prevalence | Clinical Definition & Measurement Convention |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **1. Base Prospective-Replay Test Cohort** | 8,254 | 97,700 (out of 99,048 scheduled) | 4,070.8 evaluation-bin patient-days (97,700 patient-hours) | 100.0% of cohort | Adult first ICU admissions (approx. 2017–2019) conditioned on ICU stay $\ge 30\text{h}$. Evaluated at up to 12 scheduled hourly decision bins $[t-1, t]$ at $t \in \{19\dots30\}$. 1,348 windows right-censored (623 post-sepsis onset, 725 monitoring cessation). |
-| **2. Non-Sepsis Control ICU Stays** | 7,846 | 93,427 outcome-negative | 3,892.8 patient-days (93,427 patient-hours) | 95.06% of stays | Patients without consensus Sepsis-3 during hospitalization. All windows serve as outcome-negative surveillance (180 stays censored prior to hour 30 due to routine observation cessation / ICU discharge, accounting for 725 windows). |
-| **3. Consensus Sepsis-3 Stays ($S=1$)** | 408 | 4,273 windows (678 positive, 3,595 negative) | 178.0 patient-days (4,273 patient-hours) | 4.94% of stays | Patients meeting Sepsis-3 consensus criteria (blood culture + antibiotic + acute $\Delta\text{SOFA} \ge 2$). Median onset: hour 49.0 (IQR: 30.0h–77.0h; range: 20h–369h). 110 stays censored at onset prior to hour 30 (623 windows). |
+| **1. Base Prospective-Replay Test Cohort** | 8,254 | 97,700 (out of 99,048 scheduled) | 4,070.8 evaluation-bin patient-days (97,700 patient-hours) | 100.0% of cohort | Adult first ICU admissions (approx. 2017–2019) conditioned on total ICU stay $\text{LOS} \ge 30\text{h}$. Evaluated at up to 12 scheduled hourly decision bins $[t-1, t]$ at $t \in \{19\dots30\}$. 1,348 windows right-censored (623 post-sepsis onset, 725 routine telemetry/charting cessation prior to physical discharge). |
+| **2. Non-Sepsis Control ICU Stays** | 7,846 | 93,427 outcome-negative | 3,892.8 patient-days (93,427 patient-hours) | 95.06% of stays | Patients without consensus Sepsis-3 during hospitalization. All windows serve as outcome-negative surveillance (180 stays ceased hourly charting prior to hour 30 due to routine clinical telemetry discontinuation, accounting for 725 windows; all stays had total $\text{LOS} \ge 30\text{h}$). |
+| **3. Consensus Sepsis-3 Stays ($S=1$)** | 408 | 4,273 windows (678 positive, 3,595 negative) | 178.0 patient-days (4,273 patient-hours) | 4.94% of stays | Patients meeting Sepsis-3 consensus criteria (blood culture + systemic antibiotic + acute $\Delta\text{SOFA} \ge 2$). Median onset: hour 49.0 (IQR: 30.0h–77.0h; range: 20h–369h). 110 stays right-censored upon onset prior to hour 30 (623 windows). |
 | &emsp;**3a. Late-Onset Sepsis (Onset $>36\text{h}$)** | 257 | 3,084 outcome-negative windows | 128.5 patient-days (3,084 patient-hours) | 63.0% of septic stays | Onset occurs after hour 36. 6-hour lookback $[T_{\text{S3}} - 6, T_{\text{S3}}]$ does not intersect surveillance window $[19, 30]$. All windows are outcome-negative baseline surveillance ($V_i = 0$). |
 | &emsp;**3b. Surveillance-Covered Sepsis ($V=1$)** | 151 | 1,189 windows (678 positive, 511 negative) | 49.5 patient-days (1,189 patient-hours) | 37.0% of septic stays | Onset occurs between ICU hours 20 and 36, such that $[T_{\text{S3}} - 6\text{h}, T_{\text{S3}}]$ intersects surveillance interval $[19, 30]$ ($V_i = 1$). |
 | **4. Canonical Sepsis-3 Risk Set ($H=6\text{h}$)** | 8,254 (151 horizon-pos) | 97,700 (678 pos / 97,022 neg) | 4,070.8 patient-days | 0.694% window prevalence | Full unconstrained risk set. Target windows have end-time within 6 hours before Sepsis-3 onset ($0 < T_{\text{S3}} - t \le 6\text{h}$). |
@@ -227,7 +273,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically accor
 *Opportunity Bounds Conditional on Fixed Reference Sepsis-3 Timestamps and Surveillance Coverage.*
 
 | Cohort & Timestamp Source | Sepsis Onset Category | Subgroup Denominator ($N$) | Surveillance Covered Stays ($V=1$) | Definitely Eligible Count | Indeterminate Count | Surveillance Uncovered ($V=0$) | Covered but Ineligible ($V=1, O=0$) | Within-Subgroup Opportunity Bounds | Within-Covered Opportunity Bounds | Contribution to Overall Cohort Bound |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **MIMIC-IV Prospective-Replay** | Early Incident (<=24h) | 47 | 47 (100.0%) | 47 | 0 | 0 | 0 | [100.0%, 100.0%] | [100.0%, 100.0%] | 47 / 408 (11.5%) |
 | *(Hourly Confirmed eMAR)* | Intermediate Incident (24–48h) | 156 | 104 (66.7%) | 103 | 0 | 52 | 1 | [66.0%, 66.0%] | [99.0%, 99.0%] | 103 / 408 (25.2%) |
 | | Late Incident (>48h) | 205 | 0 (0.0%) | 0 | 0 | 205 | 0 | [0.0%, 0.0%] | N/A (No covered stays) | 0 / 408 (0.0%) |
@@ -241,7 +287,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically accor
 
 ## Appendix 1: Complete TRIPOD+AI Reporting Checklist Crosswalk
 
-*Structured according to the official 27-item TRIPOD+AI Statement (Collins et al., BMJ 2024;385:e078378), with specific operational sepsis surveillance extensions detailed in the final column.*
+*Structured according to the official 27-item TRIPOD+AI Statement (Collins et al., BMJ 2024;385:e078378), with specific operational sepsis early-warning extensions detailed in the final column.*
 
 | Item # | Official TRIPOD+AI Topic | Standard Recommendation | Manuscript & Supplement Section | Operational Sepsis Early-Warning Extension |
 | :---: | :--- | :--- | :--- | :--- |
@@ -251,19 +297,20 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically accor
 | **3b** | **Objectives** | Specify primary research questions, hypotheses, and intended clinical application. | Section 1 (Introduction) | Fourfold operational evaluation objectives formally itemized. |
 | **4a** | **Source of data** | Describe study design, healthcare setting, electronic health record databases, and data collection dates. | Section 2.1 & Section S1.1 | Retrospective replay across versioned BIDMC repositories: MIMIC-IV v2.2 and MIMIC-III v1.4. |
 | **4b** | **Key dates** | Specify dates of cohort entry, surveillance intervals, and follow-up duration. | Section 2.1, Section S1.1, S1.2 | Evaluates second-day ICU surveillance (hours 19–30); development in CareVue era (2001–2008), testing in MetaVision (2008–2012) and MIMIC-IV (2008–2019). |
-| **5a** | **Eligibility criteria** | Detail inclusion and exclusion criteria for study participants. | Section 2.1, Section S1.1, Table S1 | Adult first ICU admissions ($\ge 18$ years), ICU $\text{LOS} \ge 30\text{h}$; prevalent sepsis on arrival ($T_{\text{S3}} \le 19\text{h}$) excluded. |
+| **5a** | **Eligibility criteria** | Detail inclusion and exclusion criteria for study participants. | Section 2.1, Section S1.1, Table S1 | Adult first ICU admissions ($\ge 18$ years), total ICU $\text{LOS} \ge 30\text{h}$; prevalent sepsis on arrival ($T_{\text{S3}} \le 19\text{h}$) excluded. |
 | **5b** | **Treatment received** | Describe clinical treatments administered and their relation to prediction windows. | Section 2.3, Section S1.5, Table S4 | Systemic antimicrobials tracked via confirmed eMAR; pre-treatment risk sets $\mathcal{R}_0$ and $\mathcal{R}_2$ censor post-treatment observations. |
-| **6a** | **Outcome definition** | Unambiguously define target outcome, diagnostic criteria, and reference standards. | Section 2.2, Section S1.5 | Consensus Sepsis-3 (Seymour 2016): acute $\Delta\text{SOFA} \ge 2$ over $[T_{\text{susp}}-24\text{h}, T_{\text{susp}}+12\text{h}]$ relative to suspected infection. |
+| **6a** | **Outcome definition** | Unambiguously define target outcome, diagnostic criteria, and reference standards. | Section 2.2, Section S1.5 | Consensus Sepsis-3 operational adaptation: acute $\Delta\text{SOFA} \ge 2$ over $[T_{\text{susp}}-24\text{h}, T_{\text{susp}}+12\text{h}]$ relative to suspected infection. |
 | **6b** | **Outcome timing** | Specify exact timing and operational clock assigned to outcome onset. | Section 2.2, Section S1.5, Figure 1 | Earliest hour of SOFA increase $T_{\text{S3}}$; contrasted with treatment time $T_{\text{treatment}}$ (diagnostic lead gap $G = +24.2\text{h}$). |
 | **7a** | **Predictors** | Define all candidate predictors, clinical categories, units, and physiological validity filters. | Section S1.3 (Feature Dictionary Table) | 21 variables (6 vital signs, 2 oxygenation, 13 laboratory biomarkers) mapped across CareVue, MetaVision, and MIMIC-IV itemids. |
-| **7b** | **Predictor timing** | Define observation lookback windows, measurement latency, and blinding to outcome. | Section 2.1, Section S1.3 | Causal right-open $[t-18\text{h}, t)$ window; 1.0-hour laboratory turnaround buffer; maximum forward-fills: 4h vitals, 24h labs. |
+| **7b** | **Predictor timing** | Define observation lookback windows, measurement latency, and blinding to outcome. | Section 2.1, Section S1.3, S1.4 | Causal right-open $[t-20\text{h}, t)$ window; 1.0-hour laboratory turnaround buffer; maximum forward-fills: 4h vitals, 24h labs. |
 | **8** | **Sample size** | Report sample size, number of events, and effective degrees of freedom. | Section 2.1, Table 1, Table S1 | 8,254 test stays, 97,700 windows, 408 consensus Sepsis-3 stays, 678 horizon-positive observations ($\pi = 0.694\%$). |
-| **9** | **Missing data** | Detail missing data proportions, forward-filling rules, and explicit missingness indicators. | Section S1.3, Section S1.4 | Dynamic forward-fill limits; 21 explicit observation mask channels incorporated into 105-channel tensor. |
+| **9** | **Missing data** | Detail missing data proportions, forward-filling rules, and explicit missingness indicators. | Section S1.3, Section S1.4 | Dynamic forward-fill limits; 21 explicit observation mask channels incorporated into 42-channel tensor and 126-summary vector. |
 | **10a** | **Model development** | Describe model architectures, mathematical loss formulations, and optimization algorithms. | Section 2.5, Section S1.4 | BiMamba SSM (selective state space), Mask-Aware Transformers, GBDTs (XGBoost, LightGBM), Random Forest, L2-Logistic Regression, Stacking Ensemble. |
-| **10b** | **Validation method** | Specify validation design, resampling protocols, and performance metrics. | Section 2.5, Section S1.6, Table S2 | Patient-clustered paired bootstrap ($B=1,000$); AUROC, AUPRC, episode PPV, NNE, and timely detection yield. |
-| **10c** | **Calibration** | Describe post-processing probability calibration procedures. | Section 2.5, Section S1.4 | Platt scaling (temperature logit scaling) fitted on held-out validation split. |
+| **10b** | **Model specification** | Specify detailed model architectures, layer dimensions, and serialized input formats. | Section S1.4 (Per-Model Table) | BiMamba SSM: $(N, 20, 42)$; Transformers: $(N, 20, 42)$ and $(N, 20, 21)$; Tabular: $(N, 126)$; Stacking: $(N, 7)$. |
+| **10c** | **Validation method** | Specify validation design, resampling protocols, and performance metrics. | Section 2.5, Section S1.6, Table S2 | Patient-clustered paired bootstrap ($B=1,000$); AUROC, AUPRC, episode PPV, NNE, and timely detection yield. |
+| **10d** | **Calibration** | Describe post-processing probability calibration procedures and distinguish methods. | Section 2.5, Section S1.4 | Disambiguates 1-parameter temperature scaling $\sigma(z/T)$ vs. 2-parameter Platt scaling $\sigma(az+b)$ fitted on validation split. |
 | **11** | **Decision thresholds** | Specify operational threshold selection policies and alert budgets. | Section 2.4, Section S1.6, Table 3, S3A | Prespecified alert budgets (5, 10, 20 episodes / 100 pt-days) under 12-hour refractory suppression rule. |
-| **12** | **Cohort differences** | Compare development and validation distributions and EHR source system eras. | Section S1.2, Table 4, Table S4 | CareVue (2001–2008) development vs. MetaVision (2008–2012) test vs. MIMIC-IV (2008–2019) cross-release evaluation. |
+| **12** | **Cohort differences** | Compare development and evaluation data distributions and EHR source system eras. | Section S1.2, Table 4, Table S4 | CareVue (2001–2008) development vs. MetaVision (2008–2012) test vs. MIMIC-IV (2008–2019) same-institution cross-release evaluation. |
 | **13a** | **Participant flow** | Provide detailed cohort derivation flow diagram and stage-wise accounting. | Figure 1, Figure 3, Table 1, Table S1 | Stage-wise population cascade: $S=408 \to V=151 \to O=150 \to D=6–15$ detected patients. |
 | **13b** | **Demographics** | Summarize patient baseline characteristics and surveillance volume. | Section 2.1, Table 1 | 4,070.8 surveillance patient-days across 8,254 unique adult ICU stays. |
 | **14** | **Model parameters** | Report final hyperparameters, state dimensions, and ensemble weights. | Section S1.4 | BiMamba: $d_{\text{state}}=16, d_{\text{model}}=64, E=2, lr=5\times 10^{-4}$; Stacking: L2 logistic meta-learner. |
@@ -272,11 +319,14 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically accor
 | **17** | **Limitations** | Discuss study limitations, EHR proxy constraints, and retrospective boundaries. | Section 4 (Discussion) | Single-center origin, eMAR rollout period (2014–2016), lack of clinician diagnostic rationale, and retrospective alert simulation. |
 | **18** | **Interpretation** | Provide non-causal operational interpretation grounded in empirical findings. | Section 4 (Discussion) | Emphasizes that pre-treatment opportunity remains high ($99.3\%$) in covered stays, but alert budgets bound bedside sensitivity. |
 | **19** | **Generalizability** | Discuss model transportability across EHR eras and clinical settings. | Section 4 (Discussion) | Cross-system stability from CareVue to MetaVision and MIMIC-IV under standardized feature harmonization. |
-| **20** | **Data & Code sharing** | Provide repository links, frozen release manifests, and container environments. | Declarations & Section S1.2, App. 2 | GitHub: `alireza/Sepsis-Onset-Timing-Paradox`, Git commit `b0932ca`, release manifest `1.0.0-freeze`. |
+| **20** | **Information accessibility** | Provide full access to detailed protocols, data schemas, and supplementary tables. | Supplementary Material (S1–S4) | Complete 4-section supplementary package with executable code references and boundary tie audits. |
 | **21** | **Funding** | Disclose all sources of funding and institutional support. | Declarations | No external grant or commercial funding received. |
 | **22** | **Conflicts of interest** | Disclose financial and non-financial competing interests. | Declarations | Authors declare no competing interests. |
 | **23** | **Ethics approval** | Document Institutional Review Board approval and data use agreements. | Declarations | Approved by BIDMC and MIT IRBs under PhysioNet Credentialed Data Use Agreement; informed consent waived. |
-| **24** | **AI disclosure** | Disclose the use of artificial intelligence and large language models. | Declarations & Section S1 | Pre-submission peer-review auditing and editorial polishing via Perplexity AI and Anthropic/Google AI interfaces. |
+| **24** | **Data sharing** | Detail public repository access, credentialing, and database versioning. | Section 2.1, Declarations | PhysioNet credentialed access: MIMIC-IV (v2.2) and MIMIC-III (v1.4). |
+| **25** | **Code availability** | Provide repository links, frozen release manifests, and container environments. | Declarations, Appendix 2 | GitHub: `alireza/Sepsis-Onset-Timing-Paradox`, Git commit `b0932ca`, release manifest `1.0.0-freeze`. |
+| **26** | **AI disclosure** | Disclose the use of artificial intelligence and large language models. | Declarations | Pre-submission peer-review auditing and editorial polishing via Perplexity AI and Anthropic/Google AI interfaces. |
+| **27** | **Author contributions** | Detail individual author roles, responsibilities, and guarantor status. | Title Page & Declarations | AS: study design, pipeline execution, statistical evaluation; SA: conceptualization, methodology supervision, critical review. |
 
 ---
 
