@@ -12,6 +12,8 @@ import logging
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
@@ -38,65 +40,139 @@ plt.rcParams.update({
 
 
 def generate_figure1_clocks_and_waterfall():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.2), gridspec_kw={"width_ratios": [1.18, 1]})
+    fig = plt.figure(figsize=(16.8, 7.6))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.34, 1.0], wspace=0.36, left=0.035, right=0.975, top=0.92, bottom=0.08)
 
-    # --- Panel A: Operational Clocks & Actionable Pretreatment Decision Window ---
-    ax1.set_title("A. Operational Clocks & Actionable Decision Boundary", fontweight="bold", pad=12)
-    ax1.set_xlim(-0.5, 10.5)
-    ax1.set_ylim(-0.8, 6.5)
+    ax1 = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1])
+
+    # ==============================================================================
+    # Panel A: Operational Clocks & Actionable Decision Boundary
+    # ==============================================================================
+    ax1.set_title("A. Operational Clocks & Actionable Decision Boundary", fontweight="bold", pad=15, fontsize=12.5)
+    ax1.set_xlim(-15, 56)
+    ax1.set_ylim(-3.8, 8.2)
     ax1.axis("off")
 
-    # Draw ICU timeline bar
-    ax1.add_patch(patches.Rectangle((0, 4.5), 10, 0.4, color="#E2E8F0", zorder=1))
-    ax1.text(0, 5.1, "ICU Admission\n($T_{\\mathrm{admit}}$)", ha="center", fontsize=9.0, fontweight="bold")
-    ax1.text(2.0, 5.1, "Surveillance Start\n($t=19\\mathrm{h}$, $b=20\\mathrm{h}$ context)", ha="center", fontsize=8.0, color="#1E293B")
-    ax1.text(3.5, 5.1, "Surveillance End\n($t=30\\mathrm{h}$)", ha="center", fontsize=8.0, color="#1E293B")
-    ax1.text(5.2, 5.1, "Operational Sepsis-3 ($T_{\\mathrm{S3}}$)\n[Acute $\\Delta$SOFA$\\geq$2; med 28.0h]", ha="center", fontsize=8.5, color="#DC2626", fontweight="bold")
-    ax1.text(8.7, 5.1, "Suspicion / Rx Proxy ($T_{\\mathrm{susp}}$)\n[Prescription Start Date; med 50.7h]", ha="center", fontsize=8.5, color="#2563EB", fontweight="bold")
+    # Anchor coordinates in ICU hours
+    t_admit = 0.0
+    t_surv_start = 19.0
+    t_surv_end = 30.0
+    t_s3 = 28.0      # representative covered Sepsis-3 onset
+    t_susp = 51.0    # representative suspicion anchor
+    t_h_start = t_s3 - 6.0  # 22.0h
 
-    # Markers on timeline
-    ax1.plot([0, 2.0, 3.5], [4.7, 4.7, 4.7], "o", color="#0F172A", markersize=7, zorder=2)
-    ax1.plot(5.2, 4.7, "o", color="#DC2626", markersize=9, zorder=3)
-    ax1.plot(8.7, 4.7, "o", color="#2563EB", markersize=9, zorder=3)
+    y_axis = 5.2
 
-    # Operational Search-Window Lead Gap G = T_susp - T_S3 = +24.2h (or T_S3 - T_susp = -24.2h)
-    ax1.annotate(
-        "", xy=(5.2, 4.3), xytext=(8.7, 4.3),
-        arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
+    # 1. Main Time Axis Line & Axis Ticks
+    ax1.plot([-2, 54], [y_axis, y_axis], color="#64748B", lw=2.2, zorder=1)
+
+    # Axis ticks along timeline
+    for h in [0, 10, 20, 30, 40, 50]:
+        ax1.plot([h, h], [y_axis - 0.12, y_axis + 0.12], color="#64748B", lw=1.5, zorder=2)
+        ax1.text(h, y_axis - 0.35, f"{h}h", ha="center", va="top", fontsize=8.5, color="#64748B")
+
+    # Shaded background band for Surveillance Window [19h, 30h]
+    ax1.axvspan(t_surv_start, t_surv_end, ymin=0.34, ymax=0.88, facecolor="#EEF2FF", alpha=0.6, zorder=0)
+
+    # Vertical guideline stems
+    ax1.plot([t_admit, t_admit], [y_axis, y_axis + 1.2], color="#0F172A", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_s3, t_s3], [0.8, y_axis + 2.1], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_susp, t_susp], [0.0, y_axis + 1.2], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
+
+    # Markers on the axis
+    ax1.plot(t_admit, y_axis, "o", color="#0F172A", markersize=8, zorder=5)
+    ax1.plot(t_s3, y_axis, "o", color="#DC2626", markersize=9, zorder=5)
+    ax1.plot(t_susp, y_axis, "o", color="#2563EB", markersize=9, zorder=5)
+
+    # --- Top Callouts (Staggered vertically and separated horizontally) ---
+    # ICU Admission (t=0)
+    ax1.text(t_admit, y_axis + 1.35, "ICU Admission\n($T_{\\mathrm{admit}},\\; t=0$)", 
+             ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#0F172A")
+
+    # Surveillance Protocol (bracket slightly above timeline)
+    surv_center = (t_surv_start + t_surv_end) / 2
+    ax1.annotate("", xy=(t_surv_start, y_axis + 0.55), xytext=(t_surv_end, y_axis + 0.55),
+                 arrowprops=dict(arrowstyle="<->", color="#4338CA", lw=1.4))
+    ax1.text(surv_center, y_axis + 0.72, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
+             ha="center", va="bottom", fontsize=8.0, fontweight="bold", color="#3730A3")
+
+    # Sepsis-3 Onset (t=28h) - High tier (y = y_axis + 2.25)
+    ax1.text(t_s3, y_axis + 2.25, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Acute $\\Delta\\mathrm{SOFA}\\geq 2$; med 28.0h]", 
+             ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#DC2626")
+
+    # Suspicion Anchor (t=51h) - Staggered below Sepsis-3 Onset
+    ax1.text(t_susp, y_axis + 1.35, "Suspicion Anchor ($T_{\\mathrm{susp}}$)\n[Culture & Abx Pair; med 50.7h]", 
+             ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#1D4ED8")
+
+    # 2. Operational Search-Window Lead Gap (Double Arrow between Sepsis-3 and Suspicion)
+    gap_y = 4.1
+    gap_center = (t_s3 + t_susp) / 2
+    ax1.annotate("", xy=(t_s3, gap_y), xytext=(t_susp, gap_y),
+                 arrowprops=dict(arrowstyle="<->", color="#334155", lw=1.8))
+    gap_box = (
+        "Search-Window Lead Gap: $G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i}$\n"
+        "Lookback begins at $[T_{\\mathrm{susp}}-24\\mathrm{h}] \\rightarrow G_i < 25\\mathrm{h}$ (67.2%)\n"
+        "(Cohort Median: +24.2h; IQR: 22.8–24.6h; max: 24.99h)"
     )
-    ax1.text(6.95, 3.75, "Operational Search-Window Lead Gap ($G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i}$)\nFor first-bin-assigned episodes (67.2%): $G_i = 24h + h\\,\\mathrm{frac}(x_i) < 25h$\n(Cohort median: +24.2h; IQR: 22.8--24.6h; empirical max: 24.99h)",
-             ha="center", fontsize=7.6, color="#334155", fontweight="bold")
+    ax1.text(gap_center, gap_y - 0.22, gap_box, ha="center", va="top", fontsize=7.8, color="#0F172A",
+             bbox=dict(boxstyle="round,pad=0.4", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.9))
 
-    # Lookback horizon H=6h before Sepsis-3
-    ax1.add_patch(patches.Rectangle((3.6, 2.7), 1.6, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
-    ax1.text(4.4, 2.95, "Anticipation Horizon $Y_i(t; 6\\mathrm{h})=\\mathbf{1}\\{t < T_{\\mathrm{S3}} \\leq t+6\\mathrm{h}\\}$", ha="center", va="center", fontsize=7.8, color="#C2410C", fontweight="bold")
+    # 3. Horizontal Swimlanes for Horizons and Actionability
+    # Lane 1: Anticipation Horizon (H = 6h lookback)
+    lane1_y = 2.4
+    ax1.text(t_h_start - 1.5, lane1_y, "Anticipation Horizon ($H=6\\mathrm{h}$):", ha="right", va="center", 
+             fontsize=8.2, fontweight="bold", color="#C2410C")
+    ax1.add_patch(patches.Rectangle((t_h_start, lane1_y - 0.22), 6.0, 0.44, 
+                                    facecolor="#FED7AA", edgecolor="#EA580C", lw=1.3, zorder=3))
+    ax1.text(t_h_start + 3.0, lane1_y, "$t \\in [22\\mathrm{h}, 28\\mathrm{h})$", 
+             ha="center", va="center", fontsize=8.0, fontweight="bold", color="#9A3412")
+    ax1.text(t_s3 + 1.5, lane1_y, "$Y_i(t; 6\\mathrm{h}) = 1$", 
+             ha="left", va="center", fontsize=8.5, fontweight="bold", color="#EA580C")
 
-    # Actionable Decision Window A_i (intersection of lookback and pretreatment)
-    ax1.add_patch(patches.Rectangle((2.0, 1.6), 1.5, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
-    ax1.text(2.75, 1.85, "Pre-Proxy Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in \\mathcal{T}_i : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{Rx,start},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
+    # Lane 2: Actionable Pre-Proxy Surveillance Decisions
+    lane2_y = 1.3
+    ax1.text(t_h_start - 1.5, lane2_y, "Actionable Decisions ($\\mathcal{A}_i$):", ha="right", va="center", 
+             fontsize=8.2, fontweight="bold", color="#15803D")
+    ax1.add_patch(patches.Rectangle((t_h_start, lane2_y - 0.22), 6.0, 0.44, 
+                                    facecolor="#BBF7D0", edgecolor="#16A34A", lw=1.3, zorder=3))
+    ax1.text(t_h_start + 3.0, lane2_y, "$t + \\delta \\leq C_i$", 
+             ha="center", va="center", fontsize=8.0, fontweight="bold", color="#14532D")
+    ax1.text(t_s3 + 1.5, lane2_y, "Pre-suspicion opportunity ($O_i=1$)", 
+             ha="left", va="center", fontsize=8.2, color="#15803D", fontweight="bold")
 
-    # Post-treatment observation period
-    ax1.add_patch(patches.Rectangle((8.7, 0.5), 1.3, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
-    ax1.text(9.35, 0.75, "Post-proxy period ($t > T_{\\mathrm{Rx,start}}$)\n[Censored in $\\mathcal{R}_0$ and $\\mathcal{R}_2$]", ha="center", va="center", fontsize=7.2, color="#334155")
+    # Lane 3: Post-Anchor Censoring Region
+    lane3_y = 0.2
+    ax1.text(t_susp - 1.5, lane3_y, "Post-Anchor Period:", ha="right", va="center", 
+             fontsize=8.0, color="#475569")
+    ax1.add_patch(patches.Rectangle((t_susp, lane3_y - 0.22), 4.5, 0.44, 
+                                    facecolor="#F1F5F9", edgecolor="#64748B", linestyle="--", lw=1.2, zorder=3))
+    ax1.text(t_susp + 2.25, lane3_y, "$t > C_i$", 
+             ha="center", va="center", fontsize=8.0, color="#475569")
+    ax1.text(t_susp + 2.25, lane3_y - 0.38, "[Censored in $\\mathcal{R}_0$ & $\\mathcal{R}_2$]", 
+             ha="center", va="top", fontsize=7.4, color="#475569")
 
-    # Mathematical formulation box adhering to Section 2.3
+    # 4. Mathematical Formalization Card at bottom
     formula_text = (
-        "Mathematical Formalization (§2.3):\n"
-        "• Evaluated Risk Set:  $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C}, t \\in \\mathcal{T}_i, t < T_{\\mathrm{S3}, i}\\}$ (97,700 windows across 8,254 stays)\n"
-        "• Anticipation Label:  $Y_i(t; H) = \\mathbf{1}\\{t < T_{\\mathrm{S3}, i} \\leq t + H\\}$ ($H = 6\\mathrm{h}$; 678 pos / 97,022 neg, $\\pi = 0.694\\%$)\n"
-        "• Pre-Suspicion Sets:  $\\mathcal{R}_\\delta = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq C_i\\}$ ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129 windows; $C_i = T_{\\mathrm{susp}}$ for cases)"
+        "Mathematical Risk Set Formulation (§2.3):\n"
+        "• Evaluated Base Set:   $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C},\\; t \\in \\{19\\dots 30\\}\\mathrm{h},\\; t < T_{\\mathrm{S3}, i}\\}$  (97,700 windows across 8,254 stays)\n"
+        "• Anticipation Label:   $Y_i(t; H) = \\mathbf{1}\\{t < T_{\\mathrm{S3}, i} \\leq t + H\\}$  ($H = 6\\mathrm{h}$; 678 positive / 97,022 negative, $\\pi = 0.694\\%$)\n"
+        "• Exploratory Hybrid:   $\\mathcal{R}_\\delta^{\\mathrm{hybrid}} = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq C_i\\}$  ($\\mathcal{R}_0$: 70,192; $\\mathcal{R}_2$: 70,129; $T_{\\mathrm{susp}}$ cases, $T_{\\mathrm{Rx}}$ controls)\n"
+        "• Uniform Earliest-Rx:  $\\mathcal{R}_\\delta^{\\mathrm{Rx}} = \\{(i,t) \\in \\mathcal{R} : t + \\delta \\leq T_{\\mathrm{Rx,start},i}\\}$  ($N_+=0$; prevalence 0.000%; discrimination not estimable)"
     )
-    ax1.text(0.0, -0.65, formula_text, fontsize=8.2, color="#0F172A", family="monospace",
-             bbox=dict(boxstyle="round,pad=0.4", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1))
+    ax1.text(-14.5, -1.0, formula_text, fontsize=7.5, color="#0F172A", family="monospace", va="top",
+             bbox=dict(boxstyle="round,pad=0.45", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1.1))
 
-    # --- Panel B: Opportunity Waterfall with Interval Bounds ---
-    ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=12)
+    # ==============================================================================
+    # Panel B: Population Opportunity Attrition
+    # ==============================================================================
+    ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=15, fontsize=12.5)
 
     categories = [
         "Total Incident Sepsis",
-        "Surveillance Covered (V=1)",
-        "Eligible under midnight assignment",
-        "Indeterminate Opportunity",
+        "Surveillance Covered\n($V=1$)",
+        "Eligible under\nmidnight assignment",
+        "Indeterminate\nOpportunity",
     ]
     # Data from Table 4:
     m3_vals = [100.0, 9.4, 0.03, 3.07]
@@ -105,24 +181,30 @@ def generate_figure1_clocks_and_waterfall():
     y = np.arange(len(categories))
     height = 0.35
 
-    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Earliest Rx: $T_{\\mathrm{Rx,start}}$)", color="#93C5FD", edgecolor="#1D4ED8", hatch="//")
-    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Primary Benchmark: $T_{\\mathrm{susp}}$)", color="#1E40AF", edgecolor="#0F172A")
+    rects1 = ax2.barh(y + height/2, m3_vals, height, label="Broad Historical MIMIC-III (Earliest Rx: $T_{\\mathrm{Rx,start}}$)", 
+                      color="#93C5FD", edgecolor="#1D4ED8", hatch="//", lw=1.1)
+    rects2 = ax2.barh(y - height/2, m4_vals, height, label="MIMIC-III MetaVision (Primary Benchmark: $T_{\\mathrm{susp}}$)", 
+                      color="#1E40AF", edgecolor="#0F172A", lw=1.1)
 
-    ax2.set_xlabel("Proportion of Incident Sepsis Episodes (%)")
+    ax2.set_xlabel("Proportion of Incident Sepsis Episodes (%)", fontsize=10.5, fontweight="bold", labelpad=8)
     ax2.set_yticks(y)
-    ax2.set_yticklabels(categories)
-    ax2.set_xlim(0, 115)
-    ax2.legend(loc="center right", frameon=True)
+    ax2.set_yticklabels(categories, fontsize=9.2)
+    ax2.set_xlim(0, 118)
+
+    # Legend placed cleanly in top right corner
+    ax2.legend(loc="upper right", frameon=True, facecolor="white", framealpha=0.95, edgecolor="#CBD5E1", fontsize=8.4)
     ax2.grid(axis="x", linestyle="--", alpha=0.5)
 
+    # Value annotations with clean spacing
     for r in rects1:
         w = r.get_width()
-        ax2.text(w + 1.5, r.get_y() + r.get_height()/2, f"{w:.1f}%", va="center", fontsize=8.5, color="#1D4ED8")
+        text_val = f"{w:.1f}%" if w >= 0.1 else f"{w:.2f}%"
+        ax2.text(w + 1.8, r.get_y() + r.get_height()/2, text_val, va="center", fontsize=8.2, color="#1D4ED8", fontweight="bold")
+
     for r in rects2:
         w = r.get_width()
-        ax2.text(w + 1.5, r.get_y() + r.get_height()/2, f"{w:.1f}%", va="center", fontsize=8.5, color="#0F172A", fontweight="bold")
+        ax2.text(w + 1.8, r.get_y() + r.get_height()/2, f"{w:.1f}%", va="center", fontsize=8.2, color="#0F172A", fontweight="bold")
 
-    plt.tight_layout()
     out_png = FIG_DIR / "Figure1_Clocks_and_Opportunity_Waterfall.png"
     out_pdf = FIG_DIR / "Figure1_Clocks_and_Opportunity_Waterfall.pdf"
     plt.savefig(out_png)
