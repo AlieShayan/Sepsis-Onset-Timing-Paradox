@@ -187,7 +187,7 @@ def main():
             "Surveillance Volume": f"{pt_days_r2:.1f} patient-days",
             "Proportion / Window Prevalence": f"{prev_r2:.3f}% window prevalence",
             "Clinical Definition & Measurement Convention": (
-                "Exploratory outcome-stratified hybrid restriction requiring a 2-hour clinical buffer (w_end + 2h <= C_i). "
+                "Exploratory outcome-stratified hybrid restriction requiring a 2-hour proxy-timing margin (w_end + 2h <= C_i). "
                 "149 out of 151 covered patients (98.7%) maintain >=1 actionable target window."
             ),
         },
@@ -196,10 +196,11 @@ def main():
             "ICU Stays (N)": f"{stays_rx0:,} (0 horizon-positive)",
             "Evaluated Windows": f"{tot_rx0:,} ({n_pos_rx0:,} positive / {n_neg_rx0:,} negative)",
             "Surveillance Volume": f"{pt_days_rx0:.1f} patient-days",
-            "Proportion / Window Prevalence": "0.000% (Not Estimable)",
+            "Proportion / Window Prevalence": "0.000% (Not Meaningfully Estimable)",
             "Clinical Definition & Measurement Convention": (
-                "Uniform eligibility task requiring t + delta <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
-                "no horizon-positive observations remained (0 positive, 65,926 negative; N_total = 65,926), preventing discrimination estimation."
+                "Uniform eligibility task requiring t <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
+                "no horizon-positive observations remained (0 positive, 65,926 negative; N_total = 65,926), preventing discrimination estimation. "
+                "Control attrition identity: 65,926 = 93,427 - W_fully_excluded (27,388 from 2,287 stays) - W_partially_censored (113 from 83 stays)."
             ),
         },
         {
@@ -207,10 +208,11 @@ def main():
             "ICU Stays (N)": f"{stays_rx2:,} (0 horizon-positive)",
             "Evaluated Windows": f"{tot_rx2:,} ({n_pos_rx2:,} positive / {n_neg_rx2:,} negative)",
             "Surveillance Volume": f"{pt_days_rx2:.1f} patient-days",
-            "Proportion / Window Prevalence": "0.000% (Not Estimable)",
+            "Proportion / Window Prevalence": "0.000% (Not Meaningfully Estimable)",
             "Clinical Definition & Measurement Convention": (
-                "Uniform eligibility task requiring t + 2h <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
-                "no horizon-positive observations remained (0 positive, 65,877 negative; N_total = 65,877), preventing discrimination estimation."
+                "Uniform eligibility task requiring a 2-hour proxy-timing margin (t + 2h <= T_Rx,start) across all stays. Under declared midnight assignment, "
+                "no horizon-positive observations remained (0 positive, 65,877 negative; N_total = 65,877), preventing discrimination estimation. "
+                "Buffer attrition identity: 65,877 = 65,926 - W_additional_margin (49 from 83 partially retained stays)."
             ),
         },
     ]

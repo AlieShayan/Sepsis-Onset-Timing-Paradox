@@ -48,17 +48,27 @@ All evaluated hourly decision bins fall strictly within the prespecified second-
 
 ### Strict Denominator Reconciliation & Attrition Mechanisms
 1. **Hybrid Restrictions ($\mathcal{R}_0^{\mathrm{hybrid}}, \mathcal{R}_2^{\mathrm{hybrid}}$):**
-   - Cases ($N=408$ stays): Evaluated against $T_{\mathrm{susp}}$. Retain 4,266 windows (674 positive, 3,592 negative) at $\delta=0\text{h}$; 4,252 windows (663 positive, 3,589 negative) at $\delta=2\text{h}$.
-   - Controls ($N=7,846$ stays): Evaluated against $T_{\mathrm{Rx,start}}$. Exactly 2,287 control stays had $T_{\mathrm{Rx,start}} \le 19\text{h}$, censoring all 27,508 of their windows. The remaining 5,559 control stays contribute 65,926 negative windows at $\delta=0\text{h}$, and 65,877 negative windows at $\delta=2\text{h}$ (49 windows censored by the 2-hour buffer).
+   - Cases ($N=408$ stays): Evaluated against suspicion anchor $T_{\mathrm{susp}}$. Retain 4,266 windows (674 positive, 3,592 negative) at $\delta=0\text{h}$; 4,252 windows (663 positive, 3,589 negative) at $\delta=2\text{h}$. (7 case windows removed at $\delta=0\text{h}$ from stays with early suspicion).
+   - Controls ($N=7,846$ stays, 93,427 canonical windows): Evaluated against earliest prescription $T_{\mathrm{Rx,start}}$.
+     - *Fully Excluded Stays ($T_{\mathrm{Rx,start}} \le 19.0\text{h}$):* Exactly 2,287 control stays had documented prescription start dates prior to or at surveillance entry. These 2,287 stays account for exactly $W_{\mathrm{fully\ excluded}} = 27,388$ canonical windows (2,270 stays $\times 12 = 27,240$ windows, plus 17 stays with $<12$ windows totaling 148 windows due to observation-availability cessation before hour 30).
+     - *Partially Retained Stays ($T_{\mathrm{Rx,start}} > 19.0\text{h}$):* Exactly 83 control stays had prescription start dates during surveillance (996 canonical windows). At $\delta=0\text{h}$, 883 windows satisfy $t \le T_{\mathrm{Rx,start}}$ and are retained, while $W_{\mathrm{partially\ censored}, 0} = 113$ windows occur post-prescription and are censored.
+     - *Unexposed Stays ($T_{\mathrm{Rx,start}} = \infty$):* Exactly 5,476 control stays had no qualifying prescription records, contributing all 65,043 of their canonical windows.
+     - *Control Accounting Identity ($\delta=0\text{h}$):*
+       $$65,926 = 93,427 - W_{\mathrm{fully\ excluded}} - W_{\mathrm{partially\ censored}, 0} = 93,427 - 27,388 - 113$$
+       Total control windows removed at $\delta=0\text{h}$ is $27,388 + 113 = 27,501$. (Note: the previously stated quantity 27,508 represents total cohort-wide window reduction from canonical to hybrid, $97,700 - 70,192 = 27,508$, which combines 27,501 removed control windows with 7 removed sepsis case windows).
+     - *Control Accounting Identity ($\delta=2\text{h}$):*
+       $$65,877 = 65,926 - W_{\mathrm{additional\ margin}} = 65,926 - 49$$
+       where $W_{\mathrm{additional\ margin}} = 49$ windows removed by the 2-hour margin within the 83 partially retained stays ($883 - 834 = 49$).
    - *Sums:*
      - $\mathcal{R}_0^{\mathrm{hybrid}}$: $N_{\mathrm{total}} = 4,266 + 65,926 = 70,192$; $N_+ + N_- = 674 + 69,518 = 70,192$. Stays: $408 + 5,559 = 5,967$.
      - $\mathcal{R}_2^{\mathrm{hybrid}}$: $N_{\mathrm{total}} = 4,252 + 65,877 = 70,129$; $N_+ + N_- = 663 + 69,466 = 70,129$. Stays: $408 + 5,559 = 5,967$.
 2. **Uniform Earliest-Prescription Task ($\mathcal{R}_0^{\mathrm{Rx}}, \mathcal{R}_2^{\mathrm{Rx}}$):**
    - Applied uniformly: $t + \delta \le T_{\mathrm{Rx,start}, i}$.
    - All 408 sepsis stays had documented prescription start dates coarsened to midnight with $T_{\mathrm{Rx,start}, i} \le 3.83\text{h} \le 19.0\text{h}$ post-ICU admission. Consequently, zero decision windows in surveillance hours 19–30 satisfy $t + \delta \le T_{\mathrm{Rx,start}, i}$ (0 case stays, 0 positive windows, 0 negative windows).
-   - Contributing stays are exclusively the 5,559 surviving control stays:
+   - Contributing stays are exclusively the 5,559 surviving control stays ($5,476\text{ unexposed} + 83\text{ partially retained}$):
      - $\mathcal{R}_0^{\mathrm{Rx}}$: $N_{\mathrm{total}} = 65,926$; $N_+ = 0$; $N_- = 65,926$. Exactly $0 + 65,926 = 65,926$. Volume: 2,746.9 pt-days.
      - $\mathcal{R}_2^{\mathrm{Rx}}$: $N_{\mathrm{total}} = 65,877$; $N_+ = 0$; $N_- = 65,877$. Exactly $0 + 65,877 = 65,877$. Volume: 2,744.9 pt-days.
+   - *Non-Estimability:* Under zero retained positive events, positive predictive value and AUPRC are not meaningfully estimable for discrimination.
 
 ---
 

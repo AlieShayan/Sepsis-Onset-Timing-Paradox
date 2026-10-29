@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 20:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 21:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -959,6 +959,9 @@ Underfull \hbox (badness 1484) in paragraph at lines 192--192
 ]$ \OT1/ntxtlf/m/n/7 (+20) con-trols);
  []
 
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 9.0pt on input line 202.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
@@ -969,7 +972,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 7.0pt on input line 209.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/it' will be
 (Font)              scaled to size 7.0pt on input line 209.
-[4 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>]
+ [4 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>]
 <figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=406, 1011.78pt x 397
 .485pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
@@ -1038,7 +1041,7 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/n' will be
 (Font)              scaled to size 6.3pt on input line 255.
 
-Underfull \vbox (badness 1824) has occurred while \output is active []
+Underfull \vbox (badness 1092) has occurred while \output is active []
 
  [5]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
@@ -1106,15 +1109,17 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 3.13501pt on input line 323.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 5.7pt on input line 323.
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=418, 722.7pt x 397.485pt>
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>]
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=526, 722.7pt x 397.485pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
  input line 339.
 (pdftex.def)             Requested size: 243.96162pt x 134.17876pt.
-
-[6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>] [7 <./figures/Fig
-ure3_Three_Stage_Decomposition.pdf>]
+ [7 <./figures/Figure3_Three_Stage_Decomposition.pdf>]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.0pt on input line 367.
 LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
@@ -1168,13 +1173,13 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 236534373BBE4B901A8C832A28A1AF5B;4304.
  ) 
 Here is how much of TeX's memory you used:
- 19017 strings out of 469503
- 295501 string characters out of 5470407
+ 19015 strings out of 469503
+ 295469 string characters out of 5470407
  747681 words of memory out of 5000000
  46537 multiletter control sequences out of 15000+600000
- 792444 words of font info for 763 fonts, out of 8000000 for 9000
+ 792266 words of font info for 761 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,15n,117p,1839b,578s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,15n,117p,1839b,599s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
 -dist/fonts/type1/public/newtx/NewTXMI5.pfb></usr/share/texmf-dist/fonts/type1/
 public/newtx/NewTXMI7.pfb></usr/share/texmf-dist/fonts/type1/public/tex-gyre/qt
@@ -1184,7 +1189,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (8 pages, 378970 bytes).
+Output written on main.pdf (8 pages, 379251 bytes).
 PDF statistics:
  726 PDF objects out of 1000 (max. 8388607)
  312 compressed objects within 4 object streams
