@@ -255,7 +255,7 @@ AS conceived the study, developed the analytical framework, implemented the pipe
 During the preparation of this manuscript, the authors utilized large language model and AI assistance (including Perplexity AI and Anthropic/Google AI interfaces) for adversarial peer-review pre-submission auditing, statistical consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations. The authors reviewed, validated, and edited all text and artifacts, and take full responsibility for the integrity, methodology, and conclusions of this work.
 
 ### Code and Data Availability
-All preprocessing pipelines, model configurations, and release manifests are publicly available under MIT License at [https://github.com/alireza/Sepsis-Onset-Timing-Paradox](https://github.com/alireza/Sepsis-Onset-Timing-Paradox) (analytical freeze commit `b0932ca`, release manifest `1.0.0-freeze`; submission packaging commit `1292103`). De-identified patient data are available from PhysioNet under the MIMIC-IV Data Use Agreement.
+All preprocessing pipelines, model configurations, and release manifests are publicly available under MIT License at [https://github.com/alireza/Sepsis-Onset-Timing-Paradox](https://github.com/alireza/Sepsis-Onset-Timing-Paradox) (analytical freeze commit `b0932ca`, release manifest `1.0.0-freeze`; submission packaging commits `1292103` and `38aac8b`). De-identified patient data are available from PhysioNet under the MIMIC-IV Data Use Agreement.
 
 ---
 

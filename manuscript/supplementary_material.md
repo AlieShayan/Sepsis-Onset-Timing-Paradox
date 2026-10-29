@@ -350,6 +350,6 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 - **Machine Learning & Statistical Libraries:** LightGBM `3.3.5`, XGBoost `1.7.6`, Scikit-learn `1.2.2`, SciPy `1.10.1`, Pandas `1.5.3`, NumPy `1.26.4`
 - **Visualization:** Matplotlib `3.7.1` / `3.10.1`, Seaborn `0.12.2`
 - **Analytical Freeze Commit:** `b0932ca` (Release Manifest `1.0.0-freeze`, archived at `reports/manifest/release_manifest.json`)
-- **Submission Packaging Commit:** `1292103` (and current working tree HEAD)
+- **Submission Packaging Commits:** `1292103` and `38aac8b` (repository HEAD)
 - **Automated Invariance Verification Artifacts:** `reports/manifest/time_truncation_invariance_audit.json` and `time_truncation_invariance_audit.md` (Zero discrepancy across 1,548 patient-decision pairs).
 - **Code & Model Availability:** Complete analysis scripts, preprocessing pipelines, and evaluation harnesses are archived at GitHub: `https://github.com/alireza/Sepsis-Onset-Timing-Paradox`.

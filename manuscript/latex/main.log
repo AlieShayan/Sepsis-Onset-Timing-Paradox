@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 13:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 13:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1120,6 +1120,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 358--359
  (an-a-lyt-i-cal freeze
  []
 
+
+Underfull \hbox (badness 2435) in paragraph at lines 358--359
+\OT1/ntxtlf/m/n/10 (+20) mis-sion pack-ag-ing com-mits \OT1/ntxtt/m/n/10 129210
+3 \OT1/ntxtlf/m/n/10 (+20) and \OT1/ntxtt/m/n/10 38aac8b\OT1/ntxtlf/m/n/10 (+20
+) ).
+ []
+
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 10.0pt on input line 361.
 [7]
@@ -1179,7 +1186,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (8 pages, 362178 bytes).
+Output written on main.pdf (8 pages, 362370 bytes).
 PDF statistics:
  702 PDF objects out of 1000 (max. 8388607)
  302 compressed objects within 4 object streams
