@@ -64,8 +64,8 @@ def generate_figure1_clocks_and_waterfall():
         "", xy=(5.2, 4.3), xytext=(8.7, 4.3),
         arrowprops=dict(arrowstyle="<->", color="#475569", lw=1.5)
     )
-    ax1.text(6.95, 3.75, "Operational Search-Window Lead\n$G = T_{\\mathrm{susp}} - T_{\\mathrm{S3}} = +24.2\\mathrm{h}$ (median)\n[Phenotype Lookback Bound; $T_{\\mathrm{S3}} - T_{\\mathrm{susp}} = -24.2\\mathrm{h}$]",
-             ha="center", fontsize=8.0, color="#334155", fontweight="bold")
+    ax1.text(6.95, 3.75, "Operational Search-Window Lead\n$T_{\\mathrm{susp}} - T_{\\mathrm{S3}} = 24.0\\mathrm{h} + \\mathrm{frac}(x) = +24.2\\mathrm{h}$ (median; max $25.0\\mathrm{h}$)\n[Hourly bin floor $x = (T_{\\mathrm{susp}} - 24\\mathrm{h} - T_{\\mathrm{admit}})/1\\mathrm{h}$]",
+             ha="center", fontsize=7.8, color="#334155", fontweight="bold")
 
     # Lookback horizon H=6h before Sepsis-3
     ax1.add_patch(patches.Rectangle((3.6, 2.7), 1.6, 0.5, facecolor="#FED7AA", alpha=0.8, zorder=1))
@@ -73,7 +73,7 @@ def generate_figure1_clocks_and_waterfall():
 
     # Actionable Decision Window A_i (intersection of lookback and pretreatment)
     ax1.add_patch(patches.Rectangle((2.0, 1.6), 1.5, 0.5, facecolor="#BBF7D0", alpha=0.9, zorder=1))
-    ax1.text(2.75, 1.85, "Pre-Proxy Surveillance Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in [19, 30] : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{Rx,start},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
+    ax1.text(2.75, 1.85, "Pre-Proxy Decisions $\\mathcal{A}_i(\\delta) = \\{t \\in \\mathcal{T}_i : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, t+\\delta \\leq T_{\\mathrm{Rx,start},i}\\}$", ha="center", va="center", fontsize=7.2, color="#15803D", fontweight="bold")
 
     # Post-treatment observation period
     ax1.add_patch(patches.Rectangle((8.7, 0.5), 1.3, 0.5, facecolor="#E2E8F0", alpha=0.9, edgecolor="#64748B", linestyle="--", zorder=1))
@@ -95,12 +95,12 @@ def generate_figure1_clocks_and_waterfall():
     categories = [
         "Total Incident Sepsis",
         "Surveillance Covered (V=1)",
-        "Definitely Actionable (O=1)",
+        "Eligible under midnight assignment",
         "Indeterminate Opportunity",
     ]
     # Data from Table 4:
     m3_vals = [100.0, 9.4, 0.03, 3.07]
-    m4_vals = [100.0, 37.0, 36.8, 0.0]
+    m4_vals = [100.0, 37.0, 36.8, 0.2]
 
     y = np.arange(len(categories))
     height = 0.35

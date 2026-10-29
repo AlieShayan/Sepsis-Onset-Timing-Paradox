@@ -182,18 +182,25 @@ Post-hoc probability calibration was fitted to improve agreement between predict
 ### S1.5 Executable Sepsis-3 Phenotype Implementation and Multi-Clock Temporal Formalization
 The Sepsis-3 clinical consensus phenotype was implemented programmatically as a study-specific operational adaptation of Seymour et al. (JAMA 2016), tailored for retrospective ICU electronic health record surveillance under declared temporal resolution constraints:
 
-1. **Formal Five-Clock Temporal Decoupling:**
-   To resolve temporal precision and event ambiguity without conflating orders, intended start dates, and physical administrations, we explicitly distinguish five operational timestamps:
+1. **Formal Six-Milestone Temporal Tracking (Origin and Five Event Clocks):**
+   To resolve temporal precision and event ambiguity without conflating orders, intended start dates, and physical administrations, we explicitly track six operational milestones (with ICU admission as the reference origin $t=0$, followed by five operational event clocks):
+   - $T_{\text{admit}, i}$: ICU admission timestamp ($t=0$, reference origin).
    - $T_{\mathrm{Rx,start}, i}$: Earliest documented systemic antimicrobial prescription start date (`prescriptions.startdate`, calendar-date precision, coarsened to midnight 00:00:00).
    - $T_{\mathrm{abx,pair}, i}$: The specific systemic antimicrobial prescription start date participating in the qualifying infection suspicion pair.
    - $T_{\mathrm{culture,pair}, i}$: Blood culture specimen collection timestamp (`microbiologyevents.charttime`, minute-level precision).
    - $T_{\mathrm{susp}, i}$: Operational infection-suspicion anchor, defined per Seymour et al. (2016) as $\min(T_{\mathrm{abx,pair}, i}, T_{\mathrm{culture,pair}, i})$.
    - $T_{\mathrm{S3}, i}$: Assigned consensus Sepsis-3 organ-dysfunction onset timestamp, evaluated at hourly resolution as the earliest integer hour where $\Delta\text{SOFA}(t) = \text{SOFA}(t) - \text{SOFA}_{\text{base}} \ge 2$ within the 36-hour evaluation window $[T_{\mathrm{susp}, i} - 24\text{h}, T_{\mathrm{susp}, i} + 12\text{h}]$.
 
-2. **Decoupling Treatment and Suspicion Clocks:**
+2. **Decoupling Treatment and Suspicion Clocks & Mathematical Formulation of Search-Window Lead:**
    - When blood culture collection precedes the antimicrobial order ($T_{\mathrm{culture,pair}} < T_{\mathrm{abx,pair}}$), the suspicion anchor is established by culture ($T_{\mathrm{susp}} = T_{\mathrm{culture,pair}} \ne T_{\mathrm{abx,pair}}$). Consequently, the suspicion anchor and the antimicrobial order proxy are not identical ($T_{\mathrm{treatment}} \ne T_{\mathrm{susp}}$).
-   - **Interpretation of the Search-Window Lead ($G = T_{\mathrm{susp}} - T_{\mathrm{S3}} = +24.2\text{h}$ median):**
-     Assigned organ-dysfunction onset often preceded the infection-suspicion proxy. Across the 151 covered sepsis stays, the median difference between the suspicion anchor and assigned onset was $+24.2\text{ hours}$ ($T_{\mathrm{S3}} - T_{\mathrm{susp}} = -24.2\text{h}$; IQR: $22.0\text{h}$ to $24.6\text{h}$). This observed relationship is conditional on the phenotype's search window and the temporal precision of its component records. It is partly constrained by construction: an infection-suspicion proxy defines an evaluation window $[T_{\mathrm{susp}} - 24\text{h}, T_{\mathrm{susp}} + 12\text{h}]$, the algorithm searches backward within that window, and the earliest qualifying SOFA change is assigned as onset. A gap near the 24-hour window boundary is therefore a structural consequence of the retrospective backward lookback, not clinical evidence that clinicians delayed therapy for that duration.
+   - **Mathematical Formulation of the Search-Window Lead ($G = T_{\mathrm{susp}} - T_{\mathrm{S3}} = +24.2\text{h}$ median):**
+     In the executable Sepsis-3 algorithm, SOFA scores are discretized to integer hourly bins relative to ICU admission ($t \in \mathbb{Z}$). The retrospective search window for baseline SOFA and acute onset begins at the floored hourly integer:
+     $$\text{baseline\_start\_h}_i = \left\lfloor \frac{T_{\mathrm{susp}, i} - 24\text{h} - T_{\text{admit}, i}}{1\text{ hour}} \right\rfloor$$
+     When an acute increase $\Delta\text{SOFA} \ge 2$ is first observed at this lookback boundary bin (which occurred in 67.2% of incident sepsis stays; $N=274/408$), $T_{\mathrm{S3}}$ is assigned as the start of that hourly bin relative to admission:
+     $$T_{\mathrm{S3}, i} = T_{\text{admit}, i} + \text{baseline\_start\_h}_i \times 1\text{ hour}$$
+     Consequently, the operational search-window lead is:
+     $$T_{\mathrm{susp}, i} - T_{\mathrm{S3}, i} = 24.0\text{h} + \operatorname{frac}\left(\frac{T_{\mathrm{susp}, i} - 24\text{h} - T_{\text{admit}, i}}{1\text{ hour}}\right)$$
+     Because $0 \le \operatorname{frac}(\cdot) < 1\text{ hour}$, this hourly binning yields an exact analytical bound of $-12.0\text{h} \le T_{\mathrm{susp}, i} - T_{\mathrm{S3}, i} < 25.0\text{h}$, explaining why the empirical cohort distribution exhibits a median of $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$). Across all 274 boundary stays, the difference between $T_{\mathrm{susp}} - T_{\mathrm{S3}}$ and $24.0 + \operatorname{frac}(x)$ is identically zero ($< 10^{-13}\text{h}$). This lead is a mathematical consequence of discrete hourly binning at the lookback boundary, not evidence that clinicians delayed therapy for that duration.
 
 3. **Complete 24-Class Antimicrobial Dictionary and Normalization Rules:**
    Qualifying systemic antimicrobials were identified across 24 pharmacological classes from BIDMC hospital formulary records in `prescriptions`:
@@ -351,16 +358,20 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 
 *Opportunity Bounds Conditional on Fixed Reference Sepsis-3 Timestamps and Surveillance Coverage.*
 
-| Cohort & Timestamp Source | Sepsis Onset Category | Subgroup Denominator ($N$) | Surveillance Covered Stays ($V=1$) | Definitely Eligible Count | Indeterminate Count | Surveillance Uncovered ($V=0$) | Covered but Ineligible ($V=1, O=0$) | Within-Subgroup Opportunity Bounds | Within-Covered Opportunity Bounds | Contribution to Overall Cohort Bound |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **MetaVision Prospective-Replay (MIMIC-III)** | Early Incident (<=24h) | 47 | 47 (100.0%) | 47 | 0 | 0 | 0 | [100.0%, 100.0%] | [100.0%, 100.0%] | 47 / 408 (11.5%) |
-| *(Documented Hospital Antimicrobial Orders: prescriptions)* | Intermediate Incident (24–48h) | 156 | 104 (66.7%) | 103 | 0 | 52 | 1 | [66.0%, 66.0%] | [99.0%, 99.0%] | 103 / 408 (25.2%) |
-| | Late Incident (>48h) | 205 | 0 (0.0%) | 0 | 0 | 205 | 0 | [0.0%, 0.0%] | N/A (No covered stays) | 0 / 408 (0.0%) |
-| | **All Incident Sepsis-3 Cases** | **408** | **151 (37.0%)** | **150** | **0** | **257** | **1** | **[36.8%, 36.8%]** | **[99.3%, 99.3%]** | **150 / 408 (36.8%)** |
-| **MIMIC-III Broad Incident Sepsis** | Early Incident (<=24h) | 2,641 | 102 (3.9%) | 0 | 74 | 2,539 | 28 | [0.0%, 2.8%] | [0.0%, 72.5%] | [0, 74] / 3,581 ([0.00%, 2.07%]) |
-| *(Date-Level Prescription Proxy)* | Intermediate Incident (24–48h) | 361 | 235 (65.1%) | 1 | 36 | 126 | 198 | [0.3%, 10.2%] | [0.4%, 15.7%] | [1, 37] / 3,581 ([0.03%, 1.03%]) |
-| | Late Incident (>48h) | 579 | 0 (0.0%) | 0 | 0 | 579 | 0 | [0.0%, 0.0%] | N/A (No covered stays) | [0, 0] / 3,581 ([0.00%, 0.00%]) |
-| | **All Incident Sepsis-3 Cases** | **3,581** | **337 (9.4%)** | **1** | **110** | **3,244** | **226** | **[0.03%, 3.10%]** | **[0.30%, 32.94%]** | **[1, 111] / 3,581 ([0.03%, 3.10%])** |
+| Cohort & Timestamp Source | Sepsis Onset Category | Subgroup Denominator ($N$) | Surveillance Covered Stays ($V=1$) | Definitely Eligible ($O^{\mathrm{def}}=1$) | Point-Assigned ($O^{\mathrm{point}}=1$) | Indeterminate ($O^{\mathrm{indet}}$) | Possibly Eligible ($O^{\mathrm{poss}}$) | Within-Subgroup Opportunity Bounds | Within-Covered Opportunity Bounds | Contribution to Overall Cohort Bound |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **MetaVision Prospective-Replay** | Early Incident (<=24h) | 47 | 47 (100.0%) | 47 | 47 | 0 | 47 | [100.0%, 100.0%] | [100.0%, 100.0%] | [47, 47] / 408 (11.5%) |
+| *(Primary Benchmark: $T_{\mathrm{susp}} / T_{\mathrm{abx,pair}}$)* | Intermediate Incident (24–48h) | 156 | 104 (66.7%) | 103 | 103 | 1 | 104 | [66.0%, 66.7%] | [99.0%, 100.0%] | [103, 104] / 408 (25.2–25.5%) |
+| | Late Incident (>48h) | 205 | 0 (0.0%) | 0 | 0 | 0 | 0 | [0.0%, 0.0%] | N/A (No covered stays) | 0 / 408 (0.0%) |
+| | **All Incident Sepsis-3 Cases** | **408** | **151 (37.0%)** | **150** | **150** | **1** | **151** | **[36.8%, 37.0%]** | **[99.3%, 100.0%]** | **[150, 151] / 408 (36.8–37.0%)** |
+| **MetaVision Sensitivity: Earliest Rx** | Early Incident (<=24h) | 47 | 47 (100.0%) | 0 | 0 | 38 | 38 | [0.0%, 80.9%] | [0.0%, 80.9%] | [0, 38] / 408 (0.0–9.3%) |
+| *(Pre-Exposure Sensitivity: $T_{\mathrm{Rx,start}}$)* | Intermediate Incident (24–48h) | 156 | 104 (66.7%) | 0 | 0 | 9 | 9 | [0.0%, 5.8%] | [0.0%, 8.7%] | [0, 9] / 408 (0.0–2.2%) |
+| | Late Incident (>48h) | 205 | 0 (0.0%) | 0 | 0 | 0 | 0 | [0.0%, 0.0%] | N/A (No covered stays) | 0 / 408 (0.0%) |
+| | **All Incident Sepsis-3 Cases** | **408** | **151 (37.0%)** | **0** | **0** | **47** | **47** | **[0.0%, 11.5%]** | **[0.0%, 31.1%]** | **[0, 47] / 408 (0.0–11.5%)** |
+| **MIMIC-III Broad Incident Sepsis** | Early Incident (<=24h) | 2,641 | 102 (3.9%) | 0 | 0 | 74 | 74 | [0.00%, 2.80%] | [0.0%, 72.5%] | [0, 74] / 3,581 ([0.00%, 2.07%]) |
+| *(Date-Level Prescription Proxy: $T_{\mathrm{Rx,start}}$)* | Intermediate Incident (24–48h) | 361 | 235 (65.1%) | 1 | 1 | 36 | 37 | [0.28%, 10.25%] | [0.43%, 15.74%] | [1, 37] / 3,581 ([0.03%, 1.03%]) |
+| | Late Incident (>48h) | 579 | 0 (0.0%) | 0 | 0 | 0 | 0 | [0.00%, 0.00%] | N/A (No covered stays) | [0, 0] / 3,581 ([0.00%, 0.00%]) |
+| | **All Incident Sepsis-3 Cases** | **3,581** | **337 (9.4%)** | **1** | **1** | **110** | **111** | **[0.03%, 3.10%]** | **[0.30%, 32.94%]** | **[1, 111] / 3,581 ([0.03%, 3.10%])** |
 
 ---
 
