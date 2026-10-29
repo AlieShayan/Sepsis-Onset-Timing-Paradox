@@ -196,11 +196,14 @@ def main():
             "ICU Stays (N)": f"{stays_rx0:,} (0 horizon-positive)",
             "Evaluated Windows": f"{tot_rx0:,} ({n_pos_rx0:,} positive / {n_neg_rx0:,} negative)",
             "Surveillance Volume": f"{pt_days_rx0:.1f} patient-days",
-            "Proportion / Window Prevalence": "0.000% (Not Meaningfully Estimable)",
+            "Proportion / Window Prevalence": "0.000%",
             "Clinical Definition & Measurement Convention": (
                 "Uniform eligibility task requiring t <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
-                "no horizon-positive observations remained (0 positive, 65,926 negative; N_total = 65,926), preventing discrimination estimation. "
-                "Control attrition identity: 65,926 = 93,427 - W_fully_excluded (27,388 from 2,287 stays) - W_partially_censored (113 from 83 stays)."
+                "no horizon-positive observations remained (0 positive, 65,926 negative; N_total = 65,926). "
+                "Prevalence: 0.000%; discrimination metrics: not meaningfully estimable (with no eligible positive observations, AUROC was undefined "
+                "and AUPRC did not provide an informative discrimination estimate. PPV would be zero for a policy emitting alerts in this all-negative evaluated set, "
+                "and undefined if no alerts were emitted). "
+                "Control attrition identity: 65,926 = 93,427 - W_fully_excluded (27,388 from 2,287 stays) - W_partially_censored (113 from 83 later-prescription control stays)."
             ),
         },
         {
@@ -208,11 +211,14 @@ def main():
             "ICU Stays (N)": f"{stays_rx2:,} (0 horizon-positive)",
             "Evaluated Windows": f"{tot_rx2:,} ({n_pos_rx2:,} positive / {n_neg_rx2:,} negative)",
             "Surveillance Volume": f"{pt_days_rx2:.1f} patient-days",
-            "Proportion / Window Prevalence": "0.000% (Not Meaningfully Estimable)",
+            "Proportion / Window Prevalence": "0.000%",
             "Clinical Definition & Measurement Convention": (
                 "Uniform eligibility task requiring a 2-hour proxy-timing margin (t + 2h <= T_Rx,start) across all stays. Under declared midnight assignment, "
-                "no horizon-positive observations remained (0 positive, 65,877 negative; N_total = 65,877), preventing discrimination estimation. "
-                "Buffer attrition identity: 65,877 = 65,926 - W_additional_margin (49 from 83 partially retained stays)."
+                "no horizon-positive observations remained (0 positive, 65,877 negative; N_total = 65,877). "
+                "Prevalence: 0.000%; discrimination metrics: not meaningfully estimable (with no eligible positive observations, AUROC was undefined "
+                "and AUPRC did not provide an informative discrimination estimate. PPV would be zero for a policy emitting alerts in this all-negative evaluated set, "
+                "and undefined if no alerts were emitted). "
+                "Margin attrition identity: 65,877 = 65,926 - W_additional_margin (49 from 83 later-prescription control stays)."
             ),
         },
     ]

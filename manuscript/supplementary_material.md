@@ -4,9 +4,9 @@
 **Authors:** Alireza Shayan$^1$, Somayeh Afrasiabi$^1$  
 $^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran  
 *(Corresponding Author: Somayeh Afrasiabi, afrasiabi@shirazu.ac.ir)*  
-**Target Journal:** *Journal of the American Medical Informatics Association (JAMIA)* / *JAMIA Open*  
+**Target Journal:** *JAMIA Open*  
 **Track:** Research and Applications  
-**Analytical Release Version:** `1.0.0-freeze` (Analytical Commit `b0932ca`, Submission Packaging Commit `1292103`)  
+**Analytical Release Provenance:** Model/data freeze commit `b0932ca` (Release Manifest `1.0.0-freeze`); evaluation implementation `1292103`; denominator recomputation `311cea3`; submission packaging commit `9b92113`, tag `v1.0.1-freeze`.  
 
 ---
 
@@ -288,8 +288,8 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 | **4. Canonical Sepsis-3 Risk Set ($H=6\text{h}$)** | 8,254 (151 horizon-pos) | 97,700 (678 pos / 97,022 neg) | 4,070.8 patient-days | 0.694% window prevalence | Full unconstrained risk set. Target windows have end-time within 6 hours before Sepsis-3 onset ($0 < T_{\text{S3}} - t \le 6\text{h}$). |
 | **5. Outcome-Stratified Hybrid Set $\mathcal{R}_0^{\mathrm{hybrid}}$ ($\delta=0\text{h}$)** | 5,967 (150 horizon-pos) | 70,192 (674 pos / 69,518 neg) | 2,924.7 patient-days | 0.960% window prevalence | Exploratory outcome-stratified hybrid restriction censoring cases at infection-suspicion anchor $T_{\mathrm{susp}}$ and controls at earliest prescription $T_{\mathrm{Rx,start}}$. 150 out of 151 covered patients (99.3%) maintain $\ge 1$ pre-suspicion target window. |
 | **6. Outcome-Stratified Hybrid Set $\mathcal{R}_2^{\mathrm{hybrid}}$ ($\delta=2\text{h}$)** | 5,967 (149 horizon-pos) | 70,129 (663 pos / 69,466 neg) | 2,922.0 patient-days | 0.945% window prevalence | Exploratory outcome-stratified hybrid restriction requiring a 2-hour proxy-timing margin ($w_{\text{end}} + 2\text{h} \le C_i$). 149 out of 151 covered patients (98.7%) maintain $\ge 1$ actionable target window. |
-| **7. Uniform Earliest-Rx Task $\mathcal{R}_0^{\mathrm{Rx}}$ ($\delta=0\text{h}$)** | 5,559 (0 horizon-pos) | 65,926 (0 pos / 65,926 neg) | 2,746.9 patient-days | 0.000% (Not Meaningfully Estimable) | Uniform eligibility task requiring $t \le T_{\mathrm{Rx,start}}$ across all stays. Under declared midnight assignment of prescription-start dates, no horizon-positive observations remained (0 positive, 65,926 negative; $N_{\mathrm{total}} = 65,926$), preventing discrimination estimation. Control attrition identity: $65,926 = 93,427 - W_{\mathrm{fully\ excluded}} (27,388) - W_{\mathrm{partially\ censored}, 0} (113)$. |
-| **8. Uniform Earliest-Rx Task $\mathcal{R}_2^{\mathrm{Rx}}$ ($\delta=2\text{h}$)** | 5,559 (0 horizon-pos) | 65,877 (0 pos / 65,877 neg) | 2,744.9 patient-days | 0.000% (Not Meaningfully Estimable) | Uniform eligibility task requiring a 2-hour proxy-timing margin ($t + 2\text{h} \le T_{\mathrm{Rx,start}}$) across all stays. Under declared midnight assignment, no horizon-positive observations remained (0 positive, 65,877 negative; $N_{\mathrm{total}} = 65,877$), preventing discrimination estimation. Margin attrition identity: $65,877 = 65,926 - W_{\mathrm{additional\ margin}} (49)$. |
+| **7. Uniform Earliest-Rx Task $\mathcal{R}_0^{\mathrm{Rx}}$ ($\delta=0\text{h}$)** | 5,559 (0 horizon-pos) | 65,926 (0 pos / 65,926 neg) | 2,746.9 patient-days | 0.000% | Uniform eligibility task requiring $t \le T_{\mathrm{Rx,start}}$ across all stays. Under declared midnight assignment of prescription-start dates, no horizon-positive observations remained ($N_+=0$). Prevalence: 0.000%; discrimination metrics: not meaningfully estimable (with no eligible positive observations, AUROC was undefined and AUPRC did not provide an informative discrimination estimate. PPV would be zero for a policy emitting alerts in this all-negative evaluated set, and undefined if no alerts were emitted). Control attrition identity: $65,926 = 93,427 - W_{\mathrm{fully\ excluded}} (27,388\text{ from 2,287 stays}) - W_{\mathrm{partially\ censored}, 0} (113\text{ from 83 later-prescription control stays})$. |
+| **8. Uniform Earliest-Rx Task $\mathcal{R}_2^{\mathrm{Rx}}$ ($\delta=2\text{h}$)** | 5,559 (0 horizon-pos) | 65,877 (0 pos / 65,877 neg) | 2,744.9 patient-days | 0.000% | Uniform eligibility task requiring a 2-hour proxy-timing margin ($t + 2\text{h} \le T_{\mathrm{Rx,start}}$) across all stays; no horizon-positive observations remained ($N_+=0$). Prevalence: 0.000%; discrimination metrics: not meaningfully estimable (with no eligible positive observations, AUROC was undefined and AUPRC did not provide an informative discrimination estimate. PPV would be zero for a policy emitting alerts in this all-negative evaluated set, and undefined if no alerts were emitted). Margin attrition identity: $65,877 = 65,926 - W_{\mathrm{additional\ margin}} (49\text{ from 83 later-prescription control stays})$. |
 
 ---
 
@@ -308,7 +308,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 | **Logistic Regression (L2)** | 0.5593 (0.5097–0.6048) | 0.939% (0.716%–1.218%) | 0.5654 (0.5157–0.6107) | 1.337% (1.012%–1.740%) | 0.5657 (0.5150–0.6127) | 1.325% (1.002%–1.731%) | +0.0061 (+0.0023 to +0.0116) |
 | **Clinical Transformer (Baseline)** | 0.5239 (0.4808–0.5653) | 0.808% (0.609%–1.381%) | 0.5296 (0.4851–0.5712) | 1.147% (0.857%–1.904%) | 0.5286 (0.4834–0.5705) | 1.131% (0.845%–1.894%) | +0.0057 (+0.0019 to +0.0110) |
 
-*Note: Evaluated on hybrid risk sets $\mathcal{R}_0^{\mathrm{hybrid}}$ and $\mathcal{R}_2^{\mathrm{hybrid}}$ censoring cases at infection-suspicion anchor $T_{\mathrm{susp}}$ and controls at earliest prescription $T_{\mathrm{Rx,start}}$. Sepsis cases and controls were restricted using different clinical-process anchors; differences from canonical discrimination therefore reflect both evaluated observations and outcome-specific selection rather than uniform prospective eligibility. Under uniform point-assigned earliest prescription restriction ($C_i = T_{\mathrm{Rx,start}, i}$), discrimination is not estimable due to zero retained positive cases ($O_{\mathrm{Rx}}^{\mathrm{point}} = 0$).*
+*Note: Evaluated on hybrid risk sets $\mathcal{R}_0^{\mathrm{hybrid}}$ and $\mathcal{R}_2^{\mathrm{hybrid}}$ censoring cases at infection-suspicion anchor $T_{\mathrm{susp}}$ and controls at earliest prescription $T_{\mathrm{Rx,start}}$. Sepsis cases and controls were restricted using different clinical-process anchors; differences from canonical discrimination therefore reflect both evaluated observations and outcome-specific selection rather than uniform prospective eligibility. Under uniform point-assigned earliest prescription restriction ($C_i = T_{\mathrm{Rx,start}, i}$), discrimination is not meaningfully estimable due to zero retained positive cases ($O_{\mathrm{Rx}}^{\mathrm{point}} = 0$). With no eligible positive observations, AUROC was undefined and AUPRC did not provide an informative discrimination estimate. PPV would be zero for a policy emitting alerts in this all-negative evaluated set, and undefined if no alerts were emitted.*
 
 ---
 
@@ -435,8 +435,9 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 - **Deep Learning Frameworks:** PyTorch `2.1.2+cu121`, Mamba-ssm `1.2.0`, TensorFlow `2.14.0`
 - **Machine Learning & Statistical Libraries:** LightGBM `3.3.5`, XGBoost `1.7.6`, Scikit-learn `1.2.2`, SciPy `1.10.1`, Pandas `1.5.3`, NumPy `1.26.4`
 - **Visualization:** Matplotlib `3.7.1` / `3.10.1`, Seaborn `0.12.2`
-- **Analytical Freeze Commit:** `b0932ca` (Release Manifest `1.0.0-freeze`, archived at `reports/manifest/release_manifest.json`)
-- **Evaluation Pipeline & Bootstrap Release Commit:** `1292103`
-- **Manuscript Reporting & Packaging Commit:** `4038fa2`
+- **Model & Data Freeze Commit:** `b0932ca` (Release Manifest `1.0.0-freeze`, archived at `reports/manifest/release_manifest.json`)
+- **Evaluation Implementation Commit:** `1292103`
+- **Denominator Recomputation Commit:** `311cea3`
+- **Submission Packaging Commit:** `9b92113`, Tag `v1.0.1-freeze`
 - **Automated Invariance Verification Artifacts:** `reports/manifest/time_truncation_invariance_audit.json` and `time_truncation_invariance_audit.md` (PASS: no feature discrepancies detected across 50 stays, 12 decision hours, 547 unique patient-decision pairs, and 1,641 equality comparisons).
 - **Code & Model Availability:** Complete analysis scripts, preprocessing pipelines, and evaluation harnesses are archived at GitHub: `https://github.com/alireza/Sepsis-Onset-Timing-Paradox`.
