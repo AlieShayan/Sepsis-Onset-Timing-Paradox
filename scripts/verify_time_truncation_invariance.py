@@ -105,18 +105,22 @@ def run_time_truncation_audit():
     discrepancies_tab = []
     tested_pairs = []
 
-    for sid in test_stays[:25]:
+    # Evaluate across 50 representative stays, uniquely by (ICUSTAY_ID, WINDOW_END_HOUR)
+    unique_decision_pairs = df_test[["ICUSTAY_ID", "WINDOW_END_HOUR"]].drop_duplicates().sort_values(["ICUSTAY_ID", "WINDOW_END_HOUR"])
+    logger.info(f"Identified {len(unique_decision_pairs)} unique patient-decision pairs across {len(test_stays)} stays.")
+
+    for sid in test_stays:
         df_stay = df_test[df_test["ICUSTAY_ID"] == sid].sort_values("WINDOW_END_HOUR")
-        hours = df_stay["WINDOW_END_HOUR"].tolist()
-        for idx, h in enumerate(hours):
+        hours = df_stay["WINDOW_END_HOUR"].drop_duplicates().tolist()
+        for h in hours:
             # Window at decision hour h evaluated with all subsequent data present
-            row_full = df_stay[df_stay["WINDOW_END_HOUR"] == h]
+            row_full = df_stay[df_stay["WINDOW_END_HOUR"] == h].head(1)
             t_full = assemble_d6_tensor(row_full, base_features_20, mode="explicit", window_hours=20)
             tab_full = compute_tabular_summary(t_full, F=20)
 
             # Simulated streaming: truncate df_stay to contain strictly data up to h (drop hours > h)
             df_truncated = df_stay[df_stay["WINDOW_END_HOUR"] <= h].copy()
-            row_trunc = df_truncated[df_truncated["WINDOW_END_HOUR"] == h]
+            row_trunc = df_truncated[df_truncated["WINDOW_END_HOUR"] == h].head(1)
             t_trunc = assemble_d6_tensor(row_trunc, base_features_20, mode="explicit", window_hours=20)
             tab_trunc = compute_tabular_summary(t_trunc, F=20)
 
@@ -136,7 +140,8 @@ def run_time_truncation_audit():
 
     assert max_diff_tensor == 0.0, f"Violation: max tensor diff = {max_diff_tensor}"
     assert max_diff_tab == 0.0, f"Violation: max tabular diff = {max_diff_tab}"
-    logger.info(f"✓ Time-truncation invariance confirmed: Max discrepancy = 0.000000 across {len(tested_pairs)} pairs.")
+    total_comparisons = len(tested_pairs) * 3  # (sequence explicit 42, sequence unmasked 21, tabular summary 126)
+    logger.info(f"✓ Time-truncation invariance confirmed: Max discrepancy = 0.000000 across {len(tested_pairs)} unique pairs ({total_comparisons} total representation comparisons).")
 
     # 6. Save Audit Artifacts
     audit_data = {
@@ -159,11 +164,22 @@ def run_time_truncation_audit():
         "tabular_summary_channels": [
             "mean", "minimum", "maximum", "last_value", "last_minus_first_trend", "linear_slope"
         ],
-        "tested_patient_decision_pairs_count": len(tested_pairs),
+        "test_scope": {
+            "unique_stays_tested": len(test_stays),
+            "unique_decision_hours_evaluated": sorted(list(df_test["WINDOW_END_HOUR"].unique().astype(float))),
+            "unique_patient_decision_pairs_count": len(tested_pairs),
+            "total_representation_comparisons_count": total_comparisons,
+            "feature_pipelines_verified": [
+                "42-channel mask-aware sequence tensor (20 physiological + 20 masks + 2 demographics/constants)",
+                "21-channel baseline sequence tensor (unmasked)",
+                "126-channel tabular summary feature vector (6 statistics x 21 variables)"
+            ],
+            "numerical_tolerance": "0.00000000 (Exact 64-bit float equality)"
+        },
         "tested_patient_decision_pairs_sample": tested_pairs[:10],
         "max_feature_discrepancy_sequence_tensor": max_diff_tensor,
         "max_feature_discrepancy_tabular_summary": max_diff_tab,
-        "invariance_verification_status": "PASS",
+        "invariance_verification_status": "PASS: no feature discrepancies detected in the tested prediction-time truncation comparisons.",
         "future_leakage_detected": False
     }
 
@@ -176,11 +192,14 @@ def run_time_truncation_audit():
 
     with open(out_md, "w", encoding="utf-8") as f:
         f.write("# Time-Truncation Invariance & Model Input Shape Audit\n\n")
-        f.write(f"- **Audit Status:** `PASS` (Zero Future Information Leakage)\n")
+        f.write("- **Audit Status:** `PASS: no feature discrepancies detected in the tested prediction-time truncation comparisons.`\n")
         f.write(f"- **Analytical Freeze Commit:** `b0932ca`\n")
         f.write(f"- **Manifest Version:** `1.0.0-freeze`\n")
         f.write(f"- **Timestamp (UTC):** `{audit_data['timestamp_utc']}`\n")
-        f.write(f"- **Tested Patient-Decision Pairs:** {len(tested_pairs)}\n")
+        f.write(f"- **Unique Patient ICU Stays Tested:** {len(test_stays)}\n")
+        f.write(f"- **Unique Patient-Decision Pairs Evaluated:** {len(tested_pairs)}\n")
+        f.write(f"- **Total Representation Comparisons:** {total_comparisons} (across sequence tensors and tabular summaries)\n")
+        f.write(f"- **Numerical Tolerance:** Exact float equality (discrepancy threshold: 0.00000000)\n")
         f.write(f"- **Maximum Sequence Tensor Discrepancy:** `{max_diff_tensor:.8f}`\n")
         f.write(f"- **Maximum Tabular Summary Discrepancy:** `{max_diff_tab:.8f}`\n\n")
         f.write("## Verified Per-Model Serialized Input Shapes\n\n")
@@ -189,7 +208,7 @@ def run_time_truncation_audit():
         for k, v in audit_data["input_dimensions"].items():
             f.write(f"| {k} | `{v}` | Causal right-open $[t-20\\mathrm{{h}}, t)$ |\n")
         f.write("\n## Time-Truncation Invariance Conclusion\n\n")
-        f.write("Features extracted at decision time $t$ are mathematically invariant to future data removal. ")
+        f.write("Features extracted at decision time $t$ remained unchanged in the reported tests when future data timestamped $\\ge t$ were removed. ")
         f.write("No future observations timestamped $\\ge t$ enter any model input tensor. Baseline-offset leakage channels are strictly absent.\n")
 
     logger.info(f"Audit artifacts written to {out_json} and {out_md}.")

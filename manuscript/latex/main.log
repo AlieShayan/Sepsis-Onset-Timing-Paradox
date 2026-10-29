@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 13:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 14:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -865,7 +865,10 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 14.4pt on input line 60.
 
-Underfull \vbox (badness 1132) has occurred while \output is active []
+Underfull \vbox (badness 1577) has occurred while \output is active []
+
+
+Underfull \vbox (badness 1248) has occurred while \output is active []
 
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fo
 nts/enc/dvips/newtx/ntx-ot1-tlf.enc}
@@ -906,6 +909,8 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 10.0pt on input line 71.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 7.3pt on input line 71.
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
+(Font)              scaled to size 10.0pt on input line 81.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 7.3pt on input line 87.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
@@ -922,7 +927,7 @@ File: ts1ntxtlf.fd 2015/01/18 v1.0 fd file for TS1/ntxtlf
 )
 LaTeX Font Info:    Font shape `TS1/ntxtlf/m/n' will be
 (Font)              scaled to size 10.0pt on input line 96.
-<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=126, 1084.05pt x 448.
+<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=122, 1084.05pt x 448.
 07399pt>
 File: figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf Graphic file (type p
 df)
@@ -934,14 +939,14 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.6pt on input line 105.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 9.0pt on input line 105.
+ [2{/usr/share/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc}]
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 10.0pt on input line 118.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 7.3pt on input line 118.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 5.5pt on input line 118.
- [2{/usr/share/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc}] [3 <./figures/Fi
-gure1_Clocks_and_Opportunity_Waterfall.pdf>]
+ [3 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 7.0pt on input line 162.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
@@ -954,7 +959,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 7.0pt on input line 196.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/it' will be
 (Font)              scaled to size 7.0pt on input line 196.
-<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=378, 1011.78pt x 397
+<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=373, 1011.78pt x 397
 .485pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
 pdf)
@@ -1086,17 +1091,31 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 3.57501pt on input line 291.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 6.5pt on input line 292.
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=383, 722.7pt x 397.485pt>
+LaTeX Font Info:    Trying to load font information for OT1+txtt on input line 
+292.
+ (/usr/share/texmf-dist/tex/latex/txfonts/ot1txtt.fd
+File: ot1txtt.fd 2000/12/15 v3.1
+)
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/it' in size <6.5> not available
+(Font)              Font shape `OT1/txtt/m/sl' tried instead on input line 292.
+
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `txtt' (encoding: OT1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [4]
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=393, 722.7pt x 397.485pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
  input line 317.
 (pdftex.def)             Requested size: 242.5389pt x 133.39635pt.
- [4] [5] [6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf> <./figure
-s/Figure3_Three_Stage_Decomposition.pdf>]
-LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
-(Font)              scaled to size 10.0pt on input line 358.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [5]
+[6 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf> <./figures/Figure3
+_Three_Stage_Decomposition.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 358--359
 \OT1/ntxtlf/m/n/10 (+20) All pre-pro-cess-ing pipelines, model con-fig-u-ra-tio
 ns,
@@ -1170,11 +1189,11 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: B55F2DD6DD93429AF338A2E008FD11F1;3863.
  ) 
 Here is how much of TeX's memory you used:
- 18797 strings out of 469503
- 291420 string characters out of 5470407
- 749723 words of memory out of 5000000
- 46458 multiletter control sequences out of 15000+600000
- 769778 words of font info for 644 fonts, out of 8000000 for 9000
+ 18825 strings out of 469503
+ 291837 string characters out of 5470407
+ 749742 words of memory out of 5000000
+ 46490 multiletter control sequences out of 15000+600000
+ 769624 words of font info for 639 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  75i,15n,117p,1535b,614s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
@@ -1183,13 +1202,14 @@ public/newtx/NewTXMI7.pfb></usr/share/texmf-dist/fonts/type1/public/tex-gyre/qt
 mr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/txexs.pfb></usr/share/te
 xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 /public/newtx/txsys.pfb></usr/share/texmf-dist/fonts/type1/public/txfonts/txtt.
-pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
-dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
-ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (8 pages, 362370 bytes).
+pfb></usr/share/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/share/texm
+f-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-dist/fonts/type1/pub
+lic/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></
+usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
+Output written on main.pdf (8 pages, 366040 bytes).
 PDF statistics:
- 702 PDF objects out of 1000 (max. 8388607)
+ 704 PDF objects out of 1000 (max. 8388607)
  302 compressed objects within 4 object streams
- 83 named destinations out of 1000 (max. 500000)
- 152728 words of extra memory for PDF output out of 154059 (max. 10000000)
+ 82 named destinations out of 1000 (max. 500000)
+ 153240 words of extra memory for PDF output out of 154059 (max. 10000000)
 

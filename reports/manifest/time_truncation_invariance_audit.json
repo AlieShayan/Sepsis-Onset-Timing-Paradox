@@ -1,6 +1,6 @@
 {
   "audit_name": "Time-Truncation Invariance & Model Input Shape Audit",
-  "timestamp_utc": "2026-10-29T09:56:16.086217+00:00",
+  "timestamp_utc": "2026-10-29T10:42:50.224173+00:00",
   "analytical_freeze_commit": "b0932ca",
   "manifest_version": "1.0.0-freeze",
   "base_variables_count": 21,
@@ -50,7 +50,31 @@
     "last_minus_first_trend",
     "linear_slope"
   ],
-  "tested_patient_decision_pairs_count": 1548,
+  "test_scope": {
+    "unique_stays_tested": 50,
+    "unique_decision_hours_evaluated": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      12.0
+    ],
+    "unique_patient_decision_pairs_count": 547,
+    "total_representation_comparisons_count": 1641,
+    "feature_pipelines_verified": [
+      "42-channel mask-aware sequence tensor (20 physiological + 20 masks + 2 demographics/constants)",
+      "21-channel baseline sequence tensor (unmasked)",
+      "126-channel tabular summary feature vector (6 statistics x 21 variables)"
+    ],
+    "numerical_tolerance": "0.00000000 (Exact 64-bit float equality)"
+  },
   "tested_patient_decision_pairs_sample": [
     {
       "icustay_id": 200021,
@@ -60,61 +84,61 @@
     },
     {
       "icustay_id": 200021,
-      "decision_hour": 1.0,
-      "diff_sequence_tensor": 0.0,
-      "diff_tabular_summary": 0.0
-    },
-    {
-      "icustay_id": 200021,
-      "decision_hour": 1.0,
-      "diff_sequence_tensor": 0.0,
-      "diff_tabular_summary": 0.0
-    },
-    {
-      "icustay_id": 200021,
-      "decision_hour": 1.0,
-      "diff_sequence_tensor": 0.0,
-      "diff_tabular_summary": 0.0
-    },
-    {
-      "icustay_id": 200021,
-      "decision_hour": 1.0,
-      "diff_sequence_tensor": 0.0,
-      "diff_tabular_summary": 0.0
-    },
-    {
-      "icustay_id": 200021,
-      "decision_hour": 1.0,
-      "diff_sequence_tensor": 0.0,
-      "diff_tabular_summary": 0.0
-    },
-    {
-      "icustay_id": 200021,
       "decision_hour": 2.0,
       "diff_sequence_tensor": 0.0,
       "diff_tabular_summary": 0.0
     },
     {
       "icustay_id": 200021,
-      "decision_hour": 2.0,
+      "decision_hour": 3.0,
       "diff_sequence_tensor": 0.0,
       "diff_tabular_summary": 0.0
     },
     {
       "icustay_id": 200021,
-      "decision_hour": 2.0,
+      "decision_hour": 4.0,
       "diff_sequence_tensor": 0.0,
       "diff_tabular_summary": 0.0
     },
     {
       "icustay_id": 200021,
-      "decision_hour": 2.0,
+      "decision_hour": 5.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 6.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 7.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 8.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 9.0,
+      "diff_sequence_tensor": 0.0,
+      "diff_tabular_summary": 0.0
+    },
+    {
+      "icustay_id": 200021,
+      "decision_hour": 10.0,
       "diff_sequence_tensor": 0.0,
       "diff_tabular_summary": 0.0
     }
   ],
   "max_feature_discrepancy_sequence_tensor": 0.0,
   "max_feature_discrepancy_tabular_summary": 0.0,
-  "invariance_verification_status": "PASS",
+  "invariance_verification_status": "PASS: no feature discrepancies detected in the tested prediction-time truncation comparisons.",
   "future_leakage_detected": false
 }

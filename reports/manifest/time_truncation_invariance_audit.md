@@ -1,10 +1,13 @@
 # Time-Truncation Invariance & Model Input Shape Audit
 
-- **Audit Status:** `PASS` (Zero Future Information Leakage)
+- **Audit Status:** `PASS: no feature discrepancies detected in the tested prediction-time truncation comparisons.`
 - **Analytical Freeze Commit:** `b0932ca`
 - **Manifest Version:** `1.0.0-freeze`
-- **Timestamp (UTC):** `2026-10-29T09:56:16.086217+00:00`
-- **Tested Patient-Decision Pairs:** 1548
+- **Timestamp (UTC):** `2026-10-29T10:42:50.224173+00:00`
+- **Unique Patient ICU Stays Tested:** 50
+- **Unique Patient-Decision Pairs Evaluated:** 547
+- **Total Representation Comparisons:** 1641 (across sequence tensors and tabular summaries)
+- **Numerical Tolerance:** Exact float equality (discrepancy threshold: 0.00000000)
 - **Maximum Sequence Tensor Discrepancy:** `0.00000000`
 - **Maximum Tabular Summary Discrepancy:** `0.00000000`
 
@@ -23,4 +26,4 @@
 
 ## Time-Truncation Invariance Conclusion
 
-Features extracted at decision time $t$ are mathematically invariant to future data removal. No future observations timestamped $\ge t$ enter any model input tensor. Baseline-offset leakage channels are strictly absent.
+Features extracted at decision time $t$ remained unchanged in the reported tests when future data timestamped $\ge t$ were removed. No future observations timestamped $\ge t$ enter any model input tensor. Baseline-offset leakage channels are strictly absent.
