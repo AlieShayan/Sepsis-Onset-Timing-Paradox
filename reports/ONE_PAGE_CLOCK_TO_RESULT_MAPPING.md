@@ -5,7 +5,7 @@
 **Target Journal:** *JAMIA Open*  
 **Analytical Data Freeze:** Commit `b0932ca` (Release Manifest `1.0.0-freeze`)  
 **Evaluation Pipeline Release:** Commit `1292103`  
-**Manuscript Reporting & Packaging:** Commit `4038fa2`  
+**Uniform Denominators & Release Packaging:** Commit `68fb64f` (Release `1.0.1-freeze`)  
 
 ---
 
@@ -27,25 +27,38 @@ $$\mathcal{R}_\delta^{\mathrm{hybrid}} = \bigl\{ (i, t) \in \mathcal{R} : t + \d
 1. **Outcome-Dependent Clinical Anchor Mapping ($C_i$):**
    - For incident sepsis stays ($S_i = 1$): $C_i = T_{\mathrm{susp}, i} = \min(T_{\mathrm{culture,pair}, i}, T_{\mathrm{abx,pair}, i})$ (determined by antibiotic order in 399 stays and blood culture collection in 9 stays).
    - For non-sepsis control stays ($S_i = 0$): $C_i = T_{\mathrm{Rx,start}, i}$ if systemic antimicrobials were ordered during hospitalization; $C_i = \infty$ otherwise.
-   - *Authoritative Methodological Disclosure:* Sepsis cases and controls were restricted using different clinical-process anchors. Differences from canonical discrimination therefore reflect both changes in the evaluated observations and the outcome-specific selection rule; they are not estimates of performance under a uniform prospective eligibility policy.
-2. **Earliest-Prescription Non-Estimability Finding:**
-   - Under uniform point-assigned earliest prescription start dates ($C_i = T_{\mathrm{Rx,start}, i}$ across all stays), exactly 0 of 151 covered sepsis stays have eligible pre-prescription decision bins ($O_{\mathrm{Rx}}^{\mathrm{point}} = 0, O_{\mathrm{Rx}}^{\mathrm{def}} = 0$).
-   - Consequently, the number of horizon-positive observations is zero ($N=0$), precluding discrimination estimation (AUROC and AUPRC are mathematically not estimable under midnight assignment).
+   - *Authoritative Methodological Disclosure:* Discrimination changed little in the outcome-stratified hybrid analysis. Because cases and controls were restricted using different anchors, this finding does not establish preserved discrimination under a uniform pre-suspicion or pre-prescription policy.
+2. **Earliest-Prescription Non-Estimability Finding (Scoped):**
+   - Within this restricted surveillance protocol and under declared midnight assignment of prescription-start dates, no horizon-positive observations remained under uniform earliest-prescription eligibility. Discrimination was therefore not estimable for that task.
+   - *Denominator Distinction:* While the base cohort contains 408 eventual sepsis stays, the restricted task contains zero eligible horizon-positive decision windows ($N_+^{\mathrm{Rx}} = 0$). Reporting "not estimable" with the zero-positive count is appropriate, as conventional AUROC/AUPRC outputs under $N_+ = 0$ do not constitute informative discrimination estimates.
 
 ---
 
 ## 2. Risk Set & Population Denominator Accounting
 
-All evaluated hourly decision bins fall strictly within the prespecified second-day ICU surveillance schedule: $t \in \{19, 20, \dots, 30\}\text{h}$ post-admission (up to 12 windows per stay).
+All evaluated hourly decision bins fall strictly within the prespecified second-day ICU surveillance schedule: $t \in \{19, 20, \dots, 30\}\text{h}$ post-admission (up to 12 windows per stay). Denominators strictly satisfy $N_{\mathrm{total}} = N_+ + N_-$.
 
-| Risk Set / Partition | Conditioning Clock ($C_i$) | Buffer ($\delta$) | Unique ICU Stays ($N$) | Evaluated Hourly Windows | Surveillance Volume | Positive Windows ($Y=1$) | Negative Windows ($Y=0$) | Positive Prevalence ($\pi$) |
+| Risk Set / Partition | Conditioning Clock ($C_i$) | Buffer ($\delta$) | Unique ICU Stays ($N$) | Evaluated Hourly Windows ($N_{\mathrm{total}}$) | Surveillance Volume | Positive Windows ($N_+$) | Negative Windows ($N_-$) | Positive Prevalence ($\pi$) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Canonical Risk Set $\mathcal{R}_{\text{canonical}}$** | None (unconstrained) | N/A | 8,254 | 97,700 | 4,070.8 pt-days | 678 | 97,022 | 0.694% |
 | **Outcome-Stratified Hybrid Set $\mathcal{R}_0^{\mathrm{hybrid}}$** | $T_{\mathrm{susp}}$ cases / $T_{\mathrm{Rx,start}}$ controls | 0h | 5,967 | 70,192 | 2,924.7 pt-days | 674 | 69,518 | 0.960% |
 | **Outcome-Stratified Hybrid Set $\mathcal{R}_2^{\mathrm{hybrid}}$** | $T_{\mathrm{susp}}$ cases / $T_{\mathrm{Rx,start}}$ controls | 2h | 5,967 | 70,129 | 2,922.0 pt-days | 663 | 69,466 | 0.945% |
-| **Uniform Earliest-Rx Task ($T_{\mathrm{Rx,start}}$)** | $T_{\mathrm{Rx,start}}$ across all stays | 0h | 5,967 | 70,129 | 2,922.0 pt-days | **0** | 69,518 | **0.0% (Incomputable)** |
+| **Uniform Earliest-Rx Task $\mathcal{R}_0^{\mathrm{Rx}}$** | $T_{\mathrm{Rx,start}}$ across all stays | 0h | 5,559 | 65,926 | 2,746.9 pt-days | **0** | 65,926 | **0.000% (Not Estimable)** |
+| **Uniform Earliest-Rx Task $\mathcal{R}_2^{\mathrm{Rx}}$** | $T_{\mathrm{Rx,start}}$ across all stays | 2h | 5,559 | 65,877 | 2,744.9 pt-days | **0** | 65,877 | **0.000% (Not Estimable)** |
 
-*Accounting Note on Control Stays:* Exactly 2,287 non-sepsis control stays had $T_{\mathrm{Rx,start}} \le 19\text{h}$ (prior to surveillance start), censoring all 12 of their decision windows from $\mathcal{R}_0$ ($8,254 - 2,287 = 5,967$ stays; $97,700 - 27,508 = 70,192$ windows).
+### Strict Denominator Reconciliation & Attrition Mechanisms
+1. **Hybrid Restrictions ($\mathcal{R}_0^{\mathrm{hybrid}}, \mathcal{R}_2^{\mathrm{hybrid}}$):**
+   - Cases ($N=408$ stays): Evaluated against $T_{\mathrm{susp}}$. Retain 4,266 windows (674 positive, 3,592 negative) at $\delta=0\text{h}$; 4,252 windows (663 positive, 3,589 negative) at $\delta=2\text{h}$.
+   - Controls ($N=7,846$ stays): Evaluated against $T_{\mathrm{Rx,start}}$. Exactly 2,287 control stays had $T_{\mathrm{Rx,start}} \le 19\text{h}$, censoring all 27,508 of their windows. The remaining 5,559 control stays contribute 65,926 negative windows at $\delta=0\text{h}$, and 65,877 negative windows at $\delta=2\text{h}$ (49 windows censored by the 2-hour buffer).
+   - *Sums:*
+     - $\mathcal{R}_0^{\mathrm{hybrid}}$: $N_{\mathrm{total}} = 4,266 + 65,926 = 70,192$; $N_+ + N_- = 674 + 69,518 = 70,192$. Stays: $408 + 5,559 = 5,967$.
+     - $\mathcal{R}_2^{\mathrm{hybrid}}$: $N_{\mathrm{total}} = 4,252 + 65,877 = 70,129$; $N_+ + N_- = 663 + 69,466 = 70,129$. Stays: $408 + 5,559 = 5,967$.
+2. **Uniform Earliest-Prescription Task ($\mathcal{R}_0^{\mathrm{Rx}}, \mathcal{R}_2^{\mathrm{Rx}}$):**
+   - Applied uniformly: $t + \delta \le T_{\mathrm{Rx,start}, i}$.
+   - All 408 sepsis stays had documented prescription start dates coarsened to midnight with $T_{\mathrm{Rx,start}, i} \le 3.83\text{h} \le 19.0\text{h}$ post-ICU admission. Consequently, zero decision windows in surveillance hours 19–30 satisfy $t + \delta \le T_{\mathrm{Rx,start}, i}$ (0 case stays, 0 positive windows, 0 negative windows).
+   - Contributing stays are exclusively the 5,559 surviving control stays:
+     - $\mathcal{R}_0^{\mathrm{Rx}}$: $N_{\mathrm{total}} = 65,926$; $N_+ = 0$; $N_- = 65,926$. Exactly $0 + 65,926 = 65,926$. Volume: 2,746.9 pt-days.
+     - $\mathcal{R}_2^{\mathrm{Rx}}$: $N_{\mathrm{total}} = 65,877$; $N_+ = 0$; $N_- = 65,877$. Exactly $0 + 65,877 = 65,877$. Volume: 2,744.9 pt-days.
 
 ---
 
@@ -53,9 +66,9 @@ All evaluated hourly decision bins fall strictly within the prespecified second-
 
 | Manuscript Item | Displayed Content | Underlying Reference Clock(s) | Primary Evaluated Denominators | Essential Scientific Takeaway |
 | :--- | :--- | :--- | :--- | :--- |
-| **Table 1** | Cohort Progression Ledger | $T_{\text{admit}}$, $T_{\mathrm{susp}}$, $T_{\mathrm{Rx,start}}$, $T_{\text{S3}}$ | Base: 8,254 stays (408 sepsis / 7,846 controls). $\mathcal{R}_0$: 5,967 stays. | Traces stepwise attrition: 257/408 late sepsis unreached ($V=0$); 150/151 covered septic stays eligible before suspicion ($O=1$). |
-| **Table 2** | Discrimination Benchmark (8 Architectures) | Hybrid: $T_{\mathrm{susp}}$ cases, $T_{\mathrm{Rx,start}}$ controls | Canonical: 97,700 windows. $\mathcal{R}_0^{\mathrm{hybrid}}$: 70,192 windows. $\mathcal{R}_2^{\mathrm{hybrid}}$: 70,129 windows. | AUROC stable on hybrid sets (BiMamba: 0.6433 on $\mathcal{R}_0^{\mathrm{hybrid}}$ vs. 0.6326 canonical; $\Delta = +0.0107$). Non-estimable under point-assigned earliest prescriptions ($N=0$). |
-| **Table 3** | Operational Alert-Budget Frontier (8 Models) | Full surveillance stream; timing adjudicated via $T_{\mathrm{susp}}$ | 8,254 test stays; 4,070.8 patient-days (97,700 windows); 204 alerts (5 ep), 407 alerts (10 ep), 814 alerts (20 ep). | Alerts selected across full stream (4,070.8 pt-d); 100% of detected sepsis stays satisfied two-hour pre-suspicion buffers ($t_{\mathrm{first}, i} + 2\text{h} \le T_{\mathrm{susp}, i}$). PPV: 0.98%–1.72% (NNE: 58.1–101.8). |
+| **Table 1** | Cohort Progression Ledger | $T_{\text{admit}}$, $T_{\mathrm{susp}}$, $T_{\mathrm{Rx,start}}$, $T_{\text{S3}}$ | Base: 8,254 stays (408 sepsis / 7,846 controls). $\mathcal{R}_0$: 5,967 stays. $\mathcal{R}_0^{\mathrm{Rx}}$: 5,559 stays. | Traces stepwise attrition: 257/408 late sepsis unreached ($V=0$); 150/151 covered septic stays eligible before suspicion ($O=1$). Under uniform earliest-prescription, 0 positive windows remain. |
+| **Table 2** | Discrimination Benchmark (8 Architectures) | Hybrid: $T_{\mathrm{susp}}$ cases, $T_{\mathrm{Rx,start}}$ controls | Canonical: 97,700 windows. $\mathcal{R}_0^{\mathrm{hybrid}}$: 70,192 windows. $\mathcal{R}_2^{\mathrm{hybrid}}$: 70,129 windows. | Discrimination changed little in hybrid analysis (BiMamba: 0.6433 on $\mathcal{R}_0^{\mathrm{hybrid}}$ vs. 0.6326 canonical). Does not establish preserved discrimination under uniform policy. Non-estimable under uniform $T_{\mathrm{Rx,start}}$ ($N_+=0$). |
+| **Table 3** | Operational Alert-Budget Frontier (8 Models) | Full surveillance stream; timing adjudicated via $T_{\mathrm{susp}}$ | 8,254 test stays; 4,070.8 patient-days (97,700 windows); 204 alerts (5 ep), 407 alerts (10 ep), 814 alerts (20 ep). | Alerts selected across full stream (4,070.8 pt-d). Horizon-correct alerts and alerts satisfying $t_{\mathrm{first}} + 2\text{h} \le T_{\mathrm{susp}}$ are identical in sample ($N_{\mathrm{det}} = 7/7$ at 10 ep/100 pt-d). Adjudicated before retrospective suspicion anchor, not prescribing. |
 | **Table 4** | Two-Axis Subgroup & Timestamp Uncertainty Matrix | Panel 1: $T_{\mathrm{susp}}$ (Primary) Panel 2: $T_{\mathrm{Rx,start}}$ (MetaVision) Panel 3: $T_{\mathrm{Rx,start}}$ (Broad MIMIC) | Panel 1: 408 sepsis stays. Panel 2: 408 sepsis stays. Panel 3: 3,581 sepsis stays. | Opportunity is anchor-dependent: 150/151 (99.3%) under suspicion anchor $T_{\mathrm{susp}}$, but [0.0%, 31.1%] (0 definite) under earliest prescription $T_{\mathrm{Rx,start}}$. |
 | **Figure 1** | Panel A: Clocks & Risk Sets Panel B: Opportunity Waterfall | Panel A: $T_{\text{admit}}$, $T_{\mathrm{susp}}$, $T_{\mathrm{Rx,start}}$, $T_{\text{S3}}$ Panel B: $T_{\mathrm{Rx,start}}$ vs. $T_{\mathrm{susp}}$ | Panel A: Conceptual timeline. Panel B: MetaVision ($N=408$) vs. Broad MIMIC-III ($N=3,581$). | Visualizes floor-discretization lead $G_i = 24h + h\,\mathrm{frac}(x_i) < 25h$ (67.2% first-bin assigned) and opportunity bounds across clocks. |
 | **Figure 2** | Operational Alert-Budget Frontiers (PPV & NNE) | Primary: $C_i^{\text{primary}}$ under 12h refractory policy | 8,254 test stays across 5, 10, and 20 ep / 100 pt-d budgets. | Demonstrates real-world performance trade-off: PPV < 3.0% and NNE 34.0–116.3 across all viable operational alert budgets. |

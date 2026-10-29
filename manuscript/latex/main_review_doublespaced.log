@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 18:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 20:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -951,7 +951,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.8pt on input line 84.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.6pt on input line 84.
- [4] [5]
+ [4]
 LaTeX Font Info:    Trying to load font information for TS1+ntxtlf on input lin
 e 93.
 
@@ -969,7 +969,7 @@ s-temic an-timi-cro-bial pre-scrip-tion start date (\OT1/ntxtt/m/n/12 prescript
 ions.startdate\OT1/ntxtlf/m/n/12 (-20) ,
  []
 
-
+[5{/usr/share/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc}]
 Overfull \hbox (24.49417pt too wide) in paragraph at lines 96--97
 []$\OML/ntxmi/m/it/12 T[]$\OT1/ntxtlf/m/n/12 (-20) : Blood cul-ture spec-i-men 
 col-lec-tion times-tamp (\OT1/ntxtt/m/n/12 microbiologyevents.charttime\OT1/ntx
@@ -983,7 +983,7 @@ uspicion an-chor, de-fined per Sey-mour et al. [[]2[]] as $[]\LMS/ntxsy/m/n/12
 ¹\OML/ntxmi/m/it/12 T[]; T[]\LMS/ntxsy/m/n/12 º$\OT1/ntxtlf/m/n/12 (-20) . 
  []
 
-<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=158, 1084.05pt x 448.
+<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=160, 1084.05pt x 448.
 07399pt>
 File: figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf Graphic file (type p
 df)
@@ -997,15 +997,16 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.1pt on input line 110.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 10.95pt on input line 110.
-[6{/usr/share/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc}]
+[6]
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 12.0pt on input line 123.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 8.8pt on input line 123.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 6.6pt on input line 123.
- [7 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>] [8] [9] [10]
-<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=429, 1011.78pt x 397
+ [7 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>] [8] [9]
+[10]
+<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=431, 1011.78pt x 397
 .485pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
 pdf)
@@ -1020,12 +1021,14 @@ File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
  input line 217.
 (pdftex.def)             Requested size: 400.61703pt x 220.33992pt.
- [13 <./figures/Figure3_Three_Stage_Decomposition.pdf>] [14] [15] [16]
+
+[13 <./figures/Figure3_Three_Stage_Decomposition.pdf>] [14] [15] [16]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.5pt on input line 267.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 8.5pt on input line 271.
- [17] [18]
+ [17]
+[18]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.8pt on input line 308.
 
@@ -1190,11 +1193,11 @@ d.
 Here is how much of TeX's memory you used:
  19068 strings out of 469503
  296817 string characters out of 5470407
- 750786 words of memory out of 5000000
+ 751786 words of memory out of 5000000
  46590 multiletter control sequences out of 15000+600000
- 810296 words of font info for 773 fonts, out of 8000000 for 9000
+ 810270 words of font info for 773 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,15n,117p,1859b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,15n,117p,1859b,685s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
 -dist/fonts/type1/public/newtx/NewTXMI5.pfb></usr/share/texmf-dist/fonts/type1/
 public/newtx/NewTXMI7.pfb></usr/share/texmf-dist/fonts/type1/public/tex-gyre/qt
@@ -1204,7 +1207,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (20 pages, 381913 bytes).
+Output written on main_review_doublespaced.pdf (20 pages, 382292 bytes).
 PDF statistics:
  778 PDF objects out of 1000 (max. 8388607)
  352 compressed objects within 4 object streams

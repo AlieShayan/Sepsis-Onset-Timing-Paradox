@@ -24,6 +24,7 @@ def main():
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     parquet_path = PROJECT_ROOT / "reports" / "predictions" / "canonical_test_predictions_harmonized.parquet"
     df = pd.read_parquet(parquet_path)
+    df_tri = pd.read_csv(PROJECT_ROOT / "reports" / "tables" / "tri_onset_labels_mimiciii.csv")
 
     total_stays = df["ICUSTAY_ID"].nunique()
     total_windows = len(df)
@@ -51,7 +52,7 @@ def main():
     n_neg_canon = (df["LABEL"] == 0).sum()
     prev_canon = n_pos_canon / total_windows * 100
 
-    # Risk Set R0 (delta = 0h): w_end <= T_TREATMENT_H_ICU for all stays with treatment
+    # Risk Set R0^hybrid (delta = 0h): w_end <= T_TREATMENT_H_ICU (T_susp for cases, T_Rx,start for controls)
     mask_r0 = df["T_TREATMENT_H_ICU"].isna() | (df["ABS_END_H"] <= df["T_TREATMENT_H_ICU"])
     df_r0 = df[mask_r0]
     stays_r0 = df_r0["ICUSTAY_ID"].nunique()
@@ -61,7 +62,7 @@ def main():
     prev_r0 = n_pos_r0 / tot_r0 * 100
     pt_days_r0 = tot_r0 / 24.0
 
-    # Risk Set R2 (delta = 2h): w_end <= T_TREATMENT_H_ICU - 2.0
+    # Risk Set R2^hybrid (delta = 2h): w_end <= T_TREATMENT_H_ICU - 2.0
     mask_r2 = df["T_TREATMENT_H_ICU"].isna() | (df["ABS_END_H"] <= df["T_TREATMENT_H_ICU"] - 2.0)
     df_r2 = df[mask_r2]
     stays_r2 = df_r2["ICUSTAY_ID"].nunique()
@@ -71,16 +72,34 @@ def main():
     prev_r2 = n_pos_r2 / tot_r2 * 100
     pt_days_r2 = tot_r2 / 24.0
 
-    # Horizon-positive stays with at least one pretreatment opportunity
-    # Stays in R0 with positive windows
-    stays_o0 = df_r0[df_r0["LABEL"] == 1]["ICUSTAY_ID"].nunique()
-    stays_o2 = df_r2[df_r2["LABEL"] == 1]["ICUSTAY_ID"].nunique()
+    # Uniform Earliest-Prescription Task (R_delta^Rx): t + delta <= T_Rx,start across all stays
+    case_rx_map = df_tri.set_index("ICUSTAY_ID")["T_TREATMENT_H_ICU"].to_dict()
+    df_uniform = df.copy()
+    df_uniform["T_RX_START_H_ICU"] = df_uniform["T_TREATMENT_H_ICU"]  # controls already have T_Rx,start
+    is_case = df_uniform["SEPSIS_LABEL"] == 1
+    df_uniform.loc[is_case, "T_RX_START_H_ICU"] = df_uniform.loc[is_case, "ICUSTAY_ID"].map(case_rx_map)
+
+    # Uniform delta = 0h
+    mask_rx0 = df_uniform["T_RX_START_H_ICU"].isna() | (df_uniform["ABS_END_H"] <= df_uniform["T_RX_START_H_ICU"])
+    df_rx0 = df_uniform[mask_rx0]
+    stays_rx0 = df_rx0["ICUSTAY_ID"].nunique()
+    tot_rx0 = len(df_rx0)
+    n_pos_rx0 = (df_rx0["LABEL"] == 1).sum()
+    n_neg_rx0 = (df_rx0["LABEL"] == 0).sum()
+    pt_days_rx0 = tot_rx0 / 24.0
+
+    # Uniform delta = 2h
+    mask_rx2 = df_uniform["T_RX_START_H_ICU"].isna() | (df_uniform["ABS_END_H"] <= df_uniform["T_RX_START_H_ICU"] - 2.0)
+    df_rx2 = df_uniform[mask_rx2]
+    stays_rx2 = df_rx2["ICUSTAY_ID"].nunique()
+    tot_rx2 = len(df_rx2)
+    n_pos_rx2 = (df_rx2["LABEL"] == 1).sum()
+    n_neg_rx2 = (df_rx2["LABEL"] == 0).sum()
+    pt_days_rx2 = tot_rx2 / 24.0
 
     # Accounting for missing/censored decision windows
-    # Scheduled: 8,254 stays * 12 hours = 99,048 windows
     scheduled_windows = total_stays * 12
-    missing_windows = scheduled_windows - total_windows # 1,348
-    # 623 from post-onset sepsis censoring, 725 from observation cessation / monitoring termination
+    missing_windows = scheduled_windows - total_windows  # 1,348
     post_onset_censored = 623
     monitoring_cessation_censored = 725
 
@@ -92,7 +111,7 @@ def main():
             "Surveillance Volume": f"{total_pt_days:.1f} patient-days ({total_hours:,.0f} patient-hours)",
             "Proportion / Window Prevalence": "100.0% of cohort",
             "Clinical Definition & Measurement Convention": (
-                "Adult first ICU admissions (approx. 2017–2019) with ICU stay >= 30h. Evaluated at up to 12 scheduled "
+                "Adult first ICU admissions in MIMIC-III MetaVision (2008–2012) with ICU stay >= 30h. Evaluated at up to 12 scheduled "
                 f"hourly decision bins [t-1, t] at t in {{19..30}}. 1,348 windows right-censored ({post_onset_censored} "
                 f"post-sepsis onset, {monitoring_cessation_censored} observation/monitoring cessation)."
             ),
@@ -151,25 +170,47 @@ def main():
             ),
         },
         {
-            "Stage / Cohort Partition": "5. Pretreatment Sepsis Risk Set R0 (delta=0h)",
+            "Stage / Cohort Partition": "5. Outcome-Stratified Hybrid Set R0_hybrid (delta=0h)",
             "ICU Stays (N)": f"{stays_r0:,} (150 horizon-positive)",
             "Evaluated Windows": f"{tot_r0:,} ({n_pos_r0:,} positive / {n_neg_r0:,} negative)",
             "Surveillance Volume": f"{pt_days_r0:.1f} patient-days",
             "Proportion / Window Prevalence": f"{prev_r0:.3f}% window prevalence",
             "Clinical Definition & Measurement Convention": (
-                "Pretreatment risk set censoring all post-treatment windows (w_end <= T_treatment) for both cases and controls. "
-                "150 out of 151 covered patients (99.3%) maintain >=1 pretreatment target window."
+                "Exploratory outcome-stratified hybrid restriction censoring cases at infection-suspicion anchor T_susp and controls at earliest prescription T_Rx,start. "
+                "150 out of 151 covered patients (99.3%) maintain >=1 pre-suspicion target window."
             ),
         },
         {
-            "Stage / Cohort Partition": "6. Pretreatment Sepsis Risk Set R2 (delta=2h)",
+            "Stage / Cohort Partition": "6. Outcome-Stratified Hybrid Set R2_hybrid (delta=2h)",
             "ICU Stays (N)": f"{stays_r2:,} (149 horizon-positive)",
             "Evaluated Windows": f"{tot_r2:,} ({n_pos_r2:,} positive / {n_neg_r2:,} negative)",
             "Surveillance Volume": f"{pt_days_r2:.1f} patient-days",
             "Proportion / Window Prevalence": f"{prev_r2:.3f}% window prevalence",
             "Clinical Definition & Measurement Convention": (
-                "Pretreatment risk set requiring a 2-hour clinical buffer (w_end <= T_treatment - 2h) before antimicrobial therapy. "
+                "Exploratory outcome-stratified hybrid restriction requiring a 2-hour clinical buffer (w_end + 2h <= C_i). "
                 "149 out of 151 covered patients (98.7%) maintain >=1 actionable target window."
+            ),
+        },
+        {
+            "Stage / Cohort Partition": "7. Uniform Earliest-Rx Task R0_Rx (delta=0h)",
+            "ICU Stays (N)": f"{stays_rx0:,} (0 horizon-positive)",
+            "Evaluated Windows": f"{tot_rx0:,} ({n_pos_rx0:,} positive / {n_neg_rx0:,} negative)",
+            "Surveillance Volume": f"{pt_days_rx0:.1f} patient-days",
+            "Proportion / Window Prevalence": "0.000% (Not Estimable)",
+            "Clinical Definition & Measurement Convention": (
+                "Uniform eligibility task requiring t + delta <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
+                "no horizon-positive observations remained (0 positive, 65,926 negative; N_total = 65,926), preventing discrimination estimation."
+            ),
+        },
+        {
+            "Stage / Cohort Partition": "8. Uniform Earliest-Rx Task R2_Rx (delta=2h)",
+            "ICU Stays (N)": f"{stays_rx2:,} (0 horizon-positive)",
+            "Evaluated Windows": f"{tot_rx2:,} ({n_pos_rx2:,} positive / {n_neg_rx2:,} negative)",
+            "Surveillance Volume": f"{pt_days_rx2:.1f} patient-days",
+            "Proportion / Window Prevalence": "0.000% (Not Estimable)",
+            "Clinical Definition & Measurement Convention": (
+                "Uniform eligibility task requiring t + 2h <= T_Rx,start across all stays. Under declared midnight assignment of prescription-start dates, "
+                "no horizon-positive observations remained (0 positive, 65,877 negative; N_total = 65,877), preventing discrimination estimation."
             ),
         },
     ]
