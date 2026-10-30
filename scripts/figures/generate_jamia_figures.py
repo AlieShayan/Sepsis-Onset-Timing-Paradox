@@ -48,7 +48,7 @@ def generate_figure1_clocks_and_waterfall():
 
     ax1.set_title("A. Operational Clocks & Anchor-Eligible Decision Boundary", fontweight="bold", pad=18, fontsize=13)
     ax1.set_xlim(-15, 57)
-    ax1.set_ylim(-1.50, 9.2)
+    ax1.set_ylim(-1.65, 9.2)
     ax1.axis("off")
 
     t_admit = 0.0
@@ -69,31 +69,31 @@ def generate_figure1_clocks_and_waterfall():
     # Shaded background band for Surveillance Window [19h, 30h]
     ax1.axvspan(t_surv_start, t_surv_end, ymin=0.46, ymax=0.92, facecolor="#EEF2FF", alpha=0.6, zorder=0)
 
-    # Vertical guideline stems
-    ax1.plot([t_admit, t_admit], [y_axis, y_axis + 1.25], color="#0F172A", lw=1.5, linestyle=":", zorder=2)
-    ax1.plot([t_s3, t_s3], [1.8, y_axis + 1.45], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
-    ax1.plot([t_susp, t_susp], [0.75, y_axis + 1.25], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
+    # Vertical guideline stems (cleared neatly below callout texts)
+    ax1.plot([t_admit, t_admit], [y_axis, y_axis + 1.20], color="#0F172A", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_s3, t_s3], [1.8, y_axis + 1.20], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_susp, t_susp], [0.75, y_axis + 1.20], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
 
     # Markers
     ax1.plot(t_admit, y_axis, "o", color="#0F172A", markersize=8.5, zorder=5)
     ax1.plot(t_s3, y_axis, "o", color="#DC2626", markersize=9.5, zorder=5)
     ax1.plot(t_susp, y_axis, "o", color="#2563EB", markersize=9.5, zorder=5)
 
-    # Top Callouts
-    ax1.text(t_admit, y_axis + 1.35, "ICU Admission\n($T_{\\mathrm{admit}},\\; t=0$)", 
+    # Top Callouts - shifted slightly downward to preserve ~2% height clearance below the main panel title
+    ax1.text(t_admit, y_axis + 1.30, "ICU Admission\n($T_{\\mathrm{admit}},\\; t=0$)", 
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#0F172A")
 
     surv_center = (t_surv_start + t_surv_end) / 2
     ax1.annotate("", xy=(t_surv_start, y_axis + 0.48), xytext=(t_surv_end, y_axis + 0.48),
                  arrowprops=dict(arrowstyle="<->", color="#4338CA", lw=1.5))
-    ax1.text(surv_center, y_axis + 0.62, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
+    ax1.text(surv_center, y_axis + 0.60, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
              ha="center", va="bottom", fontsize=8.4, fontweight="bold", color="#3730A3")
 
-    # Sepsis-3 Onset (t=28h) - Shifted downward ~2% panel height for generous clearance below title
-    ax1.text(t_s3, y_axis + 1.55, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; cohort med: 28.0h]", 
+    # Sepsis-3 Onset (t=28h) - shifted downward (~2% panel height) for generous clearance below title
+    ax1.text(t_s3, y_axis + 1.30, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; covered med: 28.0h]", 
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#DC2626")
 
-    ax1.text(t_susp, y_axis + 1.35, "Suspicion Anchor ($T_{\\mathrm{susp}}$)\n[Illustrative: 52.2h; cohort med: 50.7h]", 
+    ax1.text(t_susp, y_axis + 1.30, "Suspicion Anchor ($T_{\\mathrm{susp}}$)\n[Illustrative: 52.2h; cohort med: 50.7h]", 
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#1D4ED8")
 
     # Operational Search-Window Lead Gap Callout
@@ -102,11 +102,11 @@ def generate_figure1_clocks_and_waterfall():
     ax1.annotate("", xy=(t_s3, gap_y), xytext=(t_susp, gap_y),
                  arrowprops=dict(arrowstyle="<->", color="#334155", lw=1.8))
     gap_box = (
-        "For first-bin-assigned episodes only ($N=274/408$, 67.2%):\n"
+        "First-Bin Lookback Identity (all: 274/408, 67.2%; covered: 100/151, 66.2%):\n"
         "Search-Window Lead Gap: $G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i} = 24h + h\\,\\mathrm{frac}(x_i) < 25h$\n"
-        "Lookback coordinate: $x_i = (T_{\\mathrm{susp},i} - 24h - T_{\\mathrm{admit},i})/h$ with bin width $h = 1\\mathrm{h}$\n"
-        "Cohort median: +24.2h (IQR: 22.8–24.6h; empirical max: 24.99h)\n"
-        "Schematic paired trajectory ($52.2 - 28.0 = 24.2\\mathrm{h} \\neq$ marginal medians diff $50.7 - 28.0 = 22.7\\mathrm{h}$)"
+        "Coordinate: $x_i = (T_{\\mathrm{susp},i} - 24h - T_{\\mathrm{admit},i})/h$ with bin width $h = 1\\mathrm{h}$\n"
+        "Full cohort ($N=408$): median +24.2h (IQR: 22.8–24.6h; empirical range: -11.2h to +24.99h)\n"
+        "Illustrative paired trajectory ($52.2 - 28.0 = 24.2\\mathrm{h} \\neq$ marginal medians diff $50.7 - 28.0 = 22.7\\mathrm{h}$)"
     )
     ax1.text(gap_center, gap_y - 0.20, gap_box, ha="center", va="top", fontsize=8.1, color="#0F172A",
              bbox=dict(boxstyle="round,pad=0.48", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.9))
@@ -151,8 +151,8 @@ def generate_figure1_clocks_and_waterfall():
         "    — Exploratory Hybrid Analysis ($C_i = T_{\\mathrm{susp}}$ for cases, $T_{\\mathrm{Rx,start}}$ for controls):  $\\mathcal{R}_0^{\\mathrm{hybrid}} = 70,192$;  $\\mathcal{R}_2^{\\mathrm{hybrid}} = 70,129$ windows\n"
         "    — Uniform Earliest-Rx Analysis ($C_i = T_{\\mathrm{Rx,start}}$ for all stays):  $\\mathcal{R}_0^{\\mathrm{Rx}} = 65,926$;  $\\mathcal{R}_2^{\\mathrm{Rx}} = 65,877$ windows ($N_+=0$, non-estimable)"
     )
-    ax1.text(-14.5, -0.05, formula_text, fontsize=8.5, color="#0F172A", family="monospace", va="top",
-             linespacing=1.45,
+    ax1.text(-14.5, -0.05, formula_text, fontsize=8.9, color="#0F172A", family="monospace", va="top",
+             linespacing=1.40,
              bbox=dict(boxstyle="round,pad=0.65", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1.2))
 
     # Panel B
@@ -323,7 +323,7 @@ def generate_figure3_decomposition():
         "1. Total Incident Sepsis\n[N=408 / 408]",
         "2. Surveillance Covered\n[N=151 / 408]",
         "3. Suspicion-Anchor Eligible\n[N=150 / 408]",
-        "4. Timely Detected\n[N=7 / 408]",
+        "4. Model-Alert Policy Detection\n[N=7 / 408]",
     ]
     values = [100.0, 37.01, 36.76, 1.72]
     colors = ["#334155", "#0284C7", "#16A34A", "#DC2626"]
@@ -357,7 +357,7 @@ def generate_figure3_decomposition():
     )
 
     ax.annotate(
-        "Operational Alert Budget\nTransition: 7/150 = 4.7%\n(BiMamba SSM at 10 ep/100 pt-days)",
+        "Model-Alert Policy Detection\nTransition: 7/150 = 4.7%\n(10 ep/100 pt-days budget & 12h suppression)",
         xy=(3.22, 2.0), xytext=(3.15, 24),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
         fontsize=9.0, color="#B91C1C", ha="center", va="bottom",
