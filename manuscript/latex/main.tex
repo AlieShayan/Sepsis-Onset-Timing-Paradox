@@ -20,11 +20,11 @@
 
 \captionsetup{font=small,labelfont=bf}
 
-\setlength{\textfloatsep}{7pt plus 1.5pt minus 1.5pt}
-\setlength{\floatsep}{6pt plus 1.5pt minus 1.5pt}
-\setlength{\intextsep}{6pt plus 1.5pt minus 1.5pt}
-\setlength{\abovecaptionskip}{3pt}
-\setlength{\belowcaptionskip}{2pt}
+\setlength{\textfloatsep}{5.5pt plus 1pt minus 1pt}
+\setlength{\floatsep}{5pt plus 1pt minus 1pt}
+\setlength{\intextsep}{5pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{2.5pt}
+\setlength{\belowcaptionskip}{1.5pt}
 
 \title{\vspace{-1.2em}\textbf{\Large Surveillance Coverage, Clinical-Process Anchors, and Workload Constraints\\ in Machine Learning Early Warning for Sepsis: An Operational Evaluation Audit}}
 
@@ -45,16 +45,19 @@
 \maketitle
 
 \begin{abstract}
-\noindent\textbf{Objectives:} To evaluate how surveillance protocol coverage, clinical-process anchor selection, and emitted-alert workload constraints govern estimated detection performance and evaluability in machine learning early warning for sepsis.
+\noindent\textbf{Objectives:} To evaluate how surveillance coverage, clinical-process anchors, and emitted-alert workload constraints govern estimated detection performance and evaluability in sepsis early warning.
 
 \vspace{0.25em}
-\noindent\textbf{Materials and Methods:} We retrospectively evaluated 8 predictive architectures across 8,254 adult first ICU stays from MIMIC-III MetaVision (2008--2012; 97,700 hourly windows; prevalence 0.694\%) monitored during hours 19--30. We formalized an operational cascade ($S \to V \to O \to D$), quantified timestamp uncertainty for recorded prescription orders, and evaluated alert-budget operating frontiers under 12-hour alert suppression.
+\noindent\textbf{Materials and Methods:} We retrospectively evaluated 8 predictive architectures across 8,254 adult first ICU stays from MIMIC-III MetaVision (2008--2012; 97,700 hourly windows; prevalence 0.694\%) monitored during hours 19--30. We formalized an operational cascade ($S \to V \to O \to D$), quantified timestamp uncertainty for recorded prescription orders, and evaluated alert-budget frontiers under 12-hour alert suppression.
 
 \vspace{0.25em}
-\noindent\textbf{Results:} Among 408 consensus Sepsis-3 stays (median onset 49.0h overall), 257 (63.0\%) developed onset after hour 36 ($V=0$, median onset 69.0h). Among 151 covered stays ($V=1$, median onset 28.0h), 100 (66.2\%) were first-bin assigned ($T_{\mathrm{susp}} - T_{\mathrm{S3}} \in [24\mathrm{h}, 25\mathrm{h})$), structurally guaranteeing pre-suspicion eligibility for evaluated decisions; among the remaining 51 stays, eligibility held in 50 (150/151 overall, 99.3\%). Evaluating opportunity against earliest prescription dates under declared midnight assignment eliminated all horizon-positive observations (0/151 definite; bounds $[0.0\%, 31.1\%]$), preventing discrimination estimation. At an alert budget of 10 episodes/100 patient-days (407 emitted alerts), BiMamba SSM and LightGBM each detected 7 patients, yielding an episode PPV of 1.72\% (7/407, NNE 58.1), covered sensitivity of 4.64\% (7/151), and whole-population yield of 1.72\% (7/408).
+\noindent\textbf{Results:} Among 408 consensus Sepsis-3 stays (median onset 49.0h overall), 257 (63.0\%) developed onset after hour 36 ($V=0$, median onset 69.0h). Among 151 covered stays ($V=1$, median onset 28.0h), 100 (66.2\%) were first-bin assigned ($T_{\mathrm{susp}} - T_{\mathrm{S3}} \in [24\mathrm{h}, 25\mathrm{h})$), structurally guaranteeing pre-suspicion eligibility; among the remaining 51 stays, eligibility held in 50 (150/151 overall, 99.3\%). Evaluating opportunity against earliest prescription dates under declared midnight assignment eliminated all horizon-positive observations (0/151 definite; bounds $[0.0\%, 31.1\%]$), preventing discrimination estimation. At an alert budget of 10 episodes/100 patient-days (407 emitted alerts), BiMamba SSM and LightGBM each detected 7 patients, yielding an episode PPV of 1.72\% (7/407, NNE 58.1), covered sensitivity of 4.64\% (7/151), and whole-population yield of 1.72\% (7/408).
 
 \vspace{0.25em}
-\noindent\textbf{Discussion and Conclusion:} Sepsis early-warning evaluations must report protocol coverage, distinguish structurally induced eligibility from biological lead time, and benchmark under explicit bedside workload constraints.
+\noindent\textbf{Discussion:} Feasibility and lead-time estimates depend fundamentally on protocol coverage and process-anchor definitions.
+
+\vspace{0.25em}
+\noindent\textbf{Conclusion:} Sepsis predictive evaluations must transparently report protocol coverage, distinguish structurally induced eligibility from biological lead time, and benchmark under explicit bedside workload constraints.
 
 \vspace{0.25em}
 \noindent\textbf{Keywords:} Sepsis Early Warning, Surveillance Truncation, Anchor Selection, Alert Budget Frontier, State-Space Models.
@@ -98,7 +101,7 @@ We conducted a retrospective evaluation with sequential prediction replay using 
 Surveillance was evaluated under a prespecified second-day ICU surveillance protocol: predictions were generated at 12 scheduled hourly decision bins $[t-1, t]$ for $t \in \{19, 20, \dots, 30\}$ hours post-admission. The test partition comprised 8,254 unique patient ICU stays (97,700 evaluated windows, 4,070.8 patient-days of surveillance volume). Stays were censored at Sepsis-3 onset ($N=110$ stays, 623 windows) or upon observation-availability cessation prior to hour 30 under the prespecified feature-generation schedule ($N=180$ control stays, 725 windows; all cohort stays had total $\text{LOS} \ge 30\text{h}$). Reporting was organized in accordance with TRIPOD+AI and STROBE recommendations~\cite{collins2024tripod,vonelm2007strobe}.
 
 \subsection{Outcome Definition and Operational Clocks}
-Sepsis was defined according to consensus Sepsis-3 criteria~\cite{singer2016sepsis,seymour2016assessment}: an acute increase in Sequential Organ Failure Assessment (SOFA) score $\ge 2$ points over baseline. Following the Seymour et al.~\cite{seymour2016assessment} consensus specification, baseline SOFA ($\text{SOFA}_{\text{base}}$) was computed as the minimum total SOFA score observed in the 24-hour window preceding suspected infection ($t \in [T_{\mathrm{susp}} - 24\mathrm{h}, T_{\mathrm{susp}}]$, assumed 0 if no prior measurements existed). Sepsis-3 onset was identified when total SOFA increased by $\ge 2$ points above $\text{SOFA}_{\text{base}}$ within the clinical search window $[T_{\mathrm{susp}} - 24\text{h}, T_{\mathrm{susp}} + 12\text{h}]$ relative to suspected infection (defined as blood culture specimen collection paired with systemic antimicrobial prescription orders; detailed in Supplementary Section S1.5). In the MIMIC-III database, antimicrobial timing derives from recorded prescription scheduling dates (\texttt{prescriptions.startdate}), which represent medication order records rather than electronically verified bedside administration timestamps.
+Sepsis was defined according to a study-specific operational adaptation of Sepsis-3 criteria~\cite{singer2016sepsis,seymour2016assessment}: an acute increase in Sequential Organ Failure Assessment (SOFA) score $\ge 2$ points over baseline. Baseline SOFA ($\text{SOFA}_{\text{base}}$) was defined in the frozen implementation as the minimum total SOFA score observed in the 24-hour window preceding the suspicion anchor ($t \in [T_{\mathrm{susp}} - 24\mathrm{h}, T_{\mathrm{susp}}]$, assumed 0 if no prior measurements existed). This was a correction to the manuscript description; the executed phenotype, patient labels, and reported results were unchanged. Sepsis-3 onset was identified when total SOFA increased by $\ge 2$ points above $\text{SOFA}_{\text{base}}$ within the clinical search window $[T_{\mathrm{susp}} - 24\text{h}, T_{\mathrm{susp}} + 12\text{h}]$ relative to suspected infection (defined as blood culture specimen collection paired with systemic antimicrobial prescription orders; detailed in Supplementary Section S1.5). In the MIMIC-III database, antimicrobial timing derives from recorded prescription scheduling dates (\texttt{prescriptions.startdate}), which represent medication order records rather than electronically verified bedside administration timestamps.
 
 To resolve temporal precision and event ambiguity without conflating orders, intended start dates, and physical administrations, we track six operational milestones (with ICU admission as the reference origin $t=0$, followed by five operational event clocks; Figure~\ref{fig:clocks}):
 \begin{itemize}
@@ -114,7 +117,7 @@ When blood culture precedes antimicrobial prescription ($T_{\mathrm{culture,pair
 \begin{equation}
 G_i = T_{\mathrm{susp}, i} - T_{\text{S3}, i} = 24h + h\,\operatorname{frac}(x_i)
 \end{equation}
-Because $0 \le \operatorname{frac}(x_i) < 1$ (dimensionless), first-bin-assigned episodes satisfy $24h \le G_i < 25h$, with an analytical supremum of $25h$ (the reported $24.99h$ is the observed empirical maximum). In these first-bin episodes ($100/151$, 66.2\% of surveillance-covered stays), pre-suspicion opportunity ($t < T_{\mathrm{susp}}$) is algebraically guaranteed for any decision time evaluated prior to onset ($t < T_{\text{S3}} \approx T_{\mathrm{susp}} - 24\text{h}$), and the 2-hour buffer is trivially satisfied (100/100 eligible under both $\delta=0\mathrm{h}$ and $\delta=2\mathrm{h}$). For the remaining 51 non-first-bin covered stays (33.8\%), the median lead gap was 19.3h (IQR: 7.1--22.0h; 45 of 51 exhibiting $T_{\mathrm{susp}} > T_{\mathrm{S3}}$). Because evaluated early-warning decisions occur up to 6h prior to onset ($t < T_{\mathrm{S3}}$), pre-suspicion opportunity holds for 50 of the 51 non-first-bin stays under $\delta=0\mathrm{h}$ (1 ineligible: stay 225130) and 49 of 51 under $\delta=2\mathrm{h}$ (2 ineligible: stays 225130 and 256664). Across all 151 covered stays, pre-suspicion eligibility is thus $100 + 50 = 150/151$ (99.3\%) under $\delta=0\mathrm{h}$ and $100 + 49 = 149/151$ (98.7\%) under $\delta=2\mathrm{h}$. Thus, high pre-suspicion opportunity in Sepsis-3 largely reflects the discrete lookback convention rather than independent empirical evidence of unprompted biological warning. Across the full 408 cohort, the median lead gap was $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$).
+Because $0 \le \operatorname{frac}(x_i) < 1$ (dimensionless), first-bin-assigned episodes satisfy $24h \le G_i < 25h$, with an analytical supremum of $25h$ (the reported $24.99h$ is the observed empirical maximum). In these first-bin episodes ($100/151$, 66.2\% of surveillance-covered stays), pre-suspicion opportunity ($t < T_{\mathrm{susp}}$) is algebraically guaranteed for any decision time evaluated prior to onset ($t < T_{\text{S3}} \approx T_{\mathrm{susp}} - 24\text{h}$), and the 2-hour buffer is trivially satisfied (100/100 eligible under both $\delta=0\mathrm{h}$ and $\delta=2\mathrm{h}$). For the remaining 51 non-first-bin covered stays (33.8\%), the median lead gap was 19.3h (IQR: 7.1--22.0h; 45 of 51 exhibiting $T_{\mathrm{susp}} > T_{\mathrm{S3}}$). Because evaluated early-warning decisions occur up to 6h prior to onset ($t < T_{\mathrm{S3}}$), pre-suspicion opportunity holds for 50 of the 51 non-first-bin stays under $\delta=0\mathrm{h}$ (1 ineligible stay, detailed in Supplementary Audit Table) and 49 of 51 under $\delta=2\mathrm{h}$ (2 ineligible stays). Across all 151 covered stays, pre-suspicion eligibility is thus $100 + 50 = 150/151$ (99.3\%) under $\delta=0\mathrm{h}$ and $100 + 49 = 149/151$ (98.7\%) under $\delta=2\mathrm{h}$. Thus, high pre-suspicion opportunity in Sepsis-3 largely reflects the discrete lookback convention rather than independent empirical evidence of unprompted biological warning. Across the full 408 cohort, the median lead gap was $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$).
 
 \begin{figure*}[t]
     \centering
@@ -391,13 +394,13 @@ In this restricted, long-stay ICU cohort, observed detection yield depended on s
 \noindent\textbf{AI Assistance Disclosure:} During manuscript preparation, the authors utilized large language model and AI assistance (Perplexity AI and Anthropic/Google AI interfaces) for adversarial peer-review pre-submission auditing, statistical consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations, taking full responsibility for the integrity, methodology, and conclusions.
 
 \vspace{0.15em}
-\noindent\textbf{Code and Data Availability:} Model architectures and frozen weight tensors are archived under commit \texttt{b0932ca} (manifest \texttt{1.0.0-freeze}); evaluation code under commit \texttt{1292103}; denominator recomputation under commit \texttt{311cea3}; submission packaging under commit \texttt{9b92113}, tag \texttt{v1.0.1-freeze}. Preprocessing pipelines are available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox}. De-identified data are available from PhysioNet under MIMIC-III DUA.
+\noindent\textbf{Code and Data Availability:} Model architectures and frozen weight tensors are archived under commit \texttt{b0932ca}; evaluation code under commit \texttt{1292103}; denominator recomputation under commit \texttt{311cea3}; audit reconciliation and submission release packaging under commit \texttt{7fbd5fa} (release tag \texttt{v1.0.1-freeze}). Preprocessing and evaluation pipelines are available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox}. De-identified data are available from PhysioNet under MIMIC-III DUA.
 }
 
 \vspace{0.2em}
 \begin{thebibliography}{23}
-\fontsize{5.5pt}{6.5pt}\selectfont
-\setlength{\itemsep}{0.2pt}
+\fontsize{5.2pt}{6.1pt}\selectfont
+\setlength{\itemsep}{0.1pt}
 \setlength{\parskip}{0pt}
 \bibitem{singer2016sepsis} Singer M, Deutschman CS, Seymour CW, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). \textit{JAMA}. 2016;315(8):801--810. DOI: 10.1001/jama.2016.0287.
 \bibitem{seymour2016assessment} Seymour CW, Liu VX, Iwashyna TJ, et al. Assessment of clinical criteria for sepsis: for the Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). \textit{JAMA}. 2016;315(8):762--774. DOI: 10.1001/jama.2016.0288.
