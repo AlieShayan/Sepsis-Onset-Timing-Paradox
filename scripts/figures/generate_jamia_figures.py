@@ -46,113 +46,102 @@ def generate_figure1_clocks_and_waterfall():
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
-    # ==============================================================================
-    # Panel A: Operational Clocks & Anchor-Eligible Decision Boundary
-    # ==============================================================================
-    ax1.set_title("A. Operational Clocks & Anchor-Eligible Decision Boundary", fontweight="bold", pad=16, fontsize=12.5)
+    ax1.set_title("A. Operational Clocks & Anchor-Eligible Decision Boundary", fontweight="bold", pad=16, fontsize=13)
     ax1.set_xlim(-15, 57)
-    ax1.set_ylim(-4.2, 8.5)
+    ax1.set_ylim(-1.50, 9.0)
     ax1.axis("off")
 
-    # Coordinates in ICU hours (representative episode with paired lead = 24.2h)
     t_admit = 0.0
     t_surv_start = 19.0
     t_surv_end = 30.0
-    t_s3 = 28.0          # representative onset
-    t_susp = 52.2        # representative anchor giving exact paired lead G_i = 24.2h
-    t_h_start = t_s3 - 6.0  # 22.0h
+    t_s3 = 28.0
+    t_susp = 52.2
+    t_h_start = t_s3 - 6.0
 
-    y_axis = 5.5
+    y_axis = 6.8
 
-    # 1. Main Time Axis Line & Axis Ticks
+    # Main Time Axis
     ax1.plot([-2, 55], [y_axis, y_axis], color="#64748B", lw=2.2, zorder=1)
-
     for h in [0, 10, 20, 30, 40, 50]:
         ax1.plot([h, h], [y_axis - 0.12, y_axis + 0.12], color="#64748B", lw=1.5, zorder=2)
-        ax1.text(h, y_axis - 0.35, f"{h}h", ha="center", va="top", fontsize=8.5, color="#64748B")
+        ax1.text(h, y_axis - 0.35, f"{h}h", ha="center", va="top", fontsize=9.0, color="#64748B")
 
     # Shaded background band for Surveillance Window [19h, 30h]
-    ax1.axvspan(t_surv_start, t_surv_end, ymin=0.38, ymax=0.88, facecolor="#EEF2FF", alpha=0.6, zorder=0)
+    ax1.axvspan(t_surv_start, t_surv_end, ymin=0.46, ymax=0.92, facecolor="#EEF2FF", alpha=0.6, zorder=0)
 
     # Vertical guideline stems
     ax1.plot([t_admit, t_admit], [y_axis, y_axis + 1.25], color="#0F172A", lw=1.5, linestyle=":", zorder=2)
-    ax1.plot([t_s3, t_s3], [1.3, y_axis + 2.05], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
-    ax1.plot([t_susp, t_susp], [0.35, y_axis + 1.25], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_s3, t_s3], [1.8, y_axis + 2.0], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_susp, t_susp], [0.75, y_axis + 1.25], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
 
-    # Markers on the axis
+    # Markers
     ax1.plot(t_admit, y_axis, "o", color="#0F172A", markersize=8.5, zorder=5)
     ax1.plot(t_s3, y_axis, "o", color="#DC2626", markersize=9.5, zorder=5)
     ax1.plot(t_susp, y_axis, "o", color="#2563EB", markersize=9.5, zorder=5)
 
-    # --- Top Callouts (Representative Episode with Marginal Medians Noted) ---
-    # ICU Admission (t=0)
+    # Top Callouts
     ax1.text(t_admit, y_axis + 1.35, "ICU Admission\n($T_{\\mathrm{admit}},\\; t=0$)", 
-             ha="center", va="bottom", fontsize=8.6, fontweight="bold", color="#0F172A")
+             ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#0F172A")
 
-    # Surveillance Protocol (bracket slightly above timeline)
     surv_center = (t_surv_start + t_surv_end) / 2
-    ax1.annotate("", xy=(t_surv_start, y_axis + 0.52), xytext=(t_surv_end, y_axis + 0.52),
+    ax1.annotate("", xy=(t_surv_start, y_axis + 0.50), xytext=(t_surv_end, y_axis + 0.50),
                  arrowprops=dict(arrowstyle="<->", color="#4338CA", lw=1.5))
-    ax1.text(surv_center, y_axis + 0.68, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
-             ha="center", va="bottom", fontsize=8.2, fontweight="bold", color="#3730A3")
+    ax1.text(surv_center, y_axis + 0.65, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
+             ha="center", va="bottom", fontsize=8.4, fontweight="bold", color="#3730A3")
 
-    # Sepsis-3 Onset (t=28h)
-    ax1.text(t_s3, y_axis + 2.15, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; cohort med: 28.0h]", 
-             ha="center", va="bottom", fontsize=8.6, fontweight="bold", color="#DC2626")
+    ax1.text(t_s3, y_axis + 2.10, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; cohort med: 28.0h]", 
+             ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#DC2626")
 
-    # Suspicion Anchor (t=52.2h)
     ax1.text(t_susp, y_axis + 1.35, "Suspicion Anchor ($T_{\\mathrm{susp}}$)\n[Illustrative: 52.2h; cohort med: 50.7h]", 
-             ha="center", va="bottom", fontsize=8.6, fontweight="bold", color="#1D4ED8")
+             ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#1D4ED8")
 
-    # 2. Operational Search-Window Lead Gap Callout
-    gap_y = 4.45
+    # Operational Search-Window Lead Gap Callout
+    gap_y = 5.55
     gap_center = (t_s3 + t_susp) / 2
     ax1.annotate("", xy=(t_s3, gap_y), xytext=(t_susp, gap_y),
                  arrowprops=dict(arrowstyle="<->", color="#334155", lw=1.8))
     gap_box = (
+        "For first-bin-assigned episodes only ($N=274/408$, 67.2%):\n"
         "Search-Window Lead Gap: $G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i} = 24h + h\\,\\mathrm{frac}(x_i) < 25h$\n"
         "Lookback coordinate: $x_i = (T_{\\mathrm{susp},i} - 24h - T_{\\mathrm{admit},i})/h$ with bin width $h = 1\\mathrm{h}$\n"
-        "First-bin-assigned episodes only: 274/408 (67.2%) | Cohort median: +24.2h (IQR: 22.8–24.6h)\n"
+        "Cohort median: +24.2h (IQR: 22.8–24.6h; empirical max: 24.99h)\n"
         "Schematic paired trajectory ($52.2 - 28.0 = 24.2\\mathrm{h} \\neq$ marginal medians diff $50.7 - 28.0 = 22.7\\mathrm{h}$)"
     )
-    ax1.text(gap_center, gap_y - 0.20, gap_box, ha="center", va="top", fontsize=7.8, color="#0F172A",
-         bbox=dict(boxstyle="round,pad=0.45", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.9))
+    ax1.text(gap_center, gap_y - 0.20, gap_box, ha="center", va="top", fontsize=8.1, color="#0F172A",
+             bbox=dict(boxstyle="round,pad=0.48", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.9))
 
-    # 3. Horizontal Swimlanes for Horizons and Eligibility
-    # Lane 1: Anticipation Horizon (H = 6h lookback)
-    lane1_y = 2.9
+    # Swimlanes
+    lane1_y = 3.85
     ax1.text(t_h_start - 1.5, lane1_y, "Anticipation Horizon ($H=6\\mathrm{h}$):", ha="right", va="center", 
-             fontsize=8.5, fontweight="bold", color="#C2410C")
-    ax1.add_patch(patches.Rectangle((t_h_start, lane1_y - 0.24), 6.0, 0.48, 
+             fontsize=8.8, fontweight="bold", color="#C2410C")
+    ax1.add_patch(patches.Rectangle((t_h_start, lane1_y - 0.26), 6.0, 0.52, 
                                     facecolor="#FED7AA", edgecolor="#EA580C", lw=1.3, zorder=3))
     ax1.text(t_h_start + 3.0, lane1_y, "$t \\in [22\\mathrm{h}, 28\\mathrm{h})$", 
-             ha="center", va="center", fontsize=8.3, fontweight="bold", color="#9A3412")
+             ha="center", va="center", fontsize=8.5, fontweight="bold", color="#9A3412")
     ax1.text(t_s3 + 1.5, lane1_y, "$Y_i(t; 6\\mathrm{h}) = \\mathbf{1}\\{t < T_{\\mathrm{S3},i} \\leq t + 6\\mathrm{h}\\}$", 
-             ha="left", va="center", fontsize=8.5, fontweight="bold", color="#EA580C")
+             ha="left", va="center", fontsize=8.8, fontweight="bold", color="#EA580C")
 
-    # Lane 2: Anchor-Eligible Decision Times
-    lane2_y = 1.8
+    lane2_y = 2.55
     ax1.text(t_h_start - 1.5, lane2_y, "Anchor-Eligible Decisions:", ha="right", va="center", 
-             fontsize=8.5, fontweight="bold", color="#15803D")
-    ax1.add_patch(patches.Rectangle((t_h_start, lane2_y - 0.24), 6.0, 0.48, 
+             fontsize=8.8, fontweight="bold", color="#15803D")
+    ax1.add_patch(patches.Rectangle((t_h_start, lane2_y - 0.26), 6.0, 0.52, 
                                     facecolor="#BBF7D0", edgecolor="#16A34A", lw=1.3, zorder=3))
     ax1.text(t_h_start + 3.0, lane2_y, "$t + \\delta \\leq C_i$", 
-             ha="center", va="center", fontsize=8.3, fontweight="bold", color="#14532D")
+             ha="center", va="center", fontsize=8.5, fontweight="bold", color="#14532D")
     ax1.text(t_s3 + 1.5, lane2_y, "$\\mathcal{A}_i^{(C)}(\\delta) = \\{t \\in \\mathcal{T}_i : 0 < T_{\\mathrm{S3},i}-t \\leq 6\\mathrm{h}, \\; t+\\delta \\leq C_i\\}$  ($O_i=1, C_i=T_{\\mathrm{susp}}$)", 
-             ha="left", va="center", fontsize=8.2, color="#15803D", fontweight="bold")
+             ha="left", va="center", fontsize=8.4, color="#15803D", fontweight="bold")
 
-    # Lane 3: Post-Anchor Censoring Region
-    lane3_y = 0.7
+    lane3_y = 1.25
     ax1.text(t_susp - 1.5, lane3_y, "Post-Anchor Period:", ha="right", va="center", 
-             fontsize=8.2, color="#475569")
-    ax1.add_patch(patches.Rectangle((t_susp, lane3_y - 0.24), 4.5, 0.48, 
+             fontsize=8.5, color="#475569")
+    ax1.add_patch(patches.Rectangle((t_susp, lane3_y - 0.26), 4.5, 0.52, 
                                     facecolor="#F1F5F9", edgecolor="#64748B", linestyle="--", lw=1.2, zorder=3))
     ax1.text(t_susp + 2.25, lane3_y, "$t > C_i$", 
-             ha="center", va="center", fontsize=8.2, color="#475569")
-    ax1.text(t_susp + 2.25, lane3_y - 0.38, "[Conceptual period outside surveillance stream; censored in $\\mathcal{R}_0$ & $\\mathcal{R}_2$]", 
-             ha="center", va="top", fontsize=7.5, color="#475569")
+             ha="center", va="center", fontsize=8.5, color="#475569")
+    ax1.text(t_susp + 2.25, lane3_y - 0.40, "[Conceptual period outside surveillance stream; censored in $\\mathcal{R}_0^{\\mathrm{hybrid}}$ & $\\mathcal{R}_2^{\\mathrm{hybrid}}$]", 
+             ha="center", va="top", fontsize=7.6, color="#475569")
 
-    # 4. Streamlined & Highly Readable Mathematics Card
+    # Mathematics Card - positioned nicely to fill down to the bottom
     formula_text = (
         "MATHEMATICAL RISK SET FORMULATION (§2.3):\n"
         "• Evaluated Base Set ($\\mathcal{R}$):       $\\mathcal{R} = \\{(i,t) : i \\in \\mathcal{C}, \\; t \\in \\mathcal{T}_i, \\; t < T_{\\mathrm{S3},i}\\}$   (97,700 windows across 8,254 stays)\n"
@@ -161,32 +150,25 @@ def generate_figure1_clocks_and_waterfall():
         "    — Exploratory Hybrid Analysis ($C_i = T_{\\mathrm{susp}}$ for cases, $T_{\\mathrm{Rx,start}}$ for controls):  $\\mathcal{R}_0^{\\mathrm{hybrid}} = 70,192$;  $\\mathcal{R}_2^{\\mathrm{hybrid}} = 70,129$ windows\n"
         "    — Uniform Earliest-Rx Analysis ($C_i = T_{\\mathrm{Rx,start}}$ for all stays):  $\\mathcal{R}_0^{\\mathrm{Rx}} = 65,926$;  $\\mathcal{R}_2^{\\mathrm{Rx}} = 65,877$ windows ($N_+=0$, non-estimable)"
     )
-    ax1.text(-14.5, -0.4, formula_text, fontsize=8.2, color="#0F172A", family="monospace", va="top",
-             linespacing=1.30,
-             bbox=dict(boxstyle="round,pad=0.55", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1.2))
+    ax1.text(-14.5, -0.05, formula_text, fontsize=8.5, color="#0F172A", family="monospace", va="top",
+             linespacing=1.45,
+             bbox=dict(boxstyle="round,pad=0.65", facecolor="#F8FAFC", edgecolor="#CBD5E1", lw=1.2))
 
-    # ==============================================================================
-    # Panel B: Population Opportunity Attrition
-    # ==============================================================================
-    ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=16, fontsize=12.5)
-
+    # Panel B
+    ax2.set_title("B. Population Opportunity Attrition", fontweight="bold", pad=16, fontsize=13)
     categories = [
         "Total Incident Sepsis",
         "Surveillance Covered\n($V=1$)",
         "Eligible under\nmidnight assignment",
         "Indeterminate\nOpportunity",
     ]
-
     m3_vals = [100.0, 9.4, 0.03, 3.07]
     m4_vals = [100.0, 37.0, 36.8, 0.2]
-
-    # Exact numerator / denominator strings
-    m3_labels = ["100.0% (3,581/3,581)", "9.4% (338/3,581)", "0.03% (1/3,581)", "3.1% (110/3,581)"]
+    m3_labels = ["100.0% (3,581/3,581)", "9.4% (337/3,581)", "0.03% (1/3,581)", "3.1% (110/3,581)"]
     m4_labels = ["100.0% (408/408)", "37.0% (151/408)", "36.8% (150/408)", "0.2% (1/408)"]
 
     y = np.arange(len(categories))
     height = 0.35
-
     rects1 = ax2.barh(y + height/2, m3_vals, height, 
                       label="Broad Historical MIMIC-III (Earliest Rx Proxy: $T_{\\mathrm{Rx,start}},\\; N=3,581$)", 
                       color="#93C5FD", edgecolor="#1D4ED8", hatch="//", lw=1.1)
@@ -198,12 +180,9 @@ def generate_figure1_clocks_and_waterfall():
     ax2.set_yticks(y)
     ax2.set_yticklabels(categories, fontsize=9.2)
     ax2.set_xlim(0, 132)
-
-    # Legend placed cleanly in top right corner
     ax2.legend(loc="upper right", frameon=True, facecolor="white", framealpha=0.95, edgecolor="#CBD5E1", fontsize=8.2)
     ax2.grid(axis="x", linestyle="--", alpha=0.5)
 
-    # Value annotations with clean spacing and explicit denominators
     for r, text_lbl in zip(rects1, m3_labels):
         w = r.get_width()
         ax2.text(w + 1.8, r.get_y() + r.get_height()/2, text_lbl, va="center", fontsize=8.2, color="#1D4ED8", fontweight="bold")
@@ -211,6 +190,7 @@ def generate_figure1_clocks_and_waterfall():
     for r, text_lbl in zip(rects2, m4_labels):
         w = r.get_width()
         ax2.text(w + 1.8, r.get_y() + r.get_height()/2, text_lbl, va="center", fontsize=8.2, color="#0F172A", fontweight="bold")
+
 
     out_png = FIG_DIR / "Figure1_Clocks_and_Opportunity_Waterfall.png"
     out_pdf = FIG_DIR / "Figure1_Clocks_and_Opportunity_Waterfall.pdf"
@@ -228,7 +208,7 @@ def generate_figure1_clocks_and_waterfall():
 
 
 def generate_figure2_operational_frontiers():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.8))
 
     t3_path = TABLE_DIR / "Table3_Alert_Budget_Refractory_Workload.csv"
     if not t3_path.exists():
@@ -237,37 +217,53 @@ def generate_figure2_operational_frontiers():
 
     df_t3 = pd.read_csv(t3_path)
 
+    # Differentiated markers and hollow styles to make coincident points 100% distinguishable
     model_display = {
-        "BiMamba SSM (Proposed)": {"label": "BiMamba SSM", "color": "#2563EB", "ls": "-", "marker": "s"},
-        "Multi-Model Stacking Ensemble": {"label": "Stacking Ensemble", "color": "#DC2626", "ls": "--", "marker": "o"},
-        "Tabular GBDT (LightGBM)": {"label": "LightGBM", "color": "#16A34A", "ls": "-.", "marker": "^"},
-        "Tabular GBDT (XGBoost)": {"label": "XGBoost", "color": "#9333EA", "ls": "-.", "marker": "v"},
-        "Random Forest": {"label": "Random Forest", "color": "#D97706", "ls": ":", "marker": "d"},
+        "BiMamba SSM (Proposed)": {
+            "label": "BiMamba SSM", "color": "#2563EB", "ls": "-", "marker": "s", "ms": 8.0, 
+            "mfc": "#2563EB", "mec": "#1D4ED8", "mew": 1.5, "zorder": 4
+        },
+        "Multi-Model Stacking Ensemble": {
+            "label": "Stacking Ensemble", "color": "#DC2626", "ls": "--", "marker": "o", "ms": 10.5, 
+            "mfc": "none", "mec": "#DC2626", "mew": 2.2, "zorder": 5
+        },
+        "Tabular GBDT (LightGBM)": {
+            "label": "LightGBM", "color": "#16A34A", "ls": "-.", "marker": "^", "ms": 7.5, 
+            "mfc": "#16A34A", "mec": "#14532D", "mew": 1.2, "zorder": 3
+        },
+        "Tabular GBDT (XGBoost)": {
+            "label": "XGBoost", "color": "#9333EA", "ls": (0, (4, 1.5, 1, 1.5)), "marker": "v", "ms": 10.0, 
+            "mfc": "none", "mec": "#9333EA", "mew": 2.0, "zorder": 5
+        },
+        "Random Forest": {
+            "label": "Random Forest", "color": "#D97706", "ls": ":", "marker": "d", "ms": 6.8, 
+            "mfc": "#D97706", "mec": "#92400E", "mew": 1.2, "zorder": 4
+        },
     }
 
     budgets = [5.01, 10.00, 20.00]
 
     # --- Left Panel: Episode PPV vs Budget ---
-    ax1.set_title("A. Episode-Level PPV vs. Emitted Alert Budget", fontweight="bold")
+    ax1.set_title("A. Episode-Level PPV vs. Emitted Alert Budget", fontweight="bold", pad=12)
     for mname, cfg in model_display.items():
         sub = df_t3[df_t3["Model Architecture"] == mname]
         if len(sub) == 0:
             continue
-        ppv_vals = []
-        for s in sub["Episode PPV % [95% CI]"]:
-            val_str = s.split(" ")[0]
-            ppv_vals.append(float(val_str))
-        ax1.plot(budgets, ppv_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
+        ppv_vals = [float(s.split(" ")[0]) for s in sub["Episode PPV % [95% CI]"]]
+        ax1.plot(budgets, ppv_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], 
+                 marker=cfg["marker"], markersize=cfg["ms"], markerfacecolor=cfg["mfc"], 
+                 markeredgecolor=cfg["mec"], markeredgewidth=cfg["mew"], lw=2.2, zorder=cfg["zorder"])
 
-    ax1.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)")
-    ax1.set_ylabel("Episode-Level PPV (%)")
+    ax1.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)", fontsize=10.5, fontweight="bold", labelpad=8)
+    ax1.set_ylabel("Episode-Level PPV (%)", fontsize=11, fontweight="bold", labelpad=8)
     ax1.set_xticks(budgets)
+    ax1.set_xticklabels(["5", "10", "20"])
     ax1.set_ylim(0, 3.5)
     ax1.grid(True, linestyle="--", alpha=0.5)
-    ax1.legend(loc="upper right", frameon=True)
+    ax1.legend(loc="upper right", frameon=True, facecolor="white", edgecolor="#CBD5E1", fontsize=9.0)
 
     # --- Right Panel: 12h Refractory Workload (NNE) ---
-    ax2.set_title("B. Evaluation Workload (NNE) per Detected Sepsis Patient", fontweight="bold")
+    ax2.set_title("B. Evaluation Workload (NNE) per Detected Sepsis Patient", fontweight="bold", pad=12)
     for mname, cfg in model_display.items():
         sub = df_t3[df_t3["Model Architecture"] == mname]
         if len(sub) == 0:
@@ -275,18 +271,18 @@ def generate_figure2_operational_frontiers():
         nne_vals = []
         for s in sub["NNE per Detected Patient [95% CI]"]:
             val_str = s.split(" ")[0]
-            if val_str == "Undefined":
-                nne_vals.append(np.nan)
-            else:
-                nne_vals.append(float(val_str))
-        ax2.plot(budgets, nne_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], marker=cfg["marker"], lw=2.2, ms=7)
+            nne_vals.append(np.nan if val_str == "Undefined" else float(val_str))
+        ax2.plot(budgets, nne_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], 
+                 marker=cfg["marker"], markersize=cfg["ms"], markerfacecolor=cfg["mfc"], 
+                 markeredgecolor=cfg["mec"], markeredgewidth=cfg["mew"], lw=2.2, zorder=cfg["zorder"])
 
-    ax2.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)")
-    ax2.set_ylabel("Emitted Alert Episodes per Detected Patient (NNE)")
+    ax2.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)", fontsize=10.5, fontweight="bold", labelpad=8)
+    ax2.set_ylabel("Emitted Alert Episodes per Detected Patient (NNE)", fontsize=11, fontweight="bold", labelpad=8)
     ax2.set_xticks(budgets)
+    ax2.set_xticklabels(["5", "10", "20"])
     ax2.set_ylim(20, 115)
     ax2.grid(True, linestyle="--", alpha=0.5)
-    ax2.legend(loc="upper left", frameon=True)
+    ax2.legend(loc="upper left", frameon=True, facecolor="white", edgecolor="#CBD5E1", fontsize=9.0)
 
     plt.tight_layout()
     out_png = FIG_DIR / "Figure2_Operational_Alert_Budget_Frontier.png"
@@ -294,49 +290,65 @@ def generate_figure2_operational_frontiers():
     plt.savefig(out_png)
     plt.savefig(out_pdf)
     plt.close()
+
+    # Sync to manuscript latex figures dir
+    latex_fig_dir = PROJECT_ROOT / "manuscript" / "latex" / "figures"
+    if latex_fig_dir.exists():
+        import shutil
+        shutil.copy(out_pdf, latex_fig_dir / "Figure2_Operational_Alert_Budget_Frontier.pdf")
+        shutil.copy(out_png, latex_fig_dir / "Figure2_Operational_Alert_Budget_Frontier.png")
+        logger.info("Synchronized Figure 2 to %s", latex_fig_dir)
+
     logger.info("Saved Figure 2 to %s and %s", out_png, out_pdf)
 
 
 def generate_figure3_decomposition():
-    fig, ax = plt.subplots(figsize=(10, 5.5))
-    ax.set_title("Cumulative Population Coverage & Actionability Decomposition", fontweight="bold", pad=14)
+    fig, ax = plt.subplots(figsize=(10.5, 5.8))
+    ax.set_title("Cumulative Population Coverage and Anchor-Conditioned Detection", fontweight="bold", pad=16, fontsize=13)
 
     stages = [
-        "1. Total Incident Sepsis\n100.0%\n[N=408 / 408]",
-        "2. Surveillance Covered\n37.0%\n[N=151 / 408]",
-        "3. Pretreatment Eligible\n36.8%\n[N=150 / 408]",
-        "4. Timely Detected\n1.7%\n[N=7 / 408]",
+        "1. Total Incident Sepsis\n[N=408 / 408]",
+        "2. Surveillance Covered\n[N=151 / 408]",
+        "3. Suspicion-Anchor Eligible\n[N=150 / 408]",
+        "4. Timely Detected\n[N=7 / 408]",
     ]
     values = [100.0, 37.01, 36.76, 1.72]
     colors = ["#334155", "#0284C7", "#16A34A", "#DC2626"]
 
-    bars = ax.bar(stages, values, color=colors, width=0.5, edgecolor="#0F172A", lw=1.2)
-    ax.set_ylabel("Cumulative Proportion of Sepsis Episodes (%)")
-    ax.set_ylim(0, 115)
-    ax.grid(axis="y", linestyle="--", alpha=0.5)
+    bars = ax.bar(stages, values, color=colors, width=0.48, edgecolor="#0F172A", lw=1.2, zorder=3)
+    ax.set_ylabel("Cumulative Proportion of Sepsis Episodes (%)", fontsize=11, fontweight="bold", labelpad=8)
+    ax.set_ylim(0, 118)
+    ax.set_xlim(-0.6, 3.75)
+    ax.grid(axis="y", linestyle="--", alpha=0.5, zorder=0)
 
     for bar, val in zip(bars, values):
         h = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, h + 2.5, f"{val:.1f}%", ha="center", fontsize=10, fontweight="bold")
+        y_pos = h + 2.4 if h > 5 else h + 2.0
+        ax.text(bar.get_x() + bar.get_width()/2, y_pos, f"{val:.1f}%", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color="#0F172A")
 
-    # Annotations for conditional transitions
+    # Annotations with off-center arrows that never collide with percentage labels
     ax.annotate(
         "Surveillance Truncation\nTransition: 151/408 = 37.0%\n(257 stays develop sepsis after h36)",
-        xy=(1, 37.0), xytext=(1.35, 75),
+        xy=(1.22, 37.0), xytext=(1.50, 75),
         arrowprops=dict(arrowstyle="->", color="#0284C7", lw=1.8),
-        fontsize=9, color="#0369A1", ha="center"
+        fontsize=9.0, color="#0369A1", ha="center", va="bottom",
+        bbox=dict(boxstyle="round,pad=0.35", facecolor="#F0F9FF", edgecolor="#BAE6FD", lw=1.0)
     )
+
     ax.annotate(
-        "Pretreatment Actionability\nTransition: 150/151 = 99.3%\n[149/151 = 98.7% for 2h buffer]",
-        xy=(2, 36.8), xytext=(2.35, 55),
+        "Suspicion-Anchor Eligibility\nTransition: 150/151 = 99.3%\n[149/151 = 98.7% for 2h margin]",
+        xy=(2.22, 36.8), xytext=(2.45, 56),
         arrowprops=dict(arrowstyle="->", color="#16A34A", lw=1.8),
-        fontsize=9, color="#15803D", ha="center"
+        fontsize=9.0, color="#15803D", ha="center", va="bottom",
+        bbox=dict(boxstyle="round,pad=0.35", facecolor="#F0FDF4", edgecolor="#BBF7D0", lw=1.0)
     )
+
     ax.annotate(
-        "Operational Alert Budget\nTransition: 7/150 = 4.7%\n(BiMamba SSM at 10 emitted episodes/100 pt-days)",
-        xy=(3, 1.72), xytext=(3.0, 25),
+        "Operational Alert Budget\nTransition: 7/150 = 4.7%\n(BiMamba SSM at 10 ep/100 pt-days)",
+        xy=(3.22, 2.0), xytext=(3.15, 24),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
-        fontsize=9, color="#B91C1C", ha="center"
+        fontsize=9.0, color="#B91C1C", ha="center", va="bottom",
+        bbox=dict(boxstyle="round,pad=0.35", facecolor="#FEF2F2", edgecolor="#FECACA", lw=1.0)
     )
 
     plt.tight_layout()
@@ -345,6 +357,15 @@ def generate_figure3_decomposition():
     plt.savefig(out_png)
     plt.savefig(out_pdf)
     plt.close()
+
+    # Sync to manuscript latex figures dir
+    latex_fig_dir = PROJECT_ROOT / "manuscript" / "latex" / "figures"
+    if latex_fig_dir.exists():
+        import shutil
+        shutil.copy(out_pdf, latex_fig_dir / "Figure3_Three_Stage_Decomposition.pdf")
+        shutil.copy(out_png, latex_fig_dir / "Figure3_Three_Stage_Decomposition.png")
+        logger.info("Synchronized Figure 3 to %s", latex_fig_dir)
+
     logger.info("Saved Figure 3 to %s and %s", out_png, out_pdf)
 
 

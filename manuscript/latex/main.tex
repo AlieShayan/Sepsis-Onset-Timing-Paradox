@@ -240,7 +240,7 @@ At an emitted workload of 10 alert episodes per 100 patient-days (407 emitted ep
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.90\textwidth]{figures/Figure2_Operational_Alert_Budget_Frontier.pdf}
-    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines illustrate trends across evaluated budget tiers; complete bootstrap confidence intervals and boundary-degenerate notes are reported in Table~\ref{tab:table3}.}
+    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref{tab:table3}.}
     \label{fig:frontiers}
 \end{figure*}
 
@@ -330,14 +330,14 @@ Figure~\ref{fig:decomp} illustrates the cumulative population coverage decomposi
 \]
 \begin{enumerate}
     \item \textbf{Surveillance Truncation ($151/408 = 37.0\%$):} 63.0\% of sepsis patients develop onset after hour 36, outside the prespecified second-day surveillance protocol.
-    \item \textbf{Pretreatment Actionability ($150/151 = 99.3\%$):} Of the 151 covered stays, 150 had at least one horizon-positive decision time at or before recorded treatment initiation.
+    \item \textbf{Suspicion-Anchor Eligibility ($150/151 = 99.3\%$):} Of the 151 covered stays, 150 had at least one horizon-positive decision time at or before the retrospective suspicion anchor ($T_{\mathrm{susp}}$) [149 of 151 (98.7\%) under a 2-hour pre-suspicion margin].
     \item \textbf{Workload Detection Yield ($7/150 = 4.67\%$):} Under an alert budget of 10 episodes/100 patient-days, BiMamba SSM detects 7 patients (1.72\% whole-population yield; NNE = 58.1).
 \end{enumerate}
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\columnwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
-    \caption{\textbf{Cumulative Population Coverage and Actionability Decomposition.} Stepwise attrition from 408 incident sepsis episodes through protocol coverage, pre-treatment opportunity, and alert-budget detection.}
+    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and operational alert-budget detection yield.}
     \label{fig:decomp}
 \end{figure}
 
