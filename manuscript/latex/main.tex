@@ -112,8 +112,8 @@ Because $0 \le \operatorname{frac}(x_i) < 1$ (dimensionless), first-bin-assigned
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.92\textwidth]{figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf}
-    \caption{\textbf{Operational Clocks, Outcome-Stratified Decision Windows, and Population Opportunity Attrition.} Panel A illustrates the clinical timeline for an ICU-incident sepsis patient, depicting the search-window lead $G_i = 24h + h\,\operatorname{frac}(x_i) < 25h$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text{h}$; empirical max $24.99\text{h}$), the pre-suspicion decision set $\mathcal{A}_i(\delta) = \{t \in \mathcal{T}_i : 0 < T_{\text{S3},i}-t \le 6\text{h}, t+\delta \le T_{\mathrm{susp},i}\}$, and the post-anchor period censored in $\mathcal{R}_\delta^{\mathrm{hybrid}}$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm{Rx,start}}$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm{susp}}$), highlighting eligibility under declared midnight assignment. \textit{Alt-text:} Two-panel diagram displaying timeline clocks and mathematical risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.}
+    \includegraphics[width=0.88\textwidth]{figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf}
+    \caption{\textbf{Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.} The timeline is schematic; displayed population summaries do not represent a single paired patient trajectory. Eligibility relative to a retrospective suspicion anchor does not establish absence of prior antimicrobial exposure. Panel A depicts the clinical timeline for an ICU-incident sepsis stay, illustrating the discrete search-window lead $G_i = 24h + h\,\operatorname{frac}(x_i) < 25h$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text{h}$; empirical max $24.99\text{h}$), the anticipation horizon $t \in [22\mathrm{h}, 28\mathrm{h})$, anchor-eligible decision times $\mathcal{A}_i^{(C)}(\delta)$, and the conceptual post-anchor period. Actual model evaluations occur at discrete scored timestamps $t \in \mathcal{T}_i$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm{Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm{susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment. \textit{Alt-text:} Two-panel diagram displaying schematic timeline clocks and formal risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.}
     \label{fig:clocks}
 \end{figure*}
 
@@ -384,7 +384,7 @@ During the preparation of this manuscript, the authors utilized large language m
 Prediction model architectures and frozen weight tensors are archived under model/data freeze commit \texttt{b0932ca} (release manifest \texttt{1.0.0-freeze}); evaluation implementation is archived under commit \texttt{1292103}; denominator recomputation is archived under commit \texttt{311cea3}; submission packaging is archived under commit \texttt{9b92113}, tag \texttt{v1.0.1-freeze}. All preprocessing pipelines and configurations are available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox}. De-identified patient data are available from PhysioNet under the MIMIC-III Data Use Agreement.
 }
 
-\fontsize{6.8pt}{7.8pt}\selectfont
+\fontsize{6.2pt}{7.2pt}\selectfont
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \begin{thebibliography}{22}

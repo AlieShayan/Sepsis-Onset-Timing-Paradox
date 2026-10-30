@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  29 OCT 2026 22:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  30 OCT 2026 14:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -983,14 +983,14 @@ uspicion an-chor, de-fined per Sey-mour et al. [[]2[]] as $[]\LMS/ntxsy/m/n/12
 ¹\OML/ntxmi/m/it/12 T[]; T[]\LMS/ntxsy/m/n/12 º$\OT1/ntxtlf/m/n/12 (-20) . 
  []
 
-<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=160, 1214.13597pt x 5
-92.61403pt>
+<figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf, id=160, 1243.04402pt x 6
+07.068pt>
 File: figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf Graphic file (type p
 df)
 <use figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>
 Package pdftex.def Info: figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf  
 used on input line 109.
-(pdftex.def)             Requested size: 418.82375pt x 204.42493pt.
+(pdftex.def)             Requested size: 418.82375pt x 204.5385pt.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.0pt on input line 110.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
@@ -1006,7 +1006,7 @@ LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 6.6pt on input line 123.
  [7 <./figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf>] [8] [9]
 [10]
-<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=445, 1011.78pt x 397
+<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=447, 1011.78pt x 397
 .485pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
 pdf)
@@ -1015,7 +1015,7 @@ Package pdftex.def Info: figures/Figure2_Operational_Alert_Budget_Frontier.pdf
  used on input line 188.
 (pdftex.def)             Requested size: 409.71692pt x 160.96234pt.
  [11] [12 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>]
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=561, 722.7pt x 397.485pt>
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=563, 722.7pt x 397.485pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
@@ -1191,11 +1191,11 @@ d.
 (rerunfilecheck)             Checksum: 236534373BBE4B901A8C832A28A1AF5B;4304.
  ) 
 Here is how much of TeX's memory you used:
- 19068 strings out of 469503
- 296817 string characters out of 5470407
- 751786 words of memory out of 5000000
+ 19060 strings out of 469503
+ 296685 string characters out of 5470407
+ 751125 words of memory out of 5000000
  46590 multiletter control sequences out of 15000+600000
- 810270 words of font info for 773 fonts, out of 8000000 for 9000
+ 809797 words of font info for 767 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  75i,15n,117p,1859b,686s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
@@ -1207,9 +1207,9 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (20 pages, 387346 bytes).
+Output written on main_review_doublespaced.pdf (20 pages, 388637 bytes).
 PDF statistics:
- 794 PDF objects out of 1000 (max. 8388607)
+ 796 PDF objects out of 1000 (max. 8388607)
  352 compressed objects within 4 object streams
  97 named destinations out of 1000 (max. 500000)
  188576 words of extra memory for PDF output out of 221844 (max. 10000000)
