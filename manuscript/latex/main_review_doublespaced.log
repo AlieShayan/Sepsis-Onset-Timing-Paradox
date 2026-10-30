@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  30 OCT 2026 15:57
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  30 OCT 2026 16:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1015,14 +1015,14 @@ Package pdftex.def Info: figures/Figure2_Operational_Alert_Budget_Frontier.pdf
  used on input line 188.
 (pdftex.def)             Requested size: 409.71692pt x 163.88342pt.
  [11] [12 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>]
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=553, 758.835pt x 419.166pt>
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=562, 758.835pt x 419.166pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
  input line 217.
 (pdftex.def)             Requested size: 400.61703pt x 221.29347pt.
 
-[13 <./figures/Figure3_Three_Stage_Decomposition.pdf>] [14] [15] [16]
+[13] [14 <./figures/Figure3_Three_Stage_Decomposition.pdf>] [15] [16]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.5pt on input line 267.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
@@ -1191,11 +1191,11 @@ d.
 (rerunfilecheck)             Checksum: 236534373BBE4B901A8C832A28A1AF5B;4304.
  ) 
 Here is how much of TeX's memory you used:
- 19072 strings out of 469503
- 296889 string characters out of 5470407
- 752282 words of memory out of 5000000
+ 19096 strings out of 469503
+ 297317 string characters out of 5470407
+ 752951 words of memory out of 5000000
  46590 multiletter control sequences out of 15000+600000
- 810500 words of font info for 776 fonts, out of 8000000 for 9000
+ 812110 words of font info for 794 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  75i,15n,117p,1859b,686s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
@@ -1207,9 +1207,9 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (20 pages, 388535 bytes).
+Output written on main_review_doublespaced.pdf (20 pages, 392206 bytes).
 PDF statistics:
- 790 PDF objects out of 1000 (max. 8388607)
+ 799 PDF objects out of 1000 (max. 8388607)
  352 compressed objects within 4 object streams
  97 named destinations out of 1000 (max. 500000)
  188576 words of extra memory for PDF output out of 221844 (max. 10000000)

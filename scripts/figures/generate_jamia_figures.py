@@ -46,9 +46,9 @@ def generate_figure1_clocks_and_waterfall():
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
-    ax1.set_title("A. Operational Clocks & Anchor-Eligible Decision Boundary", fontweight="bold", pad=16, fontsize=13)
+    ax1.set_title("A. Operational Clocks & Anchor-Eligible Decision Boundary", fontweight="bold", pad=18, fontsize=13)
     ax1.set_xlim(-15, 57)
-    ax1.set_ylim(-1.50, 9.0)
+    ax1.set_ylim(-1.50, 9.2)
     ax1.axis("off")
 
     t_admit = 0.0
@@ -58,7 +58,7 @@ def generate_figure1_clocks_and_waterfall():
     t_susp = 52.2
     t_h_start = t_s3 - 6.0
 
-    y_axis = 6.8
+    y_axis = 6.6
 
     # Main Time Axis
     ax1.plot([-2, 55], [y_axis, y_axis], color="#64748B", lw=2.2, zorder=1)
@@ -71,7 +71,7 @@ def generate_figure1_clocks_and_waterfall():
 
     # Vertical guideline stems
     ax1.plot([t_admit, t_admit], [y_axis, y_axis + 1.25], color="#0F172A", lw=1.5, linestyle=":", zorder=2)
-    ax1.plot([t_s3, t_s3], [1.8, y_axis + 2.0], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
+    ax1.plot([t_s3, t_s3], [1.8, y_axis + 1.45], color="#DC2626", lw=1.5, linestyle=":", zorder=2)
     ax1.plot([t_susp, t_susp], [0.75, y_axis + 1.25], color="#2563EB", lw=1.5, linestyle=":", zorder=2)
 
     # Markers
@@ -84,19 +84,20 @@ def generate_figure1_clocks_and_waterfall():
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#0F172A")
 
     surv_center = (t_surv_start + t_surv_end) / 2
-    ax1.annotate("", xy=(t_surv_start, y_axis + 0.50), xytext=(t_surv_end, y_axis + 0.50),
+    ax1.annotate("", xy=(t_surv_start, y_axis + 0.48), xytext=(t_surv_end, y_axis + 0.48),
                  arrowprops=dict(arrowstyle="<->", color="#4338CA", lw=1.5))
-    ax1.text(surv_center, y_axis + 0.65, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
+    ax1.text(surv_center, y_axis + 0.62, "Surveillance Window\nHours 19–30 (12 Decision Bins)", 
              ha="center", va="bottom", fontsize=8.4, fontweight="bold", color="#3730A3")
 
-    ax1.text(t_s3, y_axis + 2.10, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; cohort med: 28.0h]", 
+    # Sepsis-3 Onset (t=28h) - Shifted downward ~2% panel height for generous clearance below title
+    ax1.text(t_s3, y_axis + 1.55, "Sepsis-3 Onset ($T_{\\mathrm{S3}}$)\n[Illustrative: 28.0h; cohort med: 28.0h]", 
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#DC2626")
 
     ax1.text(t_susp, y_axis + 1.35, "Suspicion Anchor ($T_{\\mathrm{susp}}$)\n[Illustrative: 52.2h; cohort med: 50.7h]", 
              ha="center", va="bottom", fontsize=8.8, fontweight="bold", color="#1D4ED8")
 
     # Operational Search-Window Lead Gap Callout
-    gap_y = 5.55
+    gap_y = 5.40
     gap_center = (t_s3 + t_susp) / 2
     ax1.annotate("", xy=(t_s3, gap_y), xytext=(t_susp, gap_y),
                  arrowprops=dict(arrowstyle="<->", color="#334155", lw=1.8))
@@ -220,19 +221,19 @@ def generate_figure2_operational_frontiers():
     # Differentiated markers and hollow styles to make coincident points 100% distinguishable
     model_display = {
         "BiMamba SSM (Proposed)": {
-            "label": "BiMamba SSM", "color": "#2563EB", "ls": "-", "marker": "s", "ms": 8.0, 
-            "mfc": "#2563EB", "mec": "#1D4ED8", "mew": 1.5, "zorder": 4
+            "label": "BiMamba SSM", "color": "#2563EB", "ls": "-", "marker": "s", "ms": 7.2, 
+            "mfc": "#2563EB", "mec": "#1D4ED8", "mew": 1.2, "zorder": 4
         },
         "Multi-Model Stacking Ensemble": {
-            "label": "Stacking Ensemble", "color": "#DC2626", "ls": "--", "marker": "o", "ms": 10.5, 
+            "label": "Stacking Ensemble", "color": "#DC2626", "ls": "--", "marker": "o", "ms": 11.0, 
             "mfc": "none", "mec": "#DC2626", "mew": 2.2, "zorder": 5
         },
         "Tabular GBDT (LightGBM)": {
-            "label": "LightGBM", "color": "#16A34A", "ls": "-.", "marker": "^", "ms": 7.5, 
-            "mfc": "#16A34A", "mec": "#14532D", "mew": 1.2, "zorder": 3
+            "label": "LightGBM", "color": "#16A34A", "ls": "-.", "marker": "^", "ms": 11.5, 
+            "mfc": "none", "mec": "#16A34A", "mew": 2.0, "zorder": 6
         },
         "Tabular GBDT (XGBoost)": {
-            "label": "XGBoost", "color": "#9333EA", "ls": (0, (4, 1.5, 1, 1.5)), "marker": "v", "ms": 10.0, 
+            "label": "XGBoost", "color": "#9333EA", "ls": (0, (4, 1.5, 1, 1.5)), "marker": "v", "ms": 9.5, 
             "mfc": "none", "mec": "#9333EA", "mew": 2.0, "zorder": 5
         },
         "Random Forest": {
@@ -253,6 +254,12 @@ def generate_figure2_operational_frontiers():
         ax1.plot(budgets, ppv_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], 
                  marker=cfg["marker"], markersize=cfg["ms"], markerfacecolor=cfg["mfc"], 
                  markeredgecolor=cfg["mec"], markeredgewidth=cfg["mew"], lw=2.2, zorder=cfg["zorder"])
+
+    # Coincident point callout for BiMamba = LightGBM at budget 10
+    ax1.annotate("BiMamba = LightGBM (1.72%)", xy=(10.0, 1.72), xytext=(10.0, 1.22),
+                 arrowprops=dict(arrowstyle="->", color="#0F172A", lw=0.9),
+                 fontsize=8.0, fontweight="bold", color="#0F172A", ha="center",
+                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.8))
 
     ax1.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)", fontsize=10.5, fontweight="bold", labelpad=8)
     ax1.set_ylabel("Episode-Level PPV (%)", fontsize=11, fontweight="bold", labelpad=8)
@@ -275,6 +282,12 @@ def generate_figure2_operational_frontiers():
         ax2.plot(budgets, nne_vals, label=cfg["label"], color=cfg["color"], linestyle=cfg["ls"], 
                  marker=cfg["marker"], markersize=cfg["ms"], markerfacecolor=cfg["mfc"], 
                  markeredgecolor=cfg["mec"], markeredgewidth=cfg["mew"], lw=2.2, zorder=cfg["zorder"])
+
+    # Coincident point callout for BiMamba = LightGBM at budget 10
+    ax2.annotate("BiMamba = LightGBM (58.1)", xy=(10.0, 58.1), xytext=(10.0, 75.0),
+                 arrowprops=dict(arrowstyle="->", color="#0F172A", lw=0.9),
+                 fontsize=8.0, fontweight="bold", color="#0F172A", ha="center",
+                 bbox=dict(boxstyle="round,pad=0.25", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.8))
 
     ax2.set_xlabel("Emitted Alert Budget (episodes / 100 surveillance patient-days)", fontsize=10.5, fontweight="bold", labelpad=8)
     ax2.set_ylabel("Emitted Alert Episodes per Detected Patient (NNE)", fontsize=11, fontweight="bold", labelpad=8)

@@ -239,8 +239,8 @@ At an emitted workload of 10 alert episodes per 100 patient-days (407 emitted ep
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.90\textwidth]{figures/Figure2_Operational_Alert_Budget_Frontier.pdf}
-    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref{tab:table3}.}
+    \includegraphics[width=0.85\textwidth]{figures/Figure2_Operational_Alert_Budget_Frontier.pdf}
+    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref{tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit{Alt-text:} Two-panel plot showing PPV (Panel A) and evaluation workload per detected patient (Panel B) across alert budgets of 5, 10, and 20 episodes/100 patient-days for 5 models under 12h alert suppression.}
     \label{fig:frontiers}
 \end{figure*}
 
@@ -336,8 +336,8 @@ Figure~\ref{fig:decomp} illustrates the cumulative population coverage decomposi
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\columnwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
-    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and operational alert-budget detection yield.}
+    \includegraphics[width=0.95\columnwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
+    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and operational alert-budget detection yield. \textit{Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely alert-budget detection (7 patients, 1.72\%).}
     \label{fig:decomp}
 \end{figure}
 
@@ -365,26 +365,23 @@ Temporal precision also constrains interpretation: MIMIC-III prescription dates 
 In this restricted, long-stay ICU cohort, observed detection yield depended on surveillance coverage, baseline discrimination, and emitted-alert policies. Evaluation feasibility was highly anchor-dependent: horizon-positive observations were retained before the selected suspicion anchor, but none remained before the earliest prescription-start proxy under midnight assignment, precluding discrimination estimation for that task. Machine learning early-warning evaluations must transparently identify outcome-dependent evaluation rules, report anchor-dependent evaluability, and benchmark under explicit workload constraints.
 
 {\scriptsize
-\paragraph*{Ethics Approval and Consent to Participate}
-This study was conducted using de-identified data from the MIMIC-III (v1.4) database, collected at Beth Israel Deaconess Medical Center (BIDMC). Data collection was approved by the Institutional Review Boards of BIDMC and the Massachusetts Institute of Technology (MIT). The data were de-identified in accordance with Health Insurance Portability and Accountability Act (HIPAA) Safe Harbor standards; informed consent was waived by the reviewing IRBs. Access was granted under PhysioNet Credentialed Data Use Agreement.
+\noindent\textbf{Ethics Approval and Consent to Participate:} This study was conducted using de-identified data from the MIMIC-III (v1.4) database, collected at Beth Israel Deaconess Medical Center (BIDMC). Data collection was approved by the Institutional Review Boards of BIDMC and the Massachusetts Institute of Technology (MIT). The data were de-identified in accordance with HIPAA Safe Harbor standards; informed consent was waived by reviewing IRBs. Access was granted under PhysioNet Credentialed DUA.
 
-\paragraph*{Competing Interests}
-The authors declare that they have no competing financial or non-financial interests.
+\smallskip
+\noindent\textbf{Competing Interests:} The authors declare that they have no competing financial or non-financial interests. \quad \textbf{Funding:} This research received no external grant or commercial funding.
 
-\paragraph*{Funding}
-This research received no external grant or commercial funding.
+\smallskip
+\noindent\textbf{Authors' Contributions:} AS conceived the study, developed the analytical framework, implemented pipelines, performed experiments, and drafted the manuscript. SA provided academic supervision, contributed to methodological design, critically revised the manuscript, and approved the final draft.
 
-\paragraph*{Authors' Contributions}
-AS conceived the study, developed the analytical framework, implemented the pipelines, performed the experiments, and drafted the manuscript. SA provided academic supervision, contributed to methodological design, critically revised the manuscript, and approved the final draft.
+\smallskip
+\noindent\textbf{AI Assistance Disclosure:} During manuscript preparation, the authors utilized large language model and AI assistance (Perplexity AI and Anthropic/Google AI interfaces) for adversarial peer-review pre-submission auditing, statistical consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations, taking full responsibility for the integrity, methodology, and conclusions.
 
-\paragraph*{AI Assistance Disclosure}
-During the preparation of this manuscript, the authors utilized large language model and AI assistance (including Perplexity AI and Anthropic/Google AI interfaces) for adversarial peer-review pre-submission auditing, statistical consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations. The authors reviewed, validated, and edited all text and artifacts, and take full responsibility for the integrity, methodology, and conclusions of this work.
-
-\paragraph*{Code and Data Availability}
-Prediction model architectures and frozen weight tensors are archived under model/data freeze commit \texttt{b0932ca} (release manifest \texttt{1.0.0-freeze}); evaluation implementation is archived under commit \texttt{1292103}; denominator recomputation is archived under commit \texttt{311cea3}; submission packaging is archived under commit \texttt{9b92113}, tag \texttt{v1.0.1-freeze}. All preprocessing pipelines and configurations are available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox}. De-identified patient data are available from PhysioNet under the MIMIC-III Data Use Agreement.
+\smallskip
+\noindent\textbf{Code and Data Availability:} Model architectures and frozen weight tensors are archived under commit \texttt{b0932ca} (manifest \texttt{1.0.0-freeze}); evaluation code under commit \texttt{1292103}; denominator recomputation under commit \texttt{311cea3}; submission packaging under commit \texttt{9b92113}, tag \texttt{v1.0.1-freeze}. Preprocessing pipelines are available under MIT License at \url{https://github.com/alireza/Sepsis-Onset-Timing-Paradox}. De-identified data are available from PhysioNet under MIMIC-III DUA.
 }
 
-\fontsize{6.2pt}{7.2pt}\selectfont
+\smallskip
+\fontsize{5.9pt}{6.9pt}\selectfont
 \setlength{\itemsep}{0pt}
 \setlength{\parskip}{0pt}
 \begin{thebibliography}{22}

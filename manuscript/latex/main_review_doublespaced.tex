@@ -186,7 +186,7 @@ At an emitted workload of 10 alert episodes per 100 patient-days (407 emitted ep
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.90\textwidth]{figures/Figure2_Operational_Alert_Budget_Frontier.pdf}
-    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref{tab:table3}.}
+    \caption{\textbf{Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref{tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit{Alt-text:} Two-panel plot showing positive predictive value (Panel A) and evaluation workload per detected patient (Panel B) across emitted alert budgets of 5, 10, and 20 episodes per 100 patient-days for five machine learning models under 12-hour alert suppression.}
     \label{fig:frontiers}
 \end{figure}
 
@@ -215,7 +215,7 @@ Figure~\ref{fig:decomp} illustrates the cumulative population coverage decomposi
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
-    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and operational alert-budget detection yield.}
+    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and operational alert-budget detection yield. \textit{Alt-text:} Four-stage bar chart illustrating patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely alert-budget detection (7 patients, 1.72\%).}
     \label{fig:decomp}
 \end{figure}
 
