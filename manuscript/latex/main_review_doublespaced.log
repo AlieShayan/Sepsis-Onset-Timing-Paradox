@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  31 OCT 2026 10:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  31 OCT 2026 10:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1000,8 +1000,8 @@ LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 8.8pt on input line 130.
 LaTeX Font Info:    Font shape `OT1/minntx/b/n' will be
 (Font)              scaled to size 6.6pt on input line 130.
- [8] [9] [10] [11]
-<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=453, 1047.915pt x 41
+ [8] [9] [10] [11] [12]
+<figures/Figure2_Operational_Alert_Budget_Frontier.pdf, id=456, 1047.915pt x 41
 9.166pt>
 File: figures/Figure2_Operational_Alert_Budget_Frontier.pdf Graphic file (type 
 pdf)
@@ -1009,8 +1009,8 @@ pdf)
 Package pdftex.def Info: figures/Figure2_Operational_Alert_Budget_Frontier.pdf 
  used on input line 181.
 (pdftex.def)             Requested size: 409.71692pt x 163.88342pt.
- [12] [13 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>]
-<figures/Figure3_Three_Stage_Decomposition.pdf, id=568, 758.835pt x 419.166pt>
+ [13 <./figures/Figure2_Operational_Alert_Budget_Frontier.pdf>]
+<figures/Figure3_Three_Stage_Decomposition.pdf, id=567, 758.835pt x 419.166pt>
 File: figures/Figure3_Three_Stage_Decomposition.pdf Graphic file (type pdf)
 <use figures/Figure3_Three_Stage_Decomposition.pdf>
 Package pdftex.def Info: figures/Figure3_Three_Stage_Decomposition.pdf  used on
@@ -1021,6 +1021,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 9.0pt on input line 236.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/n' will be
 (Font)              scaled to size 9.0pt on input line 240.
+ [17]
 LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
 (Font)              scaled to size 9.0pt on input line 252.
 LaTeX Font Info:    Font shape `OT1/minntx/m/n' will be
@@ -1059,7 +1060,6 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 9.0pt on input line 252.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 5.5pt on input line 252.
- [17]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 7.2pt on input line 256.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
@@ -1336,10 +1336,6 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 LaTeX2e <2025-11-01>
 L3 programming layer <2020/03/25>
  ***********
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package rerunfilecheck Info: File `main_review_doublespaced.out' has not change
 d.
 (rerunfilecheck)             Checksum: 236534373BBE4B901A8C832A28A1AF5B;4304.
@@ -1351,7 +1347,7 @@ Here is how much of TeX's memory you used:
  46758 multiletter control sequences out of 15000+600000
  865176 words of font info for 952 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,15n,117p,1859b,620s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,15n,117p,2095b,620s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
 -dist/fonts/type1/public/newtx/NewTXMI5.pfb></usr/share/texmf-dist/fonts/type1/
 public/newtx/NewTXMI7.pfb></usr/share/texmf-dist/fonts/type1/public/tex-gyre/qt
@@ -1361,7 +1357,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (20 pages, 407023 bytes).
+Output written on main_review_doublespaced.pdf (20 pages, 407973 bytes).
 PDF statistics:
  792 PDF objects out of 1000 (max. 8388607)
  345 compressed objects within 4 object streams

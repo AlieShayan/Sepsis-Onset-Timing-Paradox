@@ -106,7 +106,7 @@ def generate_figure1_clocks_and_waterfall():
         "Search-Window Lead Gap: $G_i = T_{\\mathrm{susp},i} - T_{\\mathrm{S3},i} = 24h + h\\,\\mathrm{frac}(x_i) < 25h$\n"
         "Coordinate: $x_i = (T_{\\mathrm{susp},i} - 24h - T_{\\mathrm{admit},i})/h$ with bin width $h = 1\\mathrm{h}$\n"
         "Full cohort ($N=408$): median +24.2h (IQR: 22.8–24.6h; empirical range: -11.2h to +24.99h)\n"
-        "Illustrative paired trajectory ($52.2 - 28.0 = 24.2\\mathrm{h} \\neq$ marginal medians diff: $50.7 - 28.0 = 22.7\\mathrm{h}$)"
+        "Illustrative paired trajectory ($52.2 - 28.0 = 24.2\\mathrm{h}$; marginal medians diff: $50.7 - 28.0 = 22.7\\mathrm{h}$)"
     )
     ax1.text(gap_center, gap_y - 0.20, gap_box, ha="center", va="top", fontsize=8.1, color="#0F172A",
              bbox=dict(boxstyle="round,pad=0.48", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.9))
@@ -337,7 +337,8 @@ def generate_figure3_decomposition():
     for bar, val in zip(bars, values):
         h = bar.get_height()
         y_pos = h + 2.4 if h > 5 else h + 2.0
-        ax.text(bar.get_x() + bar.get_width()/2, y_pos, f"{val:.1f}%", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color="#0F172A")
+        label_text = f"{val:.2f}%" if val < 10 else f"{val:.1f}%"
+        ax.text(bar.get_x() + bar.get_width()/2, y_pos, label_text, ha="center", va="bottom", fontsize=10.5, fontweight="bold", color="#0F172A")
 
     # Annotations with off-center arrows that never collide with percentage labels
     ax.annotate(
@@ -357,7 +358,7 @@ def generate_figure3_decomposition():
     )
 
     ax.annotate(
-        "Model-Alert Policy Detection\nTransition: 7/150 = 4.7%\n(10 ep/100 pt-days budget & 12h suppression)",
+        "Model-Alert Policy Detection\nTransition: 7/150 = 4.67%\n(10 ep/100 pt-days budget & 12h suppression)",
         xy=(3.22, 2.0), xytext=(3.15, 24),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
         fontsize=9.0, color="#B91C1C", ha="center", va="bottom",
