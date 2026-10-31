@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  31 OCT 2026 15:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  31 OCT 2026 15:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1379,13 +1379,13 @@ d.
 (rerunfilecheck)             Checksum: 236534373BBE4B901A8C832A28A1AF5B;4304.
  ) 
 Here is how much of TeX's memory you used:
- 19378 strings out of 469503
- 303951 string characters out of 5470407
+ 19383 strings out of 469503
+ 304020 string characters out of 5470407
  729853 words of memory out of 5000000
  46781 multiletter control sequences out of 15000+600000
- 848098 words of font info for 908 fonts, out of 8000000 for 9000
+ 848694 words of font info for 912 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,19n,117p,2188b,620s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,19n,117p,2148b,620s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texmf
 -dist/fonts/type1/public/newtx/NewTXMI5.pfb></usr/share/texmf-dist/fonts/type1/
 public/newtx/NewTXMI7.pfb></usr/share/texmf-dist/fonts/type1/public/tex-gyre/qt
@@ -1395,7 +1395,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (23 pages, 408746 bytes).
+Output written on main_review_doublespaced.pdf (23 pages, 409636 bytes).
 PDF statistics:
  806 PDF objects out of 1000 (max. 8388607)
  356 compressed objects within 4 object streams
