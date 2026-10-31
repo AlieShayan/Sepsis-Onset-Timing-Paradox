@@ -5,7 +5,8 @@
 \citation{singer2016sepsis,seymour2016assessment}
 \citation{evans2021surviving,kumar2006duration}
 \citation{moor2021early}
-\citation{moor2021early,wang2025methodological}
+\citation{moor2023predicting}
+\citation{wang2025methodological}
 \citation{cohen2024subtle}
 \citation{reyna2020early}
 \citation{wong2021external,adams2022prospective}
@@ -18,75 +19,79 @@
 \citation{kamran2024evaluation}
 \citation{dutta2026performance}
 \citation{do2026continuous}
+\citation{schamoni2019leveraging}
+\citation{vandervegt2022timing}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background and Significance}{1}{subsection.1.1}\protected@file@percent }
 \citation{johnson2016mimiciii}
-\citation{johnson2016mimiciii}
 \citation{collins2024tripod,vonelm2007strobe}
 \citation{singer2016sepsis,seymour2016assessment}
+\citation{seymour2016assessment}
+\citation{seymour2016assessment}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Materials and Methods}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Study Design and Cohort Definition}{2}{subsection.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Outcome Definition and Operational Clocks}{2}{subsection.2.2}\protected@file@percent }
-\citation{seymour2016assessment}
-\citation{seymour2016assessment}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Operational Cascade and Outcome-Stratified Hybrid Risk Sets}{3}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Alert-Budget Operating Frontiers and Refractory Policy}{3}{subsection.2.4}\protected@file@percent }
 \citation{do2026continuous}
 \citation{gu2023mamba,gu2022efficiently}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Operational Cascade and Outcome-Stratified Hybrid Risk Sets}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Alert-Budget Operating Frontiers and Refractory Policy}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Predictive Models and Statistical Inference}{3}{subsection.2.5}\protected@file@percent }
+\citation{dutta2026performance}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.} The timeline is schematic; displayed population summaries do not represent a single paired patient trajectory. Eligibility relative to a retrospective suspicion anchor does not establish absence of prior antimicrobial exposure. Panel A depicts the clinical timeline for an ICU-incident sepsis stay, illustrating the discrete search-window lead $G_i = 24\text  {h} + h\,\operatorname  {frac}(x_i) < 25\text  {h}$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text  {h}$; empirical max $24.99\text  {h}$), the anticipation horizon $t \in [22\mathrm  {h}, 28\mathrm  {h})$, anchor-eligible decision times $\mathcal  {A}_i^{(C)}(\delta )$, and the conceptual post-anchor period. Actual model evaluations occur at discrete scored timestamps $t \in \mathcal  {T}_i$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm  {Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm  {susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment; this comparison reflects concurrent differences in both cohort selection and anchor definition rather than isolating an anchor effect alone. \textit  {Alt-text:} Two-panel diagram displaying schematic timeline clocks and formal risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.}}{4}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:clocks}{{1}{4}{\textbf {Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.} The timeline is schematic; displayed population summaries do not represent a single paired patient trajectory. Eligibility relative to a retrospective suspicion anchor does not establish absence of prior antimicrobial exposure. Panel A depicts the clinical timeline for an ICU-incident sepsis stay, illustrating the discrete search-window lead $G_i = 24\text {h} + h\,\operatorname {frac}(x_i) < 25\text {h}$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text {h}$; empirical max $24.99\text {h}$), the anticipation horizon $t \in [22\mathrm {h}, 28\mathrm {h})$, anchor-eligible decision times $\mathcal {A}_i^{(C)}(\delta )$, and the conceptual post-anchor period. Actual model evaluations occur at discrete scored timestamps $t \in \mathcal {T}_i$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm {Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm {susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment; this comparison reflects concurrent differences in both cohort selection and anchor definition rather than isolating an anchor effect alone. \textit {Alt-text:} Two-panel diagram displaying schematic timeline clocks and formal risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B}{figure.caption.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit  {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $).}}{4}{table.caption.2}\protected@file@percent }
-\newlabel{tab:table1}{{1}{4}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $)}{table.caption.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Predictive Models and Statistical Inference}{4}{subsection.2.5}\protected@file@percent }
-\citation{dutta2026performance}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{5}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{5}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Outcome-Stratified Hybrid Discrimination Analysis}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit  {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $). Historical cohort ($N=3,581$) comprises CareVue-only (1,687), MetaVision-only (1,886), and 8 transitional stays ($1,687 + 1,886 + 8 = 3,581$).}}{4}{table.caption.2}\protected@file@percent }
+\newlabel{tab:table1}{{1}{4}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $). Historical cohort ($N=3,581$) comprises CareVue-only (1,687), MetaVision-only (1,886), and 8 transitional stays ($1,687 + 1,886 + 8 = 3,581$)}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Outcome-Stratified Hybrid Discrimination Analysis}{4}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Observed Burden--Detection Trade-Off Under This Protocol}{5}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Two-Axis Subgroup and Timestamp Uncertainty Matrix}{5}{subsection.3.4}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {Benchmark Discrimination Across Outcome-Stratified Hybrid Risk Sets (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples. Evaluated on hybrid risk sets $\mathcal  {R}_0^{\mathrm  {hybrid}}$ and $\mathcal  {R}_2^{\mathrm  {hybrid}}$ censoring cases at infection-suspicion anchor $T_{\mathrm  {susp}}$ and controls at earliest prescription $T_{\mathrm  {Rx,start}}$. Sepsis cases and controls were restricted using different clinical-process anchors; differences from canonical discrimination reflect both evaluated observations and outcome-specific selection, and do not represent a uniform prospective eligibility policy.}}{6}{table.caption.3}\protected@file@percent }
 \newlabel{tab:table2}{{2}{6}{\textbf {Benchmark Discrimination Across Outcome-Stratified Hybrid Risk Sets (Held-Out Point Estimates and Clustered 95\% CIs).} Point estimates calculated directly on held-out test data ($B=0$); 95\% CIs derived from $B=1,000$ patient-clustered bootstrap resamples. Evaluated on hybrid risk sets $\mathcal {R}_0^{\mathrm {hybrid}}$ and $\mathcal {R}_2^{\mathrm {hybrid}}$ censoring cases at infection-suspicion anchor $T_{\mathrm {susp}}$ and controls at earliest prescription $T_{\mathrm {Rx,start}}$. Sepsis cases and controls were restricted using different clinical-process anchors; differences from canonical discrimination reflect both evaluated observations and outcome-specific selection, and do not represent a uniform prospective eligibility policy}{table.caption.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref {tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit  {Alt-text:} Two-panel plot showing PPV (Panel A) and evaluation workload per detected patient (Panel B) across alert budgets of 5, 10, and 20 episodes/100 patient-days for 5 models under 12h alert suppression.}}{6}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:frontiers}{{2}{6}{\textbf {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref {tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit {Alt-text:} Two-panel plot showing PPV (Panel A) and evaluation workload per detected patient (Panel B) across alert budgets of 5, 10, and 20 episodes/100 patient-days for 5 models under 12h alert suppression}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Two-Axis Subgroup and Timestamp Uncertainty Matrix}{6}{subsection.3.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{7}{table.caption.5}\protected@file@percent }
-\newlabel{tab:table3}{{3}{7}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit  {Note:} Subgroup Bounds denote $[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm  {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III.}}{7}{table.caption.6}\protected@file@percent }
-\newlabel{tab:table4}{{4}{7}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit {Note:} Subgroup Bounds denote $[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cumulative Population Coverage Decomposition}{7}{subsection.3.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection. \textit  {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%).}}{7}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:decomp}{{3}{7}{\textbf {Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection. \textit {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%)}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{7}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cumulative Population Coverage Decomposition}{6}{subsection.3.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection. \textit  {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%).}}{6}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:decomp}{{3}{6}{\textbf {Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection. \textit {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%)}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{6}{section.4}\protected@file@percent }
 \citation{weissman2024sepsis}
 \citation{dutta2026performance}
 \citation{ancker2017effects,henry2022factors}
 \citation{paine2016systematic}
 \citation{do2026continuous}
 \citation{paine2016systematic}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{7}{table.caption.5}\protected@file@percent }
+\newlabel{tab:table3}{{3}{7}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit  {Note:} Subgroup Bounds denote $[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm  {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III.}}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:table4}{{4}{7}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit {Note:} Subgroup Bounds denote $[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Distinguishing Care-Process Forecasting from Sepsis Anticipation}{7}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Limitations}{7}{subsection.4.2}\protected@file@percent }
 \bibcite{singer2016sepsis}{1}
 \bibcite{seymour2016assessment}{2}
 \bibcite{evans2021surviving}{3}
 \bibcite{kumar2006duration}{4}
 \bibcite{moor2021early}{5}
-\bibcite{wang2025methodological}{6}
-\bibcite{cohen2024subtle}{7}
-\bibcite{reyna2020early}{8}
-\bibcite{wong2021external}{9}
-\bibcite{adams2022prospective}{10}
-\bibcite{weissman2024sepsis}{11}
-\bibcite{henry2022factors}{12}
-\bibcite{drew2014insights}{13}
-\bibcite{ancker2017effects}{14}
-\bibcite{paine2016systematic}{15}
-\bibcite{kamran2024evaluation}{16}
-\bibcite{dutta2026performance}{17}
-\bibcite{do2026continuous}{18}
-\bibcite{johnson2016mimiciii}{19}
-\bibcite{collins2024tripod}{20}
-\bibcite{vonelm2007strobe}{21}
-\bibcite{gu2023mamba}{22}
-\bibcite{gu2022efficiently}{23}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Distinguishing Care-Process Forecasting from Sepsis Anticipation}{8}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Limitations}{8}{subsection.4.2}\protected@file@percent }
+\bibcite{moor2023predicting}{6}
+\bibcite{wang2025methodological}{7}
+\bibcite{cohen2024subtle}{8}
+\bibcite{reyna2020early}{9}
+\bibcite{wong2021external}{10}
+\bibcite{adams2022prospective}{11}
+\bibcite{weissman2024sepsis}{12}
+\bibcite{henry2022factors}{13}
+\bibcite{drew2014insights}{14}
+\bibcite{ancker2017effects}{15}
+\bibcite{paine2016systematic}{16}
+\bibcite{kamran2024evaluation}{17}
+\bibcite{dutta2026performance}{18}
+\bibcite{do2026continuous}{19}
+\bibcite{schamoni2019leveraging}{20}
+\bibcite{vandervegt2022timing}{21}
+\bibcite{johnson2016mimiciii}{22}
+\bibcite{collins2024tripod}{23}
+\bibcite{vonelm2007strobe}{24}
+\bibcite{gu2023mamba}{25}
+\bibcite{gu2022efficiently}{26}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{8}{section.5}\protected@file@percent }
 \gdef \@abspage@last{8}
