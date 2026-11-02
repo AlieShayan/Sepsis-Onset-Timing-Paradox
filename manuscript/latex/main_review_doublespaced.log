@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  2 NOV 2026 12:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.22)  2 NOV 2026 14:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1380,8 +1380,8 @@ d.
  ) 
 Here is how much of TeX's memory you used:
  19398 strings out of 469503
- 304321 string characters out of 5470407
- 729926 words of memory out of 5000000
+ 304317 string characters out of 5470407
+ 730926 words of memory out of 5000000
  46785 multiletter control sequences out of 15000+600000
  849180 words of font info for 918 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
@@ -1395,7 +1395,7 @@ xmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/fonts/type1
 pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/share/texmf-
 dist/fonts/type1/public/newtx/ztmbi.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/newtx/ztmr.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main_review_doublespaced.pdf (24 pages, 413071 bytes).
+Output written on main_review_doublespaced.pdf (24 pages, 413083 bytes).
 PDF statistics:
  815 PDF objects out of 1000 (max. 8388607)
  364 compressed objects within 4 object streams
