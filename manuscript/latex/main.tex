@@ -338,7 +338,10 @@ O_i^{\mathrm{poss}}(\delta) = \mathbf{1} \bigl\{ \exists t \in P_i : t + \delta 
 \end{equation}
 For the earliest prescription proxy alone ($T_{\mathrm{Rx,start}}$):
 \begin{equation}
-O_i^{\mathrm{def}}(\delta) = \mathbf{1} \bigl\{ \exists t \in P_i : t + \delta \le a_i \bigr\}, \qquad O_i^{\mathrm{poss}}(\delta) = \mathbf{1} \bigl\{ \exists t \in P_i : t + \delta < b_i \bigr\}
+\begin{aligned}
+O_i^{\mathrm{def}}(\delta) &= \mathbf{1} \bigl\{ \exists t \in P_i : t + \delta \le a_i \bigr\}, \\
+O_i^{\mathrm{poss}}(\delta) &= \mathbf{1} \bigl\{ \exists t \in P_i : t + \delta < b_i \bigr\}
+\end{aligned}
 \end{equation}
 Stays with $O_i^{\mathrm{def}} = 0$ but $O_i^{\mathrm{poss}} = 1$ are indeterminate ($O_i^{\mathrm{indet}} = 1$). All indicators strictly satisfy $O_i^{\mathrm{def}} \le O_i^{\mathrm{point}} \le O_i^{\mathrm{poss}}$ and $O_i^{\mathrm{poss}} = O_i^{\mathrm{def}} + O_i^{\mathrm{indet}}$, with $O_i^{\mathrm{def}} \equiv O_i^{\mathrm{point}}$ by construction because midnight point assignment $a_i = \inf [a_i, b_i)$. Importantly, these opportunity bounds are strictly conditional on fixed operational Sepsis-3 timestamps and surveillance coverage; they do not propagate counterfactual antibiotic timings through the upstream phenotype (which could alter qualifying pairs, baseline SOFA, onset, or coverage).
 
