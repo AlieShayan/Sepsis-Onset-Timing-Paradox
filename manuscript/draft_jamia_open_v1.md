@@ -18,11 +18,15 @@ supplementary_materials: 1
 # Consensus Onset Mechanics, Timestamp Resolution, and Workload Constraints in Sepsis Early-Warning Benchmarks: An Operational Evaluation Audit
 
 **Authors:**  
-Alireza Shayan$^1$ (Email: Ali404@hafez.shirazu.ac.ir)  
-Somayeh Afrasiabi$^1$ (Email: afrasiabi@shirazu.ac.ir)  
+**Alireza Shayan**, BSc$^1$ (Email: Ali404@hafez.shirazu.ac.ir)  
+**Somayeh Afrasiabi**, PhD$^{1,*}$ (Email: afrasiabi@shirazu.ac.ir)  
 
-$^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran  
-*(Corresponding Author: Somayeh Afrasiabi, afrasiabi@shirazu.ac.ir)*
+$^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Molla Sadra St., Shiraz 71348-51154, Fars, Iran  
+*Corresponding Author:* Somayeh Afrasiabi, PhD (Telephone: +98-71-3613-3500; Email: afrasiabi@shirazu.ac.ir)  
+
+**Word Count (Main Text):** 3,995 words  
+**Abstract Word Count:** 238 words  
+**Tables:** 4 | **Figures:** 3 | **Supplementary Files:** 1
 
 ## Abstract
 
@@ -337,3 +341,16 @@ Prediction model architectures and frozen weight tensors are archived under mode
 26. Gu A, Goel K, Ré C. Efficiently modeling long sequences with structured state spaces. In: *International Conference on Learning Representations (ICLR)*; 2022.
 27. Shayan A, Afrasiabi S. Enhanced LSTM model for early sepsis prediction using systematic data preprocessing and temporal feature engineering. In: *15th Smart Grid Conference (SGC)*; 2025:1–6. DOI: 10.1109/SGC68038.2025.11372398.
 28. van der Vegt AH, Campbell VK, Webb R, et al. A novel, standardised approach to balancing effectiveness, efficiency and utility of surveillance AI prediction models for hospitalised patients using sepsis prediction as an exemplar. *J Am Med Inform Assoc*. 2026;33(2):304–315. DOI: 10.1093/jamia/ocaf192.
+
+---
+
+## Figure Legends
+
+**Figure 1: Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.** The timeline is schematic; displayed population summaries do not represent a single paired patient trajectory. Eligibility relative to a retrospective suspicion anchor does not establish absence of prior antimicrobial exposure. Panel A depicts the clinical timeline for an ICU-incident sepsis stay, illustrating the discrete search-window lead $G_i = 24\text{h} + h\,\operatorname{frac}(x_i) < 25\text{h}$ for first-bin-assigned episodes ($N=274/408$, 67.2%; median $+24.2\text{h}$; empirical max $24.99\text{h}$), the anticipation horizon $t \in [22\mathrm{h}, 28\mathrm{h})$, anchor-eligible decision times $\mathcal{A}_i^{(C)}(\delta)$, and the conceptual post-anchor period. Actual model evaluations occur at discrete scored timestamps $t \in \mathcal{T}_i$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm{Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm{susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment; this comparison reflects concurrent differences in both cohort selection and anchor definition rather than isolating an anchor effect alone.  
+*Alt text:* A two-panel diagram displaying schematic timeline clocks and formal risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.
+
+**Figure 2: Operational Alert-Budget Performance Frontier.** Panel A displays episode-level positive predictive value (PPV %) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table 3. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days.  
+*Alt text:* Two-panel plot showing positive predictive value (Panel A) and evaluation workload per detected patient (Panel B) across emitted alert budgets of 5, 10, and 20 episodes per 100 patient-days for five machine learning models under 12-hour alert suppression.
+
+**Figure 3: Cumulative Population Coverage and Anchor-Conditioned Detection.** Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection.  
+*Alt text:* Four-stage diagram showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0%), suspicion-anchor eligibility (150 patients, 36.8%), and timely model-alert policy detection (7 patients, 1.72%).
