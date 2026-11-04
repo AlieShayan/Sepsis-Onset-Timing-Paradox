@@ -18,11 +18,12 @@ supplementary_materials: 1
 # When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks
 
 **Authors:**  
-**Alireza Shayan**, BSc$^1$ (Email: Ali404@hafez.shirazu.ac.ir)  
+**Alireza Shayan**, BSc$^1$ (Emails: Ali404@hafez.shirazu.ac.ir, alirshayan@gmail.com)  
 **Somayeh Afrasiabi**, PhD$^{1,*}$ (Email: afrasiabi@shirazu.ac.ir)  
 
 $^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Molla Sadra St., Shiraz 71348-51154, Fars, Iran  
 *Corresponding Author:* Somayeh Afrasiabi, PhD (Telephone: +98-71-3613-3500; Email: afrasiabi@shirazu.ac.ir)  
+**Code & Evaluation Repository:** https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox  
 
 **Word Count (Main Text):** 3,995 words  
 **Abstract Word Count:** 238 words  
@@ -307,7 +308,7 @@ AS conceived the study, developed the analytical framework, implemented the pipe
 During the preparation of this manuscript, the authors utilized large language model and AI interfaces solely for English language text editing, stylistic refinement, and document formatting. The authors independently designed and executed all empirical modeling pipelines, statistical data extraction algorithms, and bootstrap evaluations. The authors reviewed, validated, and edited all text and artifacts, and take full responsibility for the integrity, methodology, and conclusions of this work.
 
 ### Code and Data Availability
-Prediction model architectures, frozen weight tensors, feature extraction scripts, and evaluation pipelines are archived under institutional version control and are available from the corresponding author upon reasonable request. De-identified patient data are available from PhysioNet under the MIMIC-III Data Use Agreement.
+All analytical pipelines, reproducible evaluation code, mathematical audit scripts, and benchmark model configurations are openly available under an open-source license on GitHub at https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox. De-identified patient data are available from PhysioNet under the MIMIC-III Data Use Agreement.
 
 ---
 

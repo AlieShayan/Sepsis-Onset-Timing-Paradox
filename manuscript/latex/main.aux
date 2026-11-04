@@ -1,6 +1,7 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\providecommand*\HyPL@Entry[1]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{singer2016sepsis,seymour2016assessment}
 \citation{evans2021surviving,kumar2006duration}
 \citation{moor2021early}
@@ -20,7 +21,6 @@
 \citation{do2026continuous}
 \citation{schamoni2019leveraging}
 \citation{vandervegt2022timing}
-\HyPL@Entry{0<</S/D>>}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background and Significance}{1}{subsection.1.1}\protected@file@percent }
 \citation{johnson2016mimiciii}
@@ -44,9 +44,9 @@
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit  {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $). Historical cohort ($N=3,581$) comprises CareVue-only (1,687), MetaVision-only (1,886), and 8 transitional stays ($1,687 + 1,886 + 8 = 3,581$).}}{4}{table.caption.2}\protected@file@percent }
 \newlabel{tab:table1}{{1}{4}{\textbf {Cohort Progression and Denominator Accounting Ledger.} Denominators traced from the base test cohort through surveillance eligibility, sepsis onset timing, prediction horizons, and pre-treatment actionability. \textit {Note:} Rows 1--3b report cohort shares; rows 4--6 report window-level positive prevalence ($\pi $). Historical cohort ($N=3,581$) comprises CareVue-only (1,687), MetaVision-only (1,886), and 8 transitional stays ($1,687 + 1,886 + 8 = 3,581$)}{table.caption.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Predictive Models and Statistical Inference}{4}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{4}{subsection.3.1}\protected@file@percent }
 \citation{dutta2026performance}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{5}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cohort Progression and Denominator Accounting}{5}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Outcome-Stratified Hybrid Discrimination Analysis}{5}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Observed Burden--Detection Trade-Off Under This Protocol}{5}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Two-Axis Subgroup and Timestamp Uncertainty Matrix}{5}{subsection.3.4}\protected@file@percent }
@@ -55,23 +55,21 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref {tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit  {Alt-text:} Two-panel plot showing PPV (Panel A) and evaluation workload per detected patient (Panel B) across alert budgets of 5, 10, and 20 episodes/100 patient-days for 5 models under 12h alert suppression.}}{6}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:frontiers}{{2}{6}{\textbf {Operational Alert-Budget Performance Frontier.} Panel A displays episode-level positive predictive value (PPV \%) across prespecified alert budgets. Panel B displays the Number Needed to Evaluate (NNE) per detected patient under a 12-hour alert suppression rule. Lines connect discrete prespecified operating budgets (5, 10, and 20 emitted episodes per 100 patient-days) for a representative 5-model subset; complete 8-model results, bootstrap confidence intervals, and boundary-degenerate notes are reported in Table~\ref {tab:table3}. BiMamba SSM and LightGBM have coincident operating points at budgets of 10 and 20 episodes per 100 surveillance patient-days. \textit {Alt-text:} Two-panel plot showing PPV (Panel A) and evaluation workload per detected patient (Panel B) across alert budgets of 5, 10, and 20 episodes/100 patient-days for 5 models under 12h alert suppression}{figure.caption.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cumulative Population Coverage Decomposition}{6}{subsection.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{6}{section.4}\protected@file@percent }
 \citation{weissman2024sepsis}
 \citation{dutta2026performance}
 \citation{vandervegt2026novel}
 \citation{ancker2017effects,henry2022factors}
 \citation{paine2016systematic}
+\citation{do2026continuous}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification.}}{7}{table.caption.5}\protected@file@percent }
 \newlabel{tab:table3}{{3}{7}{\textbf {Operational Burden-Matched Alert Frontiers Under 12h Refractory Suppression.} Evaluated under Procedure B with exposure recomputation and first-emitted-alert timing verification}{table.caption.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit  {Note:} Subgroup Bounds denote $[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm  {def}}, O^{\mathrm  {poss}}] / \text  {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm  {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III.}}{7}{table.caption.6}\protected@file@percent }
 \newlabel{tab:table4}{{4}{7}{\textbf {Two-Axis Subgroup and Timestamp Uncertainty Matrix.} Opportunity bounds conditional on fixed operational Sepsis-3 timestamps and surveillance coverage. \textit {Note:} Subgroup Bounds denote $[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Total}(N)$ within each onset stratum. For All Incident Sepsis-3, within-covered bounds ($[O^{\mathrm {def}}, O^{\mathrm {poss}}] / \text {Covered}[V=1]$) are $[150, 151]/151 = [99.3\%, 100.0\%]$ for MetaVision $T_{\mathrm {susp}}$, $[0, 47]/151 = [0.0\%, 31.1\%]$ for MetaVision Earliest Rx, and $[1, 111]/337 = [0.30\%, 32.94\%]$ for Broad Historical MIMIC-III}{table.caption.6}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Cumulative Population Coverage and Alert Detection Cascade.} Stepwise patient attrition across the evaluation cascade: from 408 incident sepsis stays ($100.0\%$), to surveillance protocol coverage ($N=151$, $37.0\%$, with $63.0\%$ onset $>36\mathrm  {h}$), retrospective suspicion-anchor eligibility ($N=150$, $36.8\%$, governed by lookback flooring), and timely detection under an operational budget of 10 episodes/100 patient-days ($N=7$, $1.72\%$). \textit  {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%).}}{7}{figure.caption.7}\protected@file@percent }
 \newlabel{fig:decomp}{{3}{7}{\textbf {Cumulative Population Coverage and Alert Detection Cascade.} Stepwise patient attrition across the evaluation cascade: from 408 incident sepsis stays ($100.0\%$), to surveillance protocol coverage ($N=151$, $37.0\%$, with $63.0\%$ onset $>36\mathrm {h}$), retrospective suspicion-anchor eligibility ($N=150$, $36.8\%$, governed by lookback flooring), and timely detection under an operational budget of 10 episodes/100 patient-days ($N=7$, $1.72\%$). \textit {Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%)}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{7}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Distinguishing Care-Process Forecasting from Sepsis Anticipation}{7}{subsection.4.1}\protected@file@percent }
-\citation{do2026continuous}
 \citation{paine2016systematic}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Limitations}{8}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{8}{section.5}\protected@file@percent }
 \bibcite{singer2016sepsis}{1}
 \bibcite{seymour2016assessment}{2}
 \bibcite{evans2021surviving}{3}
@@ -100,4 +98,6 @@
 \bibcite{gu2022efficiently}{26}
 \bibcite{shayan2025enhanced}{27}
 \bibcite{vandervegt2026novel}{28}
-\gdef \@abspage@last{9}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Limitations}{8}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{8}{section.5}\protected@file@percent }
+\gdef \@abspage@last{8}

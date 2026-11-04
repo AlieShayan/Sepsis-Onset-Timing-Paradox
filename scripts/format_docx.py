@@ -47,12 +47,12 @@ def compile_and_style_docx(md_path, docx_path):
     # Run pandoc
     cmd = [
         'pandoc',
-        md_path,
+        os.path.basename(md_path),
         '-o', docx_path,
         '--from=markdown+pipe_tables+grid_tables+table_captions',
         '--toc=false'
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=os.path.dirname(md_path))
     
     # Load and style with docx
     doc = docx.Document(docx_path)

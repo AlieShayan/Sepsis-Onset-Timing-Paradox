@@ -16,7 +16,7 @@
 \usepackage{setspace}
 % For journal submission double-spacing, uncomment \doublespacing (or change class to 12pt single-column)
 % \doublespacing
-\usepackage[hidelinks,colorlinks=false]{hyperref}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
 \captionsetup{font=footnotesize,labelfont=bf}
 
@@ -41,11 +41,12 @@
 \title{\vspace{-1.2em}\textbf{\Large When Does Sepsis Prediction Precede Treatment?\\ Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks}}
 
 \author{
-    \textbf{Alireza Shayan}, BSc$^{1}$, \quad \textbf{Somayeh Afrasiabi}, PhD$^{1,*}$ \\[0.4em]
+    \textbf{Alireza Shayan}, BSc$^{1}$, \quad \textbf{Somayeh Afrasiabi}, PhD$^{1,*}$ \\[0.35em]
     $^{1}$Department of Computer Science and Engineering \& IT,\\
-    School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran \\[0.3em]
-    \textbf{Word Count (Main Text):} 3,995 words \quad \textbf{Abstract:} 238 words \\
-    $^{*}$Corresponding Author: Somayeh Afrasiabi (\texttt{afrasiabi@shirazu.ac.ir})
+    School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran \\[0.25em]
+    \textbf{Author Emails:} AS (\texttt{Ali404@hafez.shirazu.ac.ir}, \texttt{alirshayan@gmail.com}) \\
+    $^{*}$Corresponding Author: Somayeh Afrasiabi (\texttt{afrasiabi@shirazu.ac.ir}) \\[0.2em]
+    {\small \textbf{Code \& Evaluation Repository:} \url{https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox}}
 }
 
 \date{}
@@ -411,7 +412,7 @@ In this restricted ICU cohort, observed detection yield depended on surveillance
 \noindent\textbf{AI Assistance Disclosure:} Large language model and AI interfaces were used solely for English language text editing, stylistic refinement, and LaTeX typesetting. The authors independently designed and executed all empirical pipelines, models, and bootstrap evaluations, taking full responsibility for the integrity and conclusions of the work.
 
 \vspace{0.15em}
-\noindent\textbf{Code and Data Availability:} Model architectures, frozen weight tensors, feature extraction scripts, and evaluation pipelines are archived under institutional version control and are available from the corresponding author upon reasonable request. De-identified clinical data are available from PhysioNet under the MIMIC-III Data Use Agreement.
+\noindent\textbf{Code and Data Availability:} All analytical pipelines, reproducible evaluation code, mathematical audit scripts, and benchmark model configurations are openly available on GitHub at \url{https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox}. De-identified clinical data are available from PhysioNet under the MIMIC-III Data Use Agreement.
 }
 
 \vspace{-0.2em}
