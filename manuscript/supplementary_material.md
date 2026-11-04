@@ -443,4 +443,4 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 - **Denominator Recomputation Commit:** `311cea3`
 - **Submission Packaging Commit:** `9b92113`, Tag `v1.0.1-freeze`
 - **Automated Invariance Verification Artifacts:** `reports/manifest/time_truncation_invariance_audit.json` and `time_truncation_invariance_audit.md` (PASS: no feature discrepancies detected across 50 stays, 12 decision hours, 547 unique patient-decision pairs, and 1,641 equality comparisons).
-- **Code & Model Availability:** Complete analysis scripts, preprocessing pipelines, and evaluation harnesses are archived at GitHub: `https://github.com/alireza/Sepsis-Onset-Timing-Paradox`.
+- **Code & Model Availability:** Complete analysis scripts, preprocessing pipelines, and evaluation harnesses are archived at GitHub: `https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox`.

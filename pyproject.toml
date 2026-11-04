@@ -1,9 +1,13 @@
 [project]
 name = "sepsis-onset-timing-paradox"
-version = "0.1.0"
-description = "How Diagnostic Ambiguity Deconstructs Lead-Time Dynamics and Operational Utility in Sepsis Early Warning"
-authors = [{ name = "Alireza", email = "alireza@example.com" }]
-requires-python = ">=3.9"
+version = "1.0.1"
+description = "When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks"
+authors = [
+    { name = "Alireza Shayan", email = "Ali404@hafez.shirazu.ac.ir" },
+    { name = "Somayeh Afrasiabi", email = "afrasiabi@shirazu.ac.ir" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.22.0",
     "pandas>=1.5.0",
