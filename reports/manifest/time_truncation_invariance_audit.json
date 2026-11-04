@@ -1,6 +1,6 @@
 {
   "audit_name": "Time-Truncation Invariance & Model Input Shape Audit",
-  "timestamp_utc": "2026-10-29T10:42:50.224173+00:00",
+  "timestamp_utc": "2026-11-04T08:30:30.665073+00:00",
   "analytical_freeze_commit": "b0932ca",
   "manifest_version": "1.0.0-freeze",
   "base_variables_count": 21,

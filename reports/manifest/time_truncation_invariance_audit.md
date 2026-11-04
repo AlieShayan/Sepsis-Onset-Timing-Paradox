@@ -3,7 +3,7 @@
 - **Audit Status:** `PASS: no feature discrepancies detected in the tested prediction-time truncation comparisons.`
 - **Analytical Freeze Commit:** `b0932ca`
 - **Manifest Version:** `1.0.0-freeze`
-- **Timestamp (UTC):** `2026-10-29T10:42:50.224173+00:00`
+- **Timestamp (UTC):** `2026-11-04T08:30:30.665073+00:00`
 - **Unique Patient ICU Stays Tested:** 50
 - **Unique Patient-Decision Pairs Evaluated:** 547
 - **Total Representation Comparisons:** 1641 (across sequence tensors and tabular summaries)

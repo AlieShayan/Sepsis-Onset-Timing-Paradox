@@ -2,7 +2,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Reproducibility](https://img.shields.io/badge/Reproducibility-Audit_Grade-brightgreen.svg)](#reproducibility-quickstart)
+[![Reproducibility](https://img.shields.io/badge/Reproducibility-Audit_Grade-brightgreen.svg)](#reproducibility--verification)
 [![MIMIC-III v1.4](https://img.shields.io/badge/EHR_Database-MIMIC--III_v1.4-lightgrey.svg)](https://physionet.org/content/mimiciii/1.4/)
 
 This repository contains the official analytical audit suite, evaluation pipelines, data ledgers, and publication figures for the investigation:
@@ -57,29 +57,26 @@ This investigation provides a rigorous, code-level forensic audit of sepsis earl
 ```
 .
 ├── manuscript/
-│   ├── draft_jamia_open_v1.docx      # Academic double-spaced manuscript (Word)
-│   ├── draft_jamia_open_v1.md        # Manuscript markdown source
 │   ├── latex/
 │   │   ├── main.tex                  # Primary two-column camera-ready LaTeX source (strictly 8 pages)
 │   │   ├── main.pdf                  # Compiled two-column manuscript
-│   │   ├── main_review_doublespaced.tex  # Review-format double-spaced LaTeX source (23 pages)
-│   │   ├── main_review_doublespaced.pdf  # Compiled review manuscript
-│   │   └── figures/                  # Vector PDF and PNG figure assets
-│   └── arxiv/                        # arXiv preprint bundle with public open-science links
+│   │   └── figures/                  # Publication vector PDF and PNG figure assets
+│   ├── arxiv/                        # Standalone arXiv preprint bundle (with public repo links)
+│   └── supplementary_material.md     # Extended clinical methods and variable dictionaries
 ├── reports/
 │   ├── figures/                      # High-resolution (300 DPI) publication figures
 │   │   ├── Figure1_Clocks_and_Opportunity_Waterfall.{pdf,png}
 │   │   ├── Figure2_Operational_Alert_Budget_Frontier.{pdf,png}
 │   │   ├── Figure3_Three_Stage_Decomposition.{pdf,png}
 │   │   └── Figure1_Vertical_Prototype.{pdf,png}
-│   └── tables/                       # Ground-truth summary tables
+│   └── tables/                       # Ground-truth summary tables & ledgers
 │       ├── Table1_Cohort_Progression_Ledger.csv
 │       ├── Table2_Cross_Anchor_Discrimination.csv
 │       ├── Table3_Alert_Budget_Refractory_Workload.csv
 │       └── Table4_Two_Axis_Opportunity_Matrix.csv
 ├── scripts/
 │   ├── figures/
-│   │   ├── generate_jamia_figures.py # Regenerates Figures 1, 2, and 3
+│   │   ├── generate_jamia_figures.py # Regenerates Figures 1, 2, and 3 from summary tables
 │   │   └── prototype_vertical_figure1.py # Regenerates vertical timeline prototype
 │   └── metrics/
 │       ├── compute_alert_budget_and_refractory.py # Table 3 workload & NNE calculations
@@ -92,41 +89,35 @@ This investigation provides a rigorous, code-level forensic audit of sepsis earl
 
 ---
 
-## Reproducibility Quickstart
+## Reproducibility & Verification
 
-### 1. Environment Setup
-Clone the repository and set up a Python 3.10+ virtual environment:
+To facilitate open science and independent scientific audit, reproducibility is organized into two distinct tiers:
+
+### Tier 1: Instant Verification (No MIMIC-III Access Required)
+The core analytical findings, statistical metrics, alert-budget frontiers, and publication figures can be regenerated in seconds directly from the packaged ground-truth ledgers in `reports/tables/`. This tier runs out-of-the-box on standard Python environments without requiring credentialed access or downloading the multi-gigabyte raw EHR database:
+
 ```bash
+# 1. Clone the repository
 git clone https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox.git
 cd Sepsis-Onset-Timing-Paradox
 
+# 2. Set up virtual environment
 python3 -m venv venv
 source venv/bin/activate
-pip install numpy pandas scipy scikit-learn matplotlib pypdf python-docx
-```
+pip install numpy pandas scipy scikit-learn matplotlib pypdf
 
-### 2. Regenerate All Publication Figures
-To re-render Figures 1, 2, and 3 with zero overlaps, standardized color schemes, and 300 DPI exports:
-```bash
+# 3. Regenerate all publication figures (Figures 1, 2, and 3):
 python scripts/figures/generate_jamia_figures.py
 ```
-Output files will be generated in both `reports/figures/` and `manuscript/latex/figures/`.
+*Generated high-resolution vector PDFs and PNGs will be written directly to `reports/figures/`.*
 
-### 3. Verify Ground-Truth Metrics and Tables
-To independently verify the operational tables and statistical metrics:
-```bash
-# 1. Generate Table 1 Cohort Progression Ledger:
-python scripts/metrics/generate_table1_cohort_progression_ledger.py
+### Tier 2: Raw Clinical Telemetry & Database Governance
+In compliance with international patient privacy regulations (HIPAA Safe Harbor) and the PhysioNet Credentialed Data Use Agreement (DUA), raw electronic health records from the **MIMIC-III v1.4** database cannot be redistributed within public source repositories.
 
-# 2. Compute Table 3 Alert Budgets, Workload (NNE), and 12h Refractory Suppression:
-python scripts/metrics/compute_alert_budget_and_refractory.py
-
-# 3. Compute Table 4 Interval-Censored Opportunity Bounds [a_i, b_i]:
-python scripts/metrics/compute_interval_censored_bounds.py
-
-# 4. Verify Time Truncation and Invariance Proofs:
-python scripts/verify_time_truncation_invariance.py
-```
+Researchers seeking to re-execute patient-level feature extraction or raw model inference from the primary database should:
+1. Complete human subjects training (CITI Data or Specimens Only Research).
+2. Request credentialed access to MIMIC-III via [PhysioNet](https://physionet.org/content/mimiciii/1.4/).
+3. Execute the data preparation and cohort extraction pipelines pointing to their authenticated local database instance.
 
 ---
 
