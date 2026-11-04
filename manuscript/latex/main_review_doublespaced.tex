@@ -20,18 +20,13 @@
 
 \captionsetup{font=small,labelfont=bf}
 
-\title{\vspace{-1.0em}\textbf{\Large Consensus Onset Mechanics, Timestamp Resolution, and Workload Constraints\\ in Sepsis Early-Warning Benchmarks: An Operational Evaluation Audit}}
+\title{\vspace{-1.0em}\textbf{\Large When Does Sepsis Prediction Precede Treatment?\\ Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks}}
 
 \author{
     \textbf{Alireza Shayan}, BSc$^{1}$, \quad \textbf{Somayeh Afrasiabi}, PhD$^{1,*}$ \\[0.5em]
     $^{1}$Department of Computer Science and Engineering \& IT,\\
-    School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran \\
-    \texttt{Ali404@hafez.shirazu.ac.ir}, \quad \texttt{afrasiabi@shirazu.ac.ir} \\[0.5em]
-    $^{*}$Corresponding Author: Somayeh Afrasiabi, PhD \\
-    Department of Computer Science and Engineering \& IT, \\
-    School of Electrical and Computer Engineering, Shiraz University, \\
-    Molla Sadra St., Shiraz 71348-51154, Fars, Iran \\
-    Telephone: +98-71-3613-3500 \quad Email: \texttt{afrasiabi@shirazu.ac.ir} \\[0.5em]
+    School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran \\[0.4em]
+    $^{*}$Corresponding Author: Somayeh Afrasiabi, PhD (\texttt{afrasiabi@shirazu.ac.ir}) \\[0.4em]
     \textbf{Word Count (Main Text):} 3,995 words \quad \textbf{Abstract:} 238 words \\
     \textbf{Tables:} 4 \quad \textbf{Figures:} 3
 }
@@ -47,7 +42,7 @@
 \noindent\textbf{Objectives:} To evaluate how surveillance coverage, clinical-process anchors, and alert workload constraints govern estimated performance and evaluability in sepsis early warning.
 
 \vspace{0.25em}
-\noindent\textbf{Materials and Methods:} Using MIMIC-III as a reproducible benchmark substrate spanning an inter-era EHR vendor transition from CareVue (2001--2008 development) to MetaVision (2008--2012 prospective-replay audit; 8,254 first stays; 97,700 windows; prevalence 0.694\%), we evaluated 8 predictive architectures during hours 19--30. We formalized an operational cascade ($S \to V \to O \to D$), quantified order date coarsening, and evaluated alert frontiers under 12-hour alert suppression.
+\noindent\textbf{Materials and Methods:} Using MIMIC-III as a reproducible benchmark substrate spanning an inter-era EHR vendor transition from CareVue (2001--2008 development) to MetaVision (2008--2012 prospective-replay audit; 8,254 first stays; 97,700 windows; prevalence 0.694\%), we evaluated 8 predictive architectures during hours 19--30. We formalized an operational cascade, quantified order date coarsening, and evaluated alert frontiers under 12-hour alert suppression.
 
 \vspace{0.25em}
 \noindent\textbf{Results:} Among 408 operational Sepsis-3 stays ($S=1$), 257 (63.0\%) developed onset after hour 36 ($V=0$). Among 151 covered stays ($V=1$), 100 (66.2\%) were first-bin assigned ($T_{\mathrm{susp}} - T_{\mathrm{S3}} \in [24\mathrm{h}, 25\mathrm{h})$), structurally guaranteeing pre-suspicion eligibility; 50 of the remaining 51 were also eligible ($O=1$: 150/151, 99.3\%). Conditional on fixed operational Sepsis-3 timestamps, evaluating opportunity against earliest prescription dates under midnight assignment eliminated all horizon-positive observations (0/151 definite; bounds $[0.0\%, 31.1\%]$ covered, $[0.0\%, 11.5\%]$ cohort-wide), preventing discrimination estimation. At 10 alert episodes/100 patient-days (407 emitted alerts), BiMamba SSM and LightGBM each detected 7 distinct patients ($D=1$), yielding episode PPV 1.72\% (7/407, NNE 58.1), covered sensitivity 4.64\% (7/151), and population yield 1.72\% (7/408).
@@ -76,12 +71,12 @@ Clinical evaluations report heterogeneous performance~\cite{wong2021external,ada
 Recent evaluations of sepsis early warning before clinical intervention present divergent findings. Kamran et al.~\cite{kamran2024evaluation} reported a severe decline in Epic model AUROC (0.62 to 0.47) when excluding predictions following clinical recognition. Conversely, Dutta et al.~\cite{dutta2026performance} demonstrated preserved discrimination under certain pre-clinical action definitions across nine hospitals. Do et al.~\cite{do2026continuous} further showed that continuous surveillance and alert silencing rules fundamentally alter clinical workload across health systems. Addressing label contamination and circularity in sepsis definitions, Schamoni et al.~\cite{schamoni2019leveraging} emphasized that clinical recognition anchors require explicit separation from physiological deterioration. Furthermore, clinical database timestamps carry inherent recording latency, clock drift, and temporal coarsening~\cite{vandervegt2022timing}. This literature indicates that pre-intervention performance does not follow a uniform collapse, but depends on how onset labels, clinical-process anchors, and evaluation units are constructed. Crucially, auditing published benchmarks requires examining the open, schema-documented computational substrate on which consensus phenotyping rules and prediction pipelines are routinely reproduced. We therefore evaluate MIMIC-III not to propose a deployable predictive model, but to isolate how retrospective onset conventions, timestamp resolution, and surveillance eligibility shape apparent early warning before cross-institutional variance is introduced.
 
 These findings motivate the central question of this study: \textit{Why do estimates of pre-clinical action opportunity and alert performance diverge across evaluation designs?} We formalize an operational evaluation audit framework across four distinct cascade stages ($S \to V \to O \to D$):
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Incident Target Sepsis ($S$):} Study-defined operational Sepsis-3 onset ($S=1$).
     \item \textbf{Surveillance Protocol Coverage ($V$):} Scheduled monitoring intervals, showing that 63.0\% of episodes develop onset after surveillance ends.
     \item \textbf{Clinical-Process Anchors ($O$):} Evaluability relative to clinical suspicion ($T_{\mathrm{susp}}$) vs. medication order proxies ($T_{\mathrm{Rx,start}}$), proving that high pre-suspicion opportunity ($150/151$, 99.3\%) is largely an algebraic artifact of the discrete 24-hour lookback in first-bin assigned cases ($100/151$, 66.2\%).
     \item \textbf{Emitted-Alert Workload Constraints ($D$):} Operational alert budgets (5, 10, 20 episodes/100 patient-days) with 12-hour suppression, including a maximum observed population yield of 1.72\% at 10 episodes/100 surveillance patient-days.
-\end{enumerate}
+\end{itemize}
 
 \section{Materials and Methods}
 
@@ -115,7 +110,17 @@ Because $0 \le \operatorname{frac}(x_i) < 1$ (dimensionless), first-bin-assigned
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/Figure1_Clocks_and_Opportunity_Waterfall.pdf}
-    \caption{\textbf{Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.} The timeline is schematic; displayed population summaries do not represent a single paired patient trajectory. Eligibility relative to a retrospective suspicion anchor does not establish absence of prior antimicrobial exposure. Panel A depicts the clinical timeline for an ICU-incident sepsis stay, illustrating the discrete search-window lead $G_i = 24\text{h} + h\,\operatorname{frac}(x_i) < 25\text{h}$ for first-bin-assigned episodes ($N=274/408$, 67.2\%; median $+24.2\text{h}$; empirical max $24.99\text{h}$), the anticipation horizon $t \in [22\mathrm{h}, 28\mathrm{h})$, anchor-eligible decision times $\mathcal{A}_i^{(C)}(\delta)$, and the conceptual post-anchor period. Actual model evaluations occur at discrete scored timestamps $t \in \mathcal{T}_i$. Panel B displays population opportunity attrition comparing Broad Historical MIMIC-III (earliest prescription proxy $T_{\mathrm{Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision (suspicion anchor $T_{\mathrm{susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment; this comparison reflects concurrent differences in both cohort selection and anchor definition rather than isolating an anchor effect alone. \textit{Alt-text:} Two-panel diagram displaying schematic timeline clocks and formal risk-set definitions in Panel A, and horizontal bar charts comparing surveillance coverage and treatment-precedence opportunity in Panel B.}
+    \caption{\textbf{Operational Clocks and Anchor-Dependent Evaluation Eligibility in the MIMIC-III MetaVision Cohort.} Panel A: Clinical timeline and evaluation risk sets, designated by milestone markers: 
+\textbf{a}, ICU admission reference origin ($t = 0\mathrm{h}, T_{\mathrm{admit}}$); 
+\textbf{b}, protocol surveillance monitoring window (hours 19--30 post-admission, comprising 12 discrete hourly decision bins); 
+\textbf{c}, operationally assigned consensus Sepsis-3 onset ($T_{\mathrm{S3}} = 28.0\mathrm{h}$; full cohort median 49.0h, surveillance-covered median 28.0h); 
+\textbf{d}, clinical suspicion anchor ($T_{\mathrm{susp}} = 52.0\mathrm{h}$, defined per Seymour et al.~\cite{seymour2016assessment} as $\min(T_{\mathrm{abx,pair}}, T_{\mathrm{culture,pair}})$); 
+\textbf{e}, retrospective search-window lead gap ($G_i = T_{\mathrm{susp}} - T_{\mathrm{S3}} = 24\mathrm{h} + h\,\operatorname{frac}(x_i) < 25\mathrm{h}$), where retrospective lookback flooring structurally guarantees pre-suspicion eligibility in 67.2\% of incident stays; 
+\textbf{f}, 6-hour prediction anticipation horizon ($t \in [22\mathrm{h}, 28\mathrm{h})$, evaluating binary target $Y_i(t; 6\mathrm{h}) = \mathbf{1}\{t < T_{\mathrm{S3}, i} \le t + 6\mathrm{h}\}$); 
+\textbf{g}, pre-suspicion anchor-eligible decision window ($t + \delta \le C_i$; 150 of 151 covered stays, 99.3\%, are eligible under $C_i = T_{\mathrm{susp}}$); 
+\textbf{h}, post-anchor period ($t > C_i$), representing care processes already initiated and censored from prospective early-warning evaluation. 
+Panel B: Population opportunity attrition comparing Broad Historical MIMIC-III ($T_{\mathrm{Rx,start}}$, $N=3,581$) and MIMIC-III MetaVision ($T_{\mathrm{susp}}$, $N=408$), reporting exact stay counts beside each opportunity tier under declared midnight assignment. 
+\textit{Alt-text:} Two-panel diagram displaying schematic timeline clocks designated by callout letters a through h in Panel A, and horizontal bar charts comparing treatment-precedence opportunity across anchors in Panel B.}
     \label{fig:clocks}
 \end{figure}
 
@@ -145,7 +150,10 @@ Importantly, cases and controls used different anchors; differences from canonic
 \subsection{Alert-Budget Operating Frontiers and Refractory Policy}
 To quantify simulated emitted-alert burden, we evaluated fixed alert budgets $q \in \{5.0, 10.0, 20.0\}$ emitted alert episodes per 100 surveillance patient-days, targeting $K = \operatorname{round}(q \cdot E / 100)$ alert episodes across total surveillance exposure $E = \sum_i h_i / 24 = 4,070.8$ patient-days (yielding $K=204, 407, 814$). Because surveillance spans an 11-hour interval ($t \in \{19, \dots, 30\}$), a 12-hour refractory suppression rule guarantees at most one alert episode per patient stay ($N_{\text{episodes}, i} \le 1$), as any alert emitted at $t \in [19, 30]$ silences subsequent alerts past hour 30. Simulating chronological refractory alerts is thus algebraically equivalent to selecting the top $K$ patient stays ranked by their peak surveillance score $\max_{t \in \mathcal{T}_i} s_i(t)$. We report three operational metrics: $\text{Episode PPV} = N_{\text{det}} / K$, $\text{Covered Sensitivity} = N_{\text{det}} / 151$, and $\text{Population Yield} = N_{\text{det}} / 408$, where timely detections $N_{\text{det}}(q, \delta)$ are defined as:
 \begin{equation}
-N_{\text{det}}(q, \delta) = \sum_{i \in \mathcal{S}_{\text{alerted}}(K)} \mathbf{1} \{ S_i = 1 \land Y_i(t_{\mathrm{first}, i}; 6\text{h}) = 1 \land t_{\mathrm{first}, i} + \delta \le C_i \}
+\begin{aligned}
+N_{\text{det}}(q, \delta) = \sum_{i \in \mathcal{S}_{\text{alerted}}(K)} \mathbf{1} \bigl\{ & S_i = 1 \land Y_i(t_{\mathrm{first}, i}; 6\text{h}) = 1 \\
+& \land \; t_{\mathrm{first}, i} + \delta \le C_i \bigr\}
+\end{aligned}
 \end{equation}
 Alerts were selected across the full canonical stream $\mathcal{R}$. Selecting patients by peak score $\max_t s_i(t)$ establishes batch threshold-solving equivalence, with timing adjudicated at first threshold crossing: $t_{\mathrm{first}, i} = \min \{ t \in \mathcal{T}_i : s_i(t) \ge \tau(K) \}$, under deterministic tie-breaking $(-\max_{t} s_i(t), \text{ICUSTAY\_ID})$. Because surveillance-covered sepsis cases are censored at onset (mean 7.87 evaluated bins, vs 10.47 across all 408 sepsis stays) while controls are observed across a mean of 11.91 bins (12 bins for uncensored controls; 180 controls lose 725 windows through observation cessation), differential stay durations introduce multiple-testing duration bias under peak-score aggregation, as characterized by Do et al.~\cite{do2026continuous}.
 
@@ -212,7 +220,7 @@ Figure~\ref{fig:decomp} illustrates the four-stage cumulative population coverag
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/Figure3_Three_Stage_Decomposition.pdf}
-    \caption{\textbf{Cumulative Population Coverage and Anchor-Conditioned Detection.} Stepwise attrition from 408 incident sepsis episodes through surveillance protocol coverage, retrospective suspicion-anchor eligibility, and model-alert policy detection. \textit{Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%).}
+    \caption{\textbf{Cumulative Population Coverage and Alert Detection Cascade.} Stepwise patient attrition across the evaluation cascade: from 408 incident sepsis stays ($100.0\%$), to surveillance protocol coverage ($N=151$, $37.0\%$, with $63.0\%$ onset $>36\mathrm{h}$), retrospective suspicion-anchor eligibility ($N=150$, $36.8\%$, governed by lookback flooring), and timely detection under an operational budget of 10 episodes/100 patient-days ($N=7$, $1.72\%$). \textit{Alt-text:} Four-stage bar chart showing patient opportunity attrition from total incident sepsis (408 patients) to surveillance coverage (151 patients, 37.0\%), suspicion-anchor eligibility (150 patients, 36.8\%), and timely model-alert policy detection (7 patients, 1.72\%).}
     \label{fig:decomp}
 \end{figure}
 
@@ -252,10 +260,10 @@ In this restricted ICU cohort, observed detection yield depended on surveillance
 \noindent\textbf{Authors' Contributions:} AS conceived the study, developed the framework, implemented pipelines, performed experiments, and drafted the manuscript. SA provided academic supervision, contributed to methodological design, critically revised the manuscript, and approved the final draft.
 
 \vspace{0.2em}
-\noindent\textbf{AI Assistance Disclosure:} Large language model and AI interfaces (Perplexity AI and Anthropic/Google AI) were used for peer-review pre-submission auditing, consistency cross-checking, text refinement, and LaTeX typesetting. The authors independently designed and executed all empirical pipelines, models, and bootstrap evaluations, taking full responsibility for integrity and conclusions.
+\noindent\textbf{AI Assistance Disclosure:} Large language model and AI interfaces were used solely for English language text editing, stylistic refinement, and LaTeX typesetting. The authors independently designed and executed all empirical pipelines, models, and bootstrap evaluations, taking full responsibility for the integrity and conclusions of the work.
 
 \vspace{0.2em}
-\noindent\textbf{Code and Data Availability:} Model architectures and frozen weight tensors are archived under analytical commit \texttt{b0932ca}; evaluation pipelines under commit \texttt{1292103}; denominator recomputation under commit \texttt{311cea3}; prior audit packaging under commit \texttt{8f10435}; and the synchronized submission manuscript release under tag \texttt{v1.0.1-freeze}. Preprocessing and evaluation pipelines are available under MIT License at \url{https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox}. De-identified data are available from PhysioNet under MIMIC-III DUA.
+\noindent\textbf{Code and Data Availability:} Model architectures, frozen weight tensors, feature extraction scripts, and evaluation pipelines are archived under institutional version control and are available from the corresponding author upon reasonable request. De-identified clinical data are available from PhysioNet under the MIMIC-III Data Use Agreement.
 
 \clearpage
 \begin{thebibliography}{28}
