@@ -98,7 +98,7 @@ To resolve temporal precision and event ambiguity without conflating orders, int
     \item $T_{\text{admit}, i}$: ICU admission timestamp ($t=0$, reference origin).
     \item $T_{\mathrm{Rx,start}, i}$: Earliest documented systemic antimicrobial order start date across the hospital stay (\texttt{prescriptions.\allowbreak startdate}, calendar date coarsened to midnight 00:00:00; captures admission empiric or prophylactic orders).
     \item $T_{\mathrm{abx,pair}, i}$: Systemic antimicrobial order date participating in the qualifying infection-suspicion pair with blood culture ($[-24\text{h}, +72\text{h}]$ window per Seymour et al.~\cite{seymour2016assessment}).
-    \item $T_{\mathrm{culture,pair}, i}$: Blood culture specimen collection timestamp\\ (\texttt{microbiologyevents.charttime}, minute-level precision).
+    \item $T_{\mathrm{culture,pair}, i}$: Blood culture specimen collection timestamp (\texttt{microbiologyevents.charttime}, minute-level precision).
     \item $T_{\mathrm{susp}, i}$: Operational infection-suspicion anchor, defined per Seymour et al.~\cite{seymour2016assessment} as $\min(T_{\mathrm{abx,pair}},$ $T_{\mathrm{culture,pair}})$.
     \item $T_{\text{S3}, i}$: Operationally assigned Sepsis-3 onset timestamp.
 \end{itemize}

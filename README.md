@@ -1,12 +1,11 @@
 # When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks
 
-[![Target Journal](https://img.shields.io/badge/Target_Journal-JAMIA_Open-003366.svg)](https://academic.oup.com/jamiaopen)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Reproducibility](https://img.shields.io/badge/Reproducibility-Audit_Grade-brightgreen.svg)](#reproducibility-quickstart)
 [![MIMIC-III v1.4](https://img.shields.io/badge/EHR_Database-MIMIC--III_v1.4-lightgrey.svg)](https://physionet.org/content/mimiciii/1.4/)
 
-This repository contains the official analytical audit suite, evaluation pipelines, data ledgers, and publication figures for the manuscript:
+This repository contains the official analytical audit suite, evaluation pipelines, data ledgers, and publication figures for the investigation:
 
 > **"When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks"**  
 > *Alireza Shayan, BSc; Somayeh Afrasiabi, PhD*  
@@ -14,11 +13,11 @@ This repository contains the official analytical audit suite, evaluation pipelin
 
 ---
 
-## 📌 Executive Summary
+## Executive Summary
 
-Machine learning early-warning models for sepsis in intensive care units (ICUs) routinely report high discriminative performance ($\text{AUROC} \ge 0.80$) ahead of consensus onset. However, when deployed at the bedside, systems frequently encounter alert fatigue, low positive predictive value (PPV), and skepticism regarding whether warnings precede meaningful clinical action.
+Machine learning early-warning models for sepsis in intensive care units (ICUs) routinely report high discriminative performance (AUROC ≥ 0.80) ahead of consensus onset. However, when deployed at the bedside, systems frequently encounter alert fatigue, low positive predictive value (PPV), and skepticism regarding whether warnings precede meaningful clinical action.
 
-This investigation provides a rigorous, code-level forensic audit of sepsis early-warning evaluation across **four operational cascade stages ($S \to V \to O \to D$)** using the schema-documented MIMIC-III (v1.4) database ($N=8,254$ adult ICU stays; 97,700 evaluated hourly surveillance windows):
+This investigation provides a rigorous, code-level forensic audit of sepsis early-warning evaluation across **four operational cascade stages ($S \to V \to O \to D$)** using the schema-documented MIMIC-III (v1.4) database ($N = 8,254$ adult ICU stays; 97,700 evaluated hourly surveillance windows):
 
 ```
   Total Incident Sepsis (S)          N = 408 stays (100.0%)
@@ -35,30 +34,35 @@ This investigation provides a rigorous, code-level forensic audit of sepsis earl
 ```
 
 ### Key Methodological & Mathematical Findings:
+
 1. **The Retrospective Lookback Flooring Identity:**  
-   Under consensus Sepsis-3 criteria (Seymour et al., *JAMA* 2016), organ dysfunction is evaluated across $[T_{\mathrm{susp}} - 24\mathrm{h}, T_{\mathrm{susp}} + 12\mathrm{h}]$ relative to suspected infection. In **67.2% of incident stays** (274 of 408) and **66.2% of surveillance-covered stays** (100 of 151), the qualifying $\Delta\text{SOFA} \ge 2$ is first identified at the earliest evaluated search bin ($T_{\mathrm{susp}} - 24\mathrm{h}$). We mathematically prove the resulting operational lead gap:
-   $$G_i = T_{\mathrm{susp}, i} - T_{\text{S3}, i} = 24\mathrm{h} + h\,\operatorname{frac}(x_i) < 25\mathrm{h}$$
+   Under consensus Sepsis-3 criteria (Seymour et al., *JAMA* 2016), organ dysfunction is evaluated across $[T_{\text{susp}} - 24\text{h}, T_{\text{susp}} + 12\text{h}]$ relative to suspected infection. In **67.2% of incident stays** (274 of 408) and **66.2% of surveillance-covered stays** (100 of 151), the qualifying $\Delta\text{SOFA} \ge 2$ is first identified at the earliest evaluated search bin ($T_{\text{susp}} - 24\text{h}$). We mathematically prove the resulting operational lead gap:
+
+   $$G_i = T_{\text{susp}, i} - T_{\text{S3}, i} = 24\text{h} + h \cdot \text{frac}(x_i) < 25\text{h}$$
+
    This structural flooring algebraically guarantees pre-suspicion opportunity in 99.3% of covered stays, reflecting an artifact of the 24-hour lookback convention rather than empirical biological early warning.
+
 2. **The Midnight Date-Coarsening Collapse:**  
-   Prescription start dates standardly lack time of day (`prescriptions.startdate`). When assigned to midnight ($a_i = \text{00:00:00}$), all 408 sepsis stays exhibit documented antimicrobial orders prior to hour 3.83 of admission ($T_{\mathrm{Rx,start}} \le 3.83\mathrm{h}$, median $-12.6\mathrm{h}$). Consequently, all surveillance decisions ($t \ge 19\mathrm{h}$) occur post-prescription, collapsing evaluable pre-treatment cases to strictly **zero** ($N_+^{\mathrm{Rx}} = 0$). Under interval-censored uncertainty $[a_i, b_i]$, pre-treatment opportunity is bounded within $[0.0\%, 31.1\%]$ (vs 99.3% under suspicion).
+   Prescription start dates standardly lack time of day (`prescriptions.startdate`). When assigned to midnight ($a_i = \text{00:00:00}$), all 408 sepsis stays exhibit documented antimicrobial orders prior to hour 3.83 of admission ($T_{\text{Rx,start}} \le 3.83\text{h}$, median $-12.6\text{h}$). Consequently, all surveillance decisions ($t \ge 19\text{h}$) occur post-prescription, collapsing evaluable pre-treatment cases to strictly **zero** ($N_+^{\text{Rx}} = 0$). Under interval-censored uncertainty $[a_i, b_i]$, pre-treatment opportunity is bounded within **[0.0%, 31.1%]** in surveillance-covered stays (and **[0.0%, 11.5%]** cohort-wide), compared to 99.3% under suspicion.
+
 3. **Bedside Workload and Detection Yield:**  
    Across state-space models (BiMamba SSM), tree ensembles (LightGBM, XGBoost, Random Forest), deep transformers, and stacking meta-learners under natural prevalence ($\pi = 0.694\%$) and 12-hour refractory alert suppression:
-   - At an operational alert budget of 10 episodes / 100 patient-days ($K=407$), top models detect **7 distinct patients** ($\text{PPV} = 1.72\%$).
-   - Bedside evaluation workload requires **58.1 evaluations per detected patient** ($\text{NNE} = 58.1$), demonstrating that high offline AUROC does not circumvent clinical alarm burden.
+   - At an operational alert budget of 10 episodes / 100 patient-days ($K = 407$), top models detect **7 distinct patients** (PPV = 1.72%).
+   - Bedside evaluation workload requires **58.1 evaluations per detected patient** (NNE = 58.1), demonstrating that high offline AUROC does not circumvent clinical alarm burden.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 .
 ├── manuscript/
-│   ├── draft_jamia_open_v1.docx      # Clean academic double-spaced manuscript (Word)
+│   ├── draft_jamia_open_v1.docx      # Academic double-spaced manuscript (Word)
 │   ├── draft_jamia_open_v1.md        # Manuscript markdown source
 │   ├── latex/
 │   │   ├── main.tex                  # Primary two-column camera-ready LaTeX source (strictly 8 pages)
 │   │   ├── main.pdf                  # Compiled two-column manuscript
-│   │   ├── main_review_doublespaced.tex  # Review-format double-spaced LaTeX source (24 pages)
+│   │   ├── main_review_doublespaced.tex  # Review-format double-spaced LaTeX source (23 pages)
 │   │   ├── main_review_doublespaced.pdf  # Compiled review manuscript
 │   │   └── figures/                  # Vector PDF and PNG figure assets
 │   └── arxiv/                        # arXiv preprint bundle with public open-science links
@@ -88,7 +92,7 @@ This investigation provides a rigorous, code-level forensic audit of sepsis earl
 
 ---
 
-## 🚀 Reproducibility Quickstart
+## Reproducibility Quickstart
 
 ### 1. Environment Setup
 Clone the repository and set up a Python 3.10+ virtual environment:
@@ -126,7 +130,7 @@ python scripts/verify_time_truncation_invariance.py
 
 ---
 
-## 📊 Summary of Evaluated Architectures
+## Summary of Evaluated Architectures
 
 The benchmark evaluates predictive scores from eight representative model architectures under identical observation streams:
 * **Selective State Space Models:** BiMamba SSM (Gu & Dao, 2024; Liang et al., 2024)
@@ -137,7 +141,7 @@ The benchmark evaluates predictive scores from eight representative model archit
 
 ---
 
-## 📜 Citation
+## Citation
 
 If you use this codebase, audit framework, or findings in your research, please cite:
 
@@ -145,15 +149,14 @@ If you use this codebase, audit framework, or findings in your research, please 
 @article{shayan2026when,
   title={When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks},
   author={Shayan, Alireza and Afrasiabi, Somayeh},
-  journal={Journal of the American Medical Informatics Association (JAMIA Open)},
-  year={2026},
-  note={Under review}
+  journal={arXiv preprint},
+  year={2026}
 }
 ```
 
 ---
 
-## ⚖️ License & Data Access
+## License & Data Access
 
 * **Codebase License:** Distributed under the terms of the [MIT License](LICENSE).
 * **Clinical Data:** Clinical records are sourced from the de-identified **MIMIC-III v1.4** database, hosted by PhysioNet under the PhysioNet Credentialed Data Use Agreement. Users must complete human subjects training (CITI Program) and obtain institutional approval through PhysioNet to access the underlying patient records.
