@@ -1,12 +1,15 @@
 # Supplementary Material
 
-**Title:** Surveillance Coverage, Treatment Precedence, and Workload Constraints in Machine Learning Early Warning for Sepsis: An Operational Evaluation  
-**Authors:** Alireza Shayan$^1$, Somayeh Afrasiabi$^1$  
+**Title:** When Does Sepsis Prediction Precede Treatment? Retrospective Onset Mechanics, EHR Timelines, and Bedside Alert Workload in ICU Benchmarks  
+**Authors:**  
+**Alireza Shayan**, BSc$^1$ (Emails: Ali404@hafez.shirazu.ac.ir, alirshayan@gmail.com)  
+**Somayeh Afrasiabi**, PhD$^{1,*}$ (Email: afrasiabi@shirazu.ac.ir)  
 $^1$ Department of Computer Science and Engineering & IT, School of Electrical and Computer Engineering, Shiraz University, Shiraz, Iran  
-*(Corresponding Author: Somayeh Afrasiabi, afrasiabi@shirazu.ac.ir)*  
+*Corresponding Author:* Somayeh Afrasiabi, PhD  
+**Code & Evaluation Repository:** https://github.com/AlieShayan/Sepsis-Onset-Timing-Paradox  
 **Target Journal:** *JAMIA Open*  
 **Track:** Research and Applications  
-**Analytical Release Provenance:** Model/data freeze commit `b0932ca` (Release Manifest `1.0.0-freeze`); evaluation implementation `1292103`; denominator recomputation `311cea3`; submission packaging commit `9b92113`, tag `v1.0.1-freeze`.  
+**Analytical Release Provenance:** Release Manifest `1.0.1-freeze`; evaluation implementation `1292103`; denominator recomputation `311cea3`; synchronized release commit `e7a9085`.  
 
 ---
 
@@ -199,10 +202,10 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
      When an acute increase $\Delta\text{SOFA} \ge 2$ is first observed at this lookback boundary bin (which occurred in 67.2% of incident sepsis stays; $N=274/408$), $T_{\mathrm{S3}}$ is assigned as the start of that hourly bin relative to admission:
      $$T_{\mathrm{S3}, i} = T_{\text{admit}, i} + \text{baseline\_start\_h}_i \times 1\text{ hour}$$
      Consequently, the operational search-window lead is:
-     $$T_{\mathrm{susp}, i} - T_{\mathrm{S3}, i} = 24.0\text{h} + h\,\operatorname{frac}(x_i) < 25.0\text{h}$$
+     $$T_{\mathrm{susp}, i} - T_{\mathrm{S3}, i} = 24.0\text{h} + h \cdot \text{frac}(x_i) < 25.0\text{h}$$
      where $h = 1\text{ hour}$ and $x_i = (T_{\mathrm{susp}, i} - 24h - T_{\text{admit}, i})/h$. The search window ends at the floored hourly integer:
      $$\text{window\_end\_h}_i = \left\lfloor \frac{T_{\mathrm{susp}, i} + 12h - T_{\text{admit}, i}}{h} \right\rfloor$$
-     Because the upper boundary bin is floored, evaluated hours never exceed $T_{\mathrm{susp}} + 12h$, strictly guaranteeing $T_{\mathrm{susp}, i} - T_{\text{S3}, i} \ge -12.0h$ (empirical minimum: $-11.2h$). Because $0 \le \operatorname{frac}(\cdot) < 1$, this hourly binning yields an exact analytical bound of $-12.0\text{h} \le T_{\mathrm{susp}, i} - T_{\text{S3}, i} < 25.0\text{h}$ (analytical supremum $25.0\text{h}$), explaining why the empirical cohort distribution exhibits a median of $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$). Across all 274 boundary stays, the difference between $T_{\mathrm{susp}} - T_{\text{S3}}$ and $24.0 + h\,\operatorname{frac}(x_i)$ is identically zero ($< 10^{-13}\text{h}$). In 274 of 408 episodes, the assigned onset coincided with the first evaluated search bin. Consequently, onset timing and derived warning intervals were sensitive to the search-window boundary and bin-assignment convention and should not be interpreted as directly observed biological onset.
+     Because the upper boundary bin is floored, evaluated hours never exceed $T_{\mathrm{susp}} + 12h$, strictly guaranteeing $T_{\mathrm{susp}, i} - T_{\text{S3}, i} \ge -12.0h$ (empirical minimum: $-11.2h$). Because $0 \le \text{frac}(\cdot) < 1$, this hourly binning yields an exact analytical bound of $-12.0\text{h} \le T_{\mathrm{susp}, i} - T_{\text{S3}, i} < 25.0\text{h}$ (analytical supremum $25.0\text{h}$), explaining why the empirical cohort distribution exhibits a median of $+24.2\text{h}$ (IQR: $22.8\text{h}$ to $24.6\text{h}$; range: $-11.2\text{h}$ to $+24.99\text{h}$). Across all 274 boundary stays, the difference between $T_{\mathrm{susp}} - T_{\text{S3}}$ and $24.0 + h \cdot \text{frac}(x_i)$ is identically zero ($< 10^{-13}\text{h}$). In 274 of 408 episodes, the assigned onset coincided with the first evaluated search bin. Consequently, onset timing and derived warning intervals were sensitive to the search-window boundary and bin-assignment convention and should not be interpreted as directly observed biological onset.
 
 3. **Complete 24-Class Antimicrobial Dictionary and Normalization Rules:**
    Qualifying systemic antimicrobials were identified across 24 pharmacological classes from BIDMC hospital formulary records in `prescriptions`:
@@ -266,12 +269,12 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 ### S1.6 Patient-Clustered Paired Bootstrap and Boundary Tie-Breaking
 1. **Clustered Bootstrap Resampling:** Resampling was performed at the unique ICU stay level (`ICUSTAY_ID`, $B = 1,000$ iterations) to preserve within-patient temporal dependencies.
 2. **Preservation of Multiplicity:** Duplicate selections of the same patient within a resample were indexed via an integer `copy_idx` ($0, 1, \dots$), maintaining identical exposure and alert multiplicity.
-3. **Dynamic Exposure Recomputation (Procedure B):** In each resample $b$, surveillance exposure was computed as $E_b = \frac{1}{24}\sum_{i \in b} h_i$, and the alert quota was dynamically recalculated as $K_b = \operatorname{round}(q \cdot E_b / 100)$.
+3. **Dynamic Exposure Recomputation (Procedure B):** In each resample $b$, surveillance exposure was computed as $E_b = \frac{1}{24}\sum_{i \in b} h_i$, and the alert quota was dynamically recalculated as $K_b = \text{round}(q \cdot E_b / 100)$.
 4. **Deterministic Float64 Tie-Breaking Rule:** Patients were prioritized using the lexicographical key:
    $$\mathcal{B} = \bigl( -\max_{t} s_i(t), \;\text{ICUSTAY\_ID}, \;\text{copy\_idx} \bigr)$$
 5. **First-Alert Selection Predicate:** Detection timing was evaluated strictly at the first eligible threshold crossing:
-   $$t_{\mathrm{first}, i} = \min \bigl\{ t \in \mathcal{T}_i : \operatorname{Elig}_i(t; \tau, \mathcal{B}) = 1 \bigr\}$$
-   where $\operatorname{Elig}_i(t; \tau, \mathcal{B}) = \mathbf{1}\{i \in \mathcal{S}_{\text{alerted}}(K) \;\land\; s_i(t) \ge \tau\}$.
+   $$t_{\mathrm{first}, i} = \min \bigl\{ t \in \mathcal{T}_i : \text{Elig}_i(t; \tau, \mathcal{B}) = 1 \bigr\}$$
+   where $\text{Elig}_i(t; \tau, \mathcal{B}) = \mathbf{1}\{i \in \mathcal{S}_{\text{alerted}}(K) \;\land\; s_i(t) \ge \tau\}$.
 6. **Exact Reciprocal NNE Intervals:** For each resample, NNE was calculated as $\text{Alerts} / \text{Detections}$. Percentile confidence intervals were computed via exact reciprocal transformation of unrounded PPV percentiles ($\text{NNE}_{\text{low}} = 100 / \text{PPV}_{\text{upper}}$, $\text{NNE}_{\text{high}} = 100 / \text{PPV}_{\text{low}}$), setting $\text{NNE}_{\text{high}} = +\infty$ when $\text{PPV}_{\text{low}} = 0$.
 
 ---
@@ -314,7 +317,7 @@ The Sepsis-3 clinical consensus phenotype was implemented programmatically as a 
 
 ## Table S3A: Authoritative Operational Alert-Budget Workload Under 12h Refractory Policy
 
-*Directly serialized from canonical `reports/tables/Table3_Alert_Budget_Refractory_Workload.csv` under Procedure B (Empirical Burden-Matched Bootstrap, $B=1,000$). At each resample, exposure $E_b = \frac{1}{24}\sum h_i$ is dynamically recomputed to adjust the target alert count $K_b = \operatorname{round}(q \cdot E_b / 100)$. Secondary key sorting `[-max_score, ICUSTAY_ID, copy_idx]` preserves bootstrap multiplicity. Detections evaluated at first eligible alert $t_{\mathrm{first}, i} = \min \{ t \in \mathcal{T}_i : \operatorname{Elig}_i(t; \tau, \mathcal{B}) = 1 \}$ where $\operatorname{Elig}_i(t; \tau, \mathcal{B}) = \mathbf{1}\{i \in \mathcal{S}_{\text{alerted}}(K) \;\land\; s_i(t) \ge \tau\}$.*
+*Directly serialized from canonical `reports/tables/Table3_Alert_Budget_Refractory_Workload.csv` under Procedure B (Empirical Burden-Matched Bootstrap, $B=1,000$). At each resample, exposure $E_b = \frac{1}{24}\sum h_i$ is dynamically recomputed to adjust the target alert count $K_b = \text{round}(q \cdot E_b / 100)$. Secondary key sorting `[-max_score, ICUSTAY_ID, copy_idx]` preserves bootstrap multiplicity. Detections evaluated at first eligible alert $t_{\mathrm{first}, i} = \min \{ t \in \mathcal{T}_i : \text{Elig}_i(t; \tau, \mathcal{B}) = 1 \}$ where $\text{Elig}_i(t; \tau, \mathcal{B}) = \mathbf{1}\{i \in \mathcal{S}_{\text{alerted}}(K) \;\land\; s_i(t) \ge \tau\}$.*
 
 | Prespecified Alert Budget | Model Architecture | Operating Threshold ($\tau$) | Emitted Alert Episodes | Emitted Rate (/100 pt-days) | Episode PPV % [95% CI] | True Positive Sepsis Detections | Pretreatment Detections ($\delta=0\text{h}$) | Pretreatment Detections ($\delta=2\text{h}$) | Detection Sensitivity in Covered % [95% CI] | Overall Sepsis Detection Yield % [95% CI] | NNE per Detected Patient [95% CI] | Zero-Detection Fraction ($f_0$) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
