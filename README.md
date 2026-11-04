@@ -67,17 +67,15 @@ This investigation provides a rigorous, code-level forensic audit of sepsis earl
 │   ├── figures/                      # High-resolution (300 DPI) publication figures
 │   │   ├── Figure1_Clocks_and_Opportunity_Waterfall.{pdf,png}
 │   │   ├── Figure2_Operational_Alert_Budget_Frontier.{pdf,png}
-│   │   ├── Figure3_Three_Stage_Decomposition.{pdf,png}
-│   │   └── Figure1_Vertical_Prototype.{pdf,png}
+│   │   └── Figure3_Three_Stage_Decomposition.{pdf,png}
 │   └── tables/                       # Ground-truth summary tables & ledgers
 │       ├── Table1_Cohort_Progression_Ledger.csv
-│       ├── Table2_Cross_Anchor_Discrimination.csv
+│       ├── Table2_Pretreatment_Sepsis_Benchmark_CI.csv
 │       ├── Table3_Alert_Budget_Refractory_Workload.csv
-│       └── Table4_Two_Axis_Opportunity_Matrix.csv
+│       └── Table4_Two_Axis_Subgroup_Uncertainty_Matrix.csv
 ├── scripts/
 │   ├── figures/
-│   │   ├── generate_jamia_figures.py # Regenerates Figures 1, 2, and 3 from summary tables
-│   │   └── prototype_vertical_figure1.py # Regenerates vertical timeline prototype
+│   │   └── generate_jamia_figures.py # Regenerates Figures 1, 2, and 3 from summary tables
 │   └── metrics/
 │       ├── compute_alert_budget_and_refractory.py # Table 3 workload & NNE calculations
 │       ├── compute_interval_censored_bounds.py    # Table 4 interval bounds [a_i, b_i]

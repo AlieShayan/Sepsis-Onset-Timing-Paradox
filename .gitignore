@@ -22,4 +22,11 @@ data/raw/
 .DS_Store
 *.swp
 .ipynb_checkpoints/
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
 *.synctex.gz
